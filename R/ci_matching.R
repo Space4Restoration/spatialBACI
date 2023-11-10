@@ -1,11 +1,11 @@
 #Author: Jasper Van doninck
-#Date: Nevember 2023
+#Date: November 2023
 
-matchCI <- function(cands, matchlyrs, eval=FALSE, ...){
+matchCI <- function(cands, matchlyrs, eval=FALSE, cols=c("subclass", "x", "y", "treatment"), ...){
   
   ##  Match control-impact pairs
   ##
-  ##  For now only raster, vector still to do
+  ##  For now only raster, vector/tabular to do
   ##  
   ##  cands: Control-Impact candidates - SpatRaster - 0=control, 1=impact, NA=exclude
   ##  matchlyrs: multilayer SpatRaster (same geometry as CI_cand) of matching variables
@@ -33,6 +33,7 @@ matchCI <- function(cands, matchlyrs, eval=FALSE, ...){
   #Run MatchIt
   m.out <- matchit(frm, dt, ...)
 
+  #Interactive evaluation of matching
   if(isTRUE(eval)){
     print(m.out)
     readline(prompt = "Press <Enter> to continue.")
@@ -48,11 +49,62 @@ matchCI <- function(cands, matchlyrs, eval=FALSE, ...){
   }
 
   #Extract the matched dataset
-  #m.data <- match.data(m.out2)
-  m.data <- get_matches(m.out)[c("subclass", "x", "y", "treatment")] %>%
-    as.data.table()
+  m.data <- get_matches(m.out)[cols] %>% as.data.table()
   
   return(m.data)
 }
+
+matchCandidates <- function(x, y, 
+                            excludeBufferIn=0,
+                            excludeBufferOut=0,
+                            excludeOther=NULL){
+  #
+  #
+  # Create the SpatRaster layer from which Impact and Control pixels will be extracted
+  #
+  # Arguments:
+  #   x                 SpatVector: polygon of "impact" area  
+  #   y                 SpatRaster: reference geometry
+  #   excludeBufferIn   Numeric: Buffer (in m) inside polygon to be excluded
+  #   excludeBufferOut  Numeric: Buffer (in m) outside polygon to be excluded
+  #   excludeOther:     SpatVector: other areas to be excluded
+  #
+  # Output:
+  #   SpatRaster object with candidate impact pixels labeled as 1, control pixels as 0, and excluded pixels as NA
+  #
+  # Notes:
+  #   For now only works with vector impact and raster reference, other tabular/vector/raster combinations still to be implemented
+  
+  require(terra)
+  
+  #Project x to geometry of y
+  x <- project(x,y)
+  #Rasterize x
+  x_ras <- rasterize(x,y, background=0)
+  
+  #Define inner and outer buffers
+  if(excludeBufferIn>0 | excludeBufferOut>0){
+    buf_o <- buffer(x, width=excludeBufferOut) %>% rasterize(y, background=0)
+    buf_i <- buffer(x, width=-excludeBufferIn) %>% rasterize(y, background=0)
+    buf_c <- buf_o-buf_i
+    x_ras <- mask(x_ras, buf_c, maskvalues=1, updatevalue=NA)
+  }
+  #Exclude other areas
+  if(!is.null(excludeOther)){
+    exc <- project(excludeOther, y) %>%
+      crop(y) %>%
+      rasterize(y, background=0)
+    x_ras <- mask(x_ras, exc, maskvalues=1, updatevalue=NA)
+    
+  }
+  return(x_ras)
+}
+
+
+
+
+
+
+
 
 
