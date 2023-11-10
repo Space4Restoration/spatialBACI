@@ -1,9 +1,10 @@
 #Author: Jasper Van doninck
-#Date: July 2023
+#Last change: Nov 2023
 
 
 
-CI_calc <- function(data, SpatRef=NULL){
+##  Calculate (BA)CI contrast and p-value
+CI_contrast <- function(data, SpatRef=NULL){
   ####  CI_calc
   ####
   ####  Control-Impact evaluation calculation
@@ -78,8 +79,7 @@ CI_calc <- function(data, SpatRef=NULL){
   return(CI_out)
 }
 
-
-BACI_calc <- function(data, SpatRef=NULL){
+BACI_contrast <- function(data, SpatRef=NULL){
   ####  CI_calc
   ####
   ####  Before-After-Control-Impact evaluation calculation
@@ -108,8 +108,12 @@ BACI_calc <- function(data, SpatRef=NULL){
 
 
 #TO DO
-#implementation of Wauchope et al. (2021) - see SI
+#_____
 
+#in BACI_contrast: provide option to use cell nr/id instead of x/y to refer to position in SpatRaster
+
+
+#implementation of Wauchope et al. (2021) - SI
 # before-after on average
 #BA_avg <- function(...){}
 

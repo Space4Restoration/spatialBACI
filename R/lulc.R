@@ -1,6 +1,8 @@
 #Author: Jasper Van doninck
 #Date: July 2023
 
+#TO DO: crop to extent if x is not spatRAster
+
 lulc <- function(x, year, source='io-lulc-9-class', xy=TRUE, authOpt=list()){
   
   library(terra)
@@ -11,7 +13,7 @@ lulc <- function(x, year, source='io-lulc-9-class', xy=TRUE, authOpt=list()){
   } else if(class(x)=="numeric"){
     extent <- ext(x, xy=xy)
   }
-  bbox <- extent[c(1,3,2,4)]
+  #bbox <- extent[c(1,3,2,4)]
 
   if(source=='io-lulc-9-class'){
     if(year<2017){
@@ -29,7 +31,7 @@ lulc <- function(x, year, source='io-lulc-9-class', xy=TRUE, authOpt=list()){
       get_request()
     items <- do.call(sign_featureCollection, c(list(featureCollection=items, endpoint=endpoint), authOpt))
     
-    if(length(items$features)==1) r <- assets2vrt(items, "data") else r <- assets2rast(items$features[[1]], "data")
+    if(length(items$features)>1) r <- assets2vrt(items, "data") else r <- assets2rast(items$features[[1]], "data")
     names(r) <- source
 
     cls <- as.data.frame(do.call(rbind, lapply(feature$assets$data$`file:values`, unlist)))
