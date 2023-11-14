@@ -1,0 +1,18 @@
+Package: EnvImpactEval
+Type: Package
+Title: Tools for Ecosystem Conservation and Restoration Impact Assessment 
+Version: 0.0.1
+Author: Jasper Van doninck
+Maintainer: Jasper Van doninck <j.vandoninck@utwente.nl>
+Depends:
+    R (>= 4.3.0),
+    terra,
+    methods
+Imports:
+    MatchIt,
+    sf
+Description: EO-based Tools to Evaluate the Impact of Conservation or Restoration Actions on Ecosystems, based on counterfactual matching analysis. 
+License: GPL (>= 3)
+Encoding: UTF-8
+LazyData: true
+RoxygenNote: 7.2.3

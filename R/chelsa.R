@@ -26,35 +26,35 @@ chelsa2rast <- function(product="climatologies", period="1981-2010", data="bio",
   return(chelsa_rast)
 }
 
-
-setGeneric("chelsa", function(x, ...) standardGeneric("chelsa"))
-
-setMethod("gfc", signature="SpatExtent",
-          function(x, CRS, product="climatologies", period="1981-2010", data="bio", layers=paste0("bio",c(1:19)), version="2.1", ...){
-            chelsa_rast <- chelsa2rast(product=product, period=period, data=data, layers=layers, version=version)
-            
-            if(!missing(CRS)) x <- terra:project(x, CRS, crs(chelsa_rast))
-            chelsa_x <- terra::crop(chelsa_rast, x, ...)
-            return(chelsa_x)
-          }
-)
-
-setMethod("gfc", signature="SpatRaster",
-          function(x, product="climatologies", period="1981-2010", data="bio", layers=paste0("bio",c(1:19)), version="2.1", ...){
-            chelsa_rast <- chelsa2rast(product=product, period=period, data=data, layers=layers, version=version)
-            
-            chelsa_x <- terra::project(chelsa_rast, x, ...)
-            return(x)
-          }
-)
-
-setMethod("gfc", signature="SpatRaster",
-          function(x, product="climatologies", period="1981-2010", data="bio", layers=paste0("bio",c(1:19)), version="2.1", 
-                   fun=mean, bind=TRUE, na.rm=TRUE, ...){
-            chelsa_rast <- chelsa2rast(product=product, period=period, data=data, layers=layers, version=version)
-            
-            chelsa_x <- terra::extract(chelsa_rast, terra::project(x, chelsa_rast), fun=fun, bind=bind, na.rm=ra.rm, ...)
-            return(chelsa_x)
-          }
-)
-
+# 
+# setGeneric("chelsa", function(x, ...) standardGeneric("chelsa"))
+# 
+# setMethod("gfc", signature="SpatExtent",
+#           function(x, CRS, product="climatologies", period="1981-2010", data="bio", layers=paste0("bio",c(1:19)), version="2.1", ...){
+#             chelsa_rast <- chelsa2rast(product=product, period=period, data=data, layers=layers, version=version)
+#             
+#             if(!missing(CRS)) x <- terra:project(x, CRS, crs(chelsa_rast))
+#             chelsa_x <- terra::crop(chelsa_rast, x, ...)
+#             return(chelsa_x)
+#           }
+# )
+# 
+# setMethod("gfc", signature="SpatRaster",
+#           function(x, product="climatologies", period="1981-2010", data="bio", layers=paste0("bio",c(1:19)), version="2.1", ...){
+#             chelsa_rast <- chelsa2rast(product=product, period=period, data=data, layers=layers, version=version)
+#             
+#             chelsa_x <- terra::project(chelsa_rast, x, ...)
+#             return(x)
+#           }
+# )
+# 
+# setMethod("gfc", signature="SpatRaster",
+#           function(x, product="climatologies", period="1981-2010", data="bio", layers=paste0("bio",c(1:19)), version="2.1", 
+#                    fun=mean, bind=TRUE, na.rm=TRUE, ...){
+#             chelsa_rast <- chelsa2rast(product=product, period=period, data=data, layers=layers, version=version)
+#             
+#             chelsa_x <- terra::extract(chelsa_rast, terra::project(x, chelsa_rast), fun=fun, bind=bind, na.rm=ra.rm, ...)
+#             return(chelsa_x)
+#           }
+# )
+# 

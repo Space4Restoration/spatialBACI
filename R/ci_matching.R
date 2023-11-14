@@ -1,23 +1,27 @@
-#Author: Jasper Van doninck
-#Date: November 2023
-
+#' Control-impact matching
+#' 
+#' Match control units to impact units
+#' 
+#' This function uses the provided matching layers to match the provided candidate and impact units 
+#' using the MatchIt package and the matching options provided therein.
+#' 
+#' @export matchCI
+#' @import data.table
+#' @import MatchIt
+#' @importFrom terra compareGeom names
+#' @param cands Control-Impact candidates - SpatRaster - 0=control, 1=impact, NA=exclude
+#' @param matchlyrs multilayer SpatRaster (same geometry as CI_cand) of matching variables
+#' @param eval should matching be evaluated, return NULL if matching is rejected
+#' @param cols columns to be returned in the data table
+#' @param ... additional inputs to matchit function
+#' @returns data table with matched control-impact units
 matchCI <- function(cands, matchlyrs, eval=FALSE, cols=c("subclass", "x", "y", "treatment"), ...){
-  
-  ##  Match control-impact pairs
-  ##
-  ##  For now only raster, vector/tabular to do
-  ##  
-  ##  cands: Control-Impact candidates - SpatRaster - 0=control, 1=impact, NA=exclude
-  ##  matchlyrs: multilayer SpatRaster (same geometry as CI_cand) of matching variables
-  ##  eval: evaluate matching, return NULL if matching is rejected
-  ##  ... additional inputs to matchit
-  ##
-  ##  TO DO: subset of potential control (/impact) pixels before matching for large areas?
-  ##  TO DO: check if matchlyrs has names, add default names (e.g. 1:n) if not
-  ##
-  
-  library(MatchIt)
-  
+
+  #TODO
+  # For now only for raster, vector/tabular to do
+  # subset of potential control (/impact) pixels before matching for large areas?
+  # check if matchlyrs has names, add default names (e.g. 1:n) if not
+
   #Stop if geometries do not match
   if(!compareGeom(cands, matchlyrs)) stop("Geometries do not match")
   
@@ -54,28 +58,32 @@ matchCI <- function(cands, matchlyrs, eval=FALSE, cols=c("subclass", "x", "y", "
   return(m.data)
 }
 
+
+#' Matching candidates
+#' 
+#' Identifies control-impact candidates for matching.
+#' 
+#' This function creates a raster object in which candidate impact pixels are labeled as 1,
+#' candidate control pixels labeled as 0, and excluded pixels as NA.
+#' 
+#' @export matchCandidates
+#' @import data.table
+#' @import MatchIt
+#' @importFrom terra project rasterize buffer mask crop
+#' @param x SpatVector: polygon of "impact" area
+#' @param x SpatRaster: reference geometry
+#' @param excludeBufferIn Numeric: Buffer (in m) inside polygon to be excluded
+#' @param excludeBufferOut Numeric: Buffer (in m) outside polygon to be excluded
+#' @param excludeOther SpatVector: other areas to be excluded
+#' 
+#' @returns SpatRaster object with candidate impact, control and excluded pixels 
+#' 
 matchCandidates <- function(x, y, 
                             excludeBufferIn=0,
                             excludeBufferOut=0,
                             excludeOther=NULL){
-  #
-  #
-  # Create the SpatRaster layer from which Impact and Control pixels will be extracted
-  #
-  # Arguments:
-  #   x                 SpatVector: polygon of "impact" area  
-  #   y                 SpatRaster: reference geometry
-  #   excludeBufferIn   Numeric: Buffer (in m) inside polygon to be excluded
-  #   excludeBufferOut  Numeric: Buffer (in m) outside polygon to be excluded
-  #   excludeOther:     SpatVector: other areas to be excluded
-  #
-  # Output:
-  #   SpatRaster object with candidate impact pixels labeled as 1, control pixels as 0, and excluded pixels as NA
-  #
-  # Notes:
-  #   For now only works with vector impact and raster reference, other tabular/vector/raster combinations still to be implemented
-  
-  require(terra)
+  #TODO:  
+  # For now only works with vector impact and raster reference, other tabular/vector/raster combinations still to be implemented
   
   #Project x to geometry of y
   x <- project(x,y)
@@ -99,12 +107,3 @@ matchCandidates <- function(x, y,
   }
   return(x_ras)
 }
-
-
-
-
-
-
-
-
-

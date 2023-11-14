@@ -1,22 +1,19 @@
-#Author: Jasper Van doninck
-#Last change: Nov 2023
-
-
-
-##  Calculate (BA)CI contrast and p-value
+#' Control-Impact contrast
+#' 
+#' Calculate the Control-Impact contrast and p-value
+#' 
+#' After [del Rio] and [add reference]
+#' 
+#' @export
+#' @import data.table
+#' @import terra
+#' @param data data.table
+#' @param SpatRef SpatRaster
+#' @returns data.table
 CI_contrast <- function(data, SpatRef=NULL){
-  ####  CI_calc
-  ####
-  ####  Control-Impact evaluation calculation
-  ####
-  ####
-  ####
-  
   #TO DO: output as SpatVector
-  
-  
+
   ##  Coerce "data" to data.table
-  require(data.table)
   if(!is.data.table(data)) data <- as.data.table(data)
   
   ##  Check columns
@@ -79,6 +76,18 @@ CI_contrast <- function(data, SpatRef=NULL){
   return(CI_out)
 }
 
+#' Before-After-Control-Impact contrast
+#' 
+#' Calculate the Control-Impact contrast and p-value
+#' 
+#' After [del Rio] and [add reference]
+#' 
+#' @export
+#' @import data.table
+#' @import terra
+#' @param data data.table
+#' @param SpatRef SpatRaster
+#' @returns data.table
 BACI_contrast <- function(data, SpatRef=NULL){
   ####  CI_calc
   ####
@@ -109,22 +118,13 @@ BACI_contrast <- function(data, SpatRef=NULL){
 
 #TO DO
 #_____
-
 #in BACI_contrast: provide option to use cell nr/id instead of x/y to refer to position in SpatRaster
-
-
 #implementation of Wauchope et al. (2021) - SI
 # before-after on average
 #BA_avg <- function(...){}
-
 # before-after-control-impact on average
 #BACI_avg <- function{...}{}
-
 # before-after on trend+immediate
 #BA_ti <- function{...}{}
-
 #before-after-control-impact on trend+immediate
 #BACI_ti <- function{...}{}
-
-
-

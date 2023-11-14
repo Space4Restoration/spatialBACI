@@ -30,7 +30,7 @@ stac_endpoint <- function(name){
   if(x$type=="Feature"){
     collection <- x$collection
   } else if (x$type=="FeatureCollection"){
-    collection <- sapply(x, function(z){z$collection}) %>%
+    collection <- sapply(x$features, function(z){z$collection}) %>%
       as.factor() %>%
       levels()
     if(length(collection)>1) stop('Multiple collection IDs in FeatureCollection')
