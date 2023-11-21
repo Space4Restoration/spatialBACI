@@ -89,7 +89,7 @@ setMethod("utm_zone", signature("numeric", "numeric"),
 # )
 
 #' @rdname utm_zone
-#' @importFrom terra centroids geom project
+#' @import terra
 #' @aliases utm_zone,SpatVector,missing,logical-method
 setMethod("utm_zone", signature(x='SpatVector', y='missing'),
           function(x, proj4string) {

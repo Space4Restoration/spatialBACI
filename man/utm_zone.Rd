@@ -4,8 +4,6 @@
 \alias{utm_zone}
 \alias{utm_zone,numeric,numeric-method}
 \alias{utm_zone,numeric,numeric,logical-method}
-\alias{utm_zone,Spatial,missing-method}
-\alias{utm_zone,Spatial,missing,logical-method}
 \alias{utm_zone,SpatVector,missing-method}
 \alias{utm_zone,SpatVector,missing,logical-method}
 \title{Given a spatial object, calculate the UTM zone of the centroid}
@@ -13,8 +11,6 @@
 utm_zone(x, y, proj4string = FALSE)
 
 \S4method{utm_zone}{numeric,numeric}(x, y, proj4string = FALSE)
-
-\S4method{utm_zone}{Spatial,missing}(x, proj4string)
 
 \S4method{utm_zone}{SpatVector,missing}(x, proj4string)
 }

@@ -26,7 +26,7 @@ matchCI <- function(cands, matchlyrs, eval=FALSE, cols=c("subclass", "x", "y", "
   if(!compareGeom(cands, matchlyrs)) stop("Geometries do not match")
   
   #Prepare data.table for matching
-  terra::names(cands) <- "treatment"
+  names(cands) <- "treatment"
   dt <- cbind(as.data.table(cands, na.rm=FALSE, xy=TRUE),
               as.data.table(matchlyrs, na.rm=FALSE))
   dt <- na.omit(dt)
@@ -69,7 +69,7 @@ matchCI <- function(cands, matchlyrs, eval=FALSE, cols=c("subclass", "x", "y", "
 #' @export matchCandidates
 #' @import data.table
 #' @import MatchIt
-#' @importFrom terra project rasterize buffer mask crop
+#' @import terra
 #' @param x SpatVector: polygon of "impact" area
 #' @param x SpatRaster: reference geometry
 #' @param excludeBufferIn Numeric: Buffer (in m) inside polygon to be excluded
