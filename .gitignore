@@ -1,3 +1,6 @@
 EnvImpactEval.Rproj
 .Rproj.user/
+.Rbuildignore
+.Rhistory
+deprecated/
 
