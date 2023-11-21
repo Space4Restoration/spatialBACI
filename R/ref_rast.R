@@ -36,7 +36,7 @@ setMethod("ref_rast", signature(x='SpatVector', y='missing'),
             
             if(!isFALSE(round_coords)){
               if(isTRUE(round_coords)) round_coords <- 0
-              extent <- round(extent, round_coords)
+              extent <- terra:::round(extent, round_coords)
             }
             
             return(rast(extent=extent, crs=crs, resolution=resolution, ...))
