@@ -36,6 +36,7 @@ assets2rast <- function(feature, assets, as_list=FALSE){
 #' @seealso [\code{\link{assets2rast}}]
 #' @export
 #' @import terra
+#' @importFrom terra names
 #' 
 #' @param feature a STAC feature: list element of STACItemCollection$features
 #' @param assets character vector of assets names to extract
@@ -52,7 +53,7 @@ assets2vrt <- function(featureCollection, assets, as_list=FALSE){
     URLs <- sapply(featureCollection$features, function(x){x$assets[[asset]]$href})
     URLs <- paste0("/vsicurl/", URLs)
     asset_vrt <- vrt(URLs)
-    names(asset_vrt) <- asset
+    terra::names(asset_vrt) <- asset
     scoff(asset_vrt) <- NULL
     return(asset_vrt)
   }

@@ -5,6 +5,7 @@
 #' 
 #' @export ref_rast
 #' @import methods
+#' @import terra
 #' @param x longitude (with western hemisphere longitudes negative) or a \code{SpatVector} object
 #' @param y latitude (with southern hemisphere latitudes negative), or missing (if x is a \code{SpatVector} object)
 #' @param crs description of the Coordinate Reference System in PROJ.4, WKT or authority:code notation.
@@ -23,7 +24,6 @@ setGeneric("ref_rast", function(x, y, crs, resolution, buffer=0, round_coords=FA
 })
 
 #' @rdname ref_rast
-#' @importFrom terra rast ext project extend round
 #' @aliases ref_rast,SpatVector,missing-method
 setMethod("ref_rast", signature(x='SpatVector', y='missing'),
           function(x, crs, resolution, buffer=0, round_coords=FALSE, ...) {
@@ -45,7 +45,6 @@ setMethod("ref_rast", signature(x='SpatVector', y='missing'),
 )
 
 #' @rdname ref_rast
-#' @importFrom terra rast ext project extend round
 #' @aliases ref_rast,numeric,numeric-method
 setMethod("ref_rast", signature(x='numeric', y='numeric'),
           function(x, y, crs, resolution, buffer=0, round_coords=FALSE, ...) {

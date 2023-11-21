@@ -8,7 +8,7 @@
 #' @export matchCI
 #' @import data.table
 #' @import MatchIt
-#' @importFrom terra compareGeom names
+#' @import terra
 #' @param cands Control-Impact candidates - SpatRaster - 0=control, 1=impact, NA=exclude
 #' @param matchlyrs multilayer SpatRaster (same geometry as CI_cand) of matching variables
 #' @param eval should matching be evaluated, return NULL if matching is rejected
@@ -26,7 +26,7 @@ matchCI <- function(cands, matchlyrs, eval=FALSE, cols=c("subclass", "x", "y", "
   if(!compareGeom(cands, matchlyrs)) stop("Geometries do not match")
   
   #Prepare data.table for matching
-  names(cands) <- "treatment"
+  terra::names(cands) <- "treatment"
   dt <- cbind(as.data.table(cands, na.rm=FALSE, xy=TRUE),
               as.data.table(matchlyrs, na.rm=FALSE))
   dt <- na.omit(dt)
