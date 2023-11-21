@@ -30,7 +30,7 @@ lulc2rast <- function(extent, year,
                         endpoint="https://planetarycomputer.microsoft.com/api/stac/v1", collection="io-lulc-9-class", assets="data",
                         signOpt=list()){
   
-  if(source=='io-lulc-9-class'){
+  if(collection=='io-lulc-9-class'){
     if(year<2017){
       warning("Land cover product currently has data 2017-2022. 2017 selected.")
       year <- 2017 
@@ -45,7 +45,7 @@ lulc2rast <- function(extent, year,
     items <- do.call(stac_auth, c(list(x=items, endpoint=endpoint), signOpt))
     
     if(length(items$features)>1) r <- assets2vrt(items, assets) else r <- assets2rast(items$features[[1]], assets)
-    names(r) <- source
+    names(r) <- collection
     
     cls <- as.data.frame(do.call(rbind, lapply(feature$assets$data$`file:values`, unlist)))
     cls[,1] <- as.numeric(cls[,1])
