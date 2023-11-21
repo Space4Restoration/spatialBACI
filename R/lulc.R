@@ -62,7 +62,7 @@ setMethod("lulc", signature="SpatRaster",
                    signOpt=list(), 
                    ...){
             extent <- terra::project(ext(x), crs(x), crs("epsg:4326"))
-            lulc_rast <- lulc2rast(extent, year, ndpoint=endpoint, collection=collection, assets=assets, signOpt=signOpt)
+            lulc_rast <- lulc2rast(extent, year, endpoint=endpoint, collection=collection, assets=assets, signOpt=signOpt)
             lulc_x <- terra::project(lulc_rast, x, method="near", ...)
             return(lulc_x)
           }
