@@ -17,6 +17,6 @@ data.table
 \description{
 Calculate the Control-Impact contrast and p-value
 }
-\details{
-After [del Rio] and [add reference]
+\seealso{
+[\code{\link{BACI_contrast}}]
 }

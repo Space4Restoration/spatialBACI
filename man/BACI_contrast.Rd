@@ -18,5 +18,13 @@ data.table
 Calculate the Control-Impact contrast and p-value
 }
 \details{
-After [del Rio] and [add reference]
+After Meroni et al. (2017) and del Río-Mena et al. (2021)
+}
+\references{
+Meroni, M., Schucknecht, A., Fasbender, D., Rembold, F., Fava, F., Mauclaire, M., Goffner, D., Di Lucchio, L.M., Leonardi, U., 2017. Remote sensing monitoring of land restoration interventions in semi-arid environments with a before–after control-impact statistical design. International Journal of Applied Earth Observation and Geoinformation 59, 42–52.
+
+del Río-Mena, T., Willemen, L., Vrieling, A., Snoeys, A., Nelson, A., 2021. Long-term assessment of ecosystem services at ecological restoration sites using Landsat time series. PLOS ONE 16, e0243020.
+}
+\seealso{
+[\code{\link{CI_contrast}}]
 }

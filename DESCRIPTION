@@ -7,7 +7,9 @@ Maintainer: Jasper Van doninck <j.vandoninck@utwente.nl>
 Depends:
     R (>= 4.3.0),
     terra,
-    methods
+    rstac,
+    methods,
+    data.table
 Imports:
     MatchIt,
     sf

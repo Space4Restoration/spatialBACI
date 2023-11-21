@@ -30,8 +30,8 @@ setMethod("ref_rast", signature(x='SpatVector', y='missing'),
             
             if(missing(crs)) crs <- utm_zone(x, proj4string = TRUE)
             
-            extent <- ext(x) %>%
-              project(crs(x), crs) %>% 
+            extent <- ext(x) |>
+              project(crs(x), crs) |> 
               extend(buffer)
             
             if(!isFALSE(round_coords)){
@@ -48,10 +48,12 @@ setMethod("ref_rast", signature(x='SpatVector', y='missing'),
 #' @importFrom terra rast ext project extend round
 #' @aliases ref_rast,numeric,numeric-method
 setMethod("ref_rast", signature(x='numeric', y='numeric'),
-          function(x, y, crs=utm_zone(x, y, proj4string = TRUE), resolution, buffer=0, round_coords=FALSE, ...) {
+          function(x, y, crs, resolution, buffer=0, round_coords=FALSE, ...) {
             
-            extent <- ext(x, x, y, y) %>%
-              project('epsg:4236', crs) %>% 
+            if(missing(crs)) crs <- utm_zone(x, y, proj4string = TRUE)
+            
+            extent <- ext(x, x, y, y) |>
+              project('epsg:4236', crs) |> 
               extend(buffer)
             
             if(!isFALSE(round_coords)){

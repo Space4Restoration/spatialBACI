@@ -1,15 +1,36 @@
-
-
+#' Extract Digital Elevation Model
+#' 
+#' Read NASA (SRTM) Digital Elevation Model as SpatRaster and calculate derivatives
+#' 
+#' @export
+#' @import terra
+#' @import rstac
+#' 
+#' @param x a SpatRaster or SpatExtent object, defining the area for which the DEM should be extracted
+#' @param v description
+#' @param unit description
+#' @param aspectTransform description
+#' @param endpoint description
+#' @param collection STAC collection, defaults to "nasadem"
+#' @param assets character defining STAC assets name, defaults to "elevation"
+#' @param signOpt list with STAC authentication options passed to stac_auth (e.g. \code{list(key="abc")}), endpoint-specific
+#' @param ... additional parameters passed to ???
+#' 
+#' @returns SpatRaster object
+#' 
+#' 
+setGeneric("nasadem", function(x, v=c("slope", "aspect"), unit="degrees", aspectTransform=TRUE, 
+                               endpoint="https://planetarycomputer.microsoft.com/api/stac/v1",  collection="nasadem", assets="elevation",
+                               signOpt=list(), ...){
+  standardGeneric("nasadem")
+})
 
 nasadem2rast <- function(extent, 
                          endpoint="https://planetarycomputer.microsoft.com/api/stac/v1", collection="nasadem", assets="elevation",
                          signOpt=list()){
-  
-  library(terra)
-  library(rstac)
 
-  items <- stac(endpoint) %>%
-    stac_search(collections=collection, bbox=extent[c(1,3,2,4)]) %>%
+  items <- stac(endpoint) |>
+    stac_search(collections=collection, bbox=extent[c(1,3,2,4)]) |>
     get_request()
   items <- do.call(stac_auth, c(list(x=items, endpoint=endpoint), signOpt))
   
@@ -29,16 +50,11 @@ transform_aspect <- function(r, unit="degrees"){
   return(r)
 }
 
-setGeneric("nasadem", function(x, v=c("slope", "aspect"), unit="degrees", aspectTransform=TRUE, ...,
-                               endpoint="https://planetarycomputer.microsoft.com/api/stac/v1",  collection="nasadem", assets="elevation",
-                               signOpt=list()) standardGeneric("nasadem"))
-
 setMethod("nasadem", signature="SpatRaster",
-          function(x, v=c("slope", "aspect"), unit="degrees", aspectTransform=TRUE, ...,
+          function(x, v=c("slope", "aspect"), unit="degrees", aspectTransform=TRUE,
                    endpoint="https://planetarycomputer.microsoft.com/api/stac/v1",  collection="nasadem", assets="elevation",
                    signOpt=list()){
-            library(terra)
-            
+
             extent <- terra::project(ext(x), crs(x), crs("epsg:4326"))
             dem <- nasadem2rast(extent, endpoint=endpoint, collection=collection, assets=assets, signOpt=signOpt)
             
@@ -52,10 +68,10 @@ setMethod("nasadem", signature="SpatRaster",
           })
 
 setMethod("nasadem", signature="SpatExtent",
-          function(x,  v=c("slope", "aspect"), unit="degrees", aspectTransform=TRUE, CRS=NULL,...,
+          function(x,  v=c("slope", "aspect"), unit="degrees", aspectTransform=TRUE,
                    endpoint="https://planetarycomputer.microsoft.com/api/stac/v1",  collection="nasadem", assets="elevation",
-                   signOpt=list()){
-            library(terra)
+                   signOpt=list(), CRS=NULL){
+
             extent <- x
             #if(!missing(CRS)) CRS <- crs("epsg:4326")
             if(is.null(CRS)) CRS <- crs("epsg:4326")

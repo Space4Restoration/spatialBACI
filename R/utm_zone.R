@@ -76,17 +76,17 @@ setMethod("utm_zone", signature("numeric", "numeric"),
           }
 )
 
-#' @rdname utm_zone
-#' @importFrom sf st_centroid st_coordinates st_transform
-#' @aliases utm_zone,Spatial,missing,logical-method
-setMethod("utm_zone", signature(x='Spatial', y='missing'),
-          function(x, proj4string) {
-            x <- st_transform(x, st_crs('+init=epsg:4236'))
-            
-            centroid <- st_coordinates(st_centroid(x))
-            return(utm_zone_calc(centroid[1], centroid[2], proj4string))
-          }
-)
+# #' @rdname utm_zone
+# #' @importFrom sf st_centroid st_coordinates st_transform
+# #' @aliases utm_zone,Spatial,missing,logical-method
+# setMethod("utm_zone", signature(x='Spatial', y='missing'),
+#           function(x, proj4string) {
+#             x <- st_transform(x, st_crs('+init=epsg:4236'))
+#             
+#             centroid <- st_coordinates(st_centroid(x))
+#             return(utm_zone_calc(centroid[1], centroid[2], proj4string))
+#           }
+# )
 
 #' @rdname utm_zone
 #' @importFrom terra centroids geom project
