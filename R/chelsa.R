@@ -53,8 +53,9 @@ chelsa2rast <- function(product="climatologies", period="1981-2010", data="bio",
 setMethod("chelsa", signature="SpatRaster",
           function(x, product="climatologies", period="1981-2010", data="bio", layers=paste0("bio",c(1:19)), version="2.1", ...){
             chelsa_rast <- chelsa2rast(product=product, period=period, data=data, layers=layers, version=version)
-            chelsa_x <- terra::project(chelsa_rast, x, ...)
-            return(x)
+            chelsa_x <- terra::crop(chelsa_rast, project(ext(x), crs(x), crs(chelsa_rast))) |>
+              terra::project(x, ...)
+            return(chelsa_x)
           }
 )
 

@@ -32,28 +32,29 @@ lulc2rast <- function(extent, year,
   
   if(collection=='io-lulc-9-class'){
     if(year<2017){
-      warning("Land cover product currently has data 2017-2022. 2017 selected.")
+      warning("Land cover product io-lulc-9-class currently has data 2017-2022. 2017 selected.")
       year <- 2017 
     }
     if(year>2022){
-      warning("Land cover product currently has data 2017-2022. 2022 selected.")
+      warning("Land cover product io-lulc-9-class currently has data 2017-2022. 2022 selected.")
       year <- 2022 
     }
-    items <- stac(endpoint) |>
-      stac_search(collections=collection, datetime=paste0(year,"-07-01"), bbox=extent[c(1,3,2,4)]) |>
-      get_request()
-    items <- do.call(stac_auth, c(list(x=items, endpoint=endpoint), signOpt))
-    
-    if(length(items$features)>1) r <- assets2vrt(items, assets) else r <- assets2rast(items$features[[1]], assets)
-    names(r) <- collection
-    
-    cls <- as.data.frame(do.call(rbind, lapply(feature$assets$data$`file:values`, unlist)))
-    cls[,1] <- as.numeric(cls[,1])
-    names(cls) <- c("value", "landcover")
-    levels(r) <- cls
-    
-    return(r)
   }
+  items <- stac(endpoint) |>
+    stac_search(collections=collection, datetime=paste0(year,"-07-01"), bbox=extent[c(1,3,2,4)]) |>
+    get_request()
+  items <- do.call(stac_auth, c(list(x=items, endpoint=endpoint), signOpt))
+  
+  if(length(items$features)>1) r <- assets2vrt(items, assets) else r <- assets2rast(items$features[[1]], assets)
+  names(r) <- collection
+  
+  cls <- as.data.frame(do.call(rbind, lapply(items$features[[1]]$assets[[assets]]$`file:values`, unlist)))
+  cls[,1] <- as.numeric(cls[,1])
+  names(cls) <- c("value", "landcover")
+  levels(r) <- cls
+  
+  return(r)
+  
 }
 
 setMethod("lulc", signature="SpatRaster",
