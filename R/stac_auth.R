@@ -15,10 +15,10 @@
 #' 
 #' @returns description
 #' 
-stac_auth <- function(x, endpoint, ...){
+stac_auth <- function(x, endpoint, authOpt=list()){
   if(endpoint=="https://planetarycomputer.microsoft.com/api/stac/v1"){
     x <- do.call(.stac_auth.planetarycomputer, 
-                 c(list(x=x), key=list(...)$key))
+                 c(list(x=x), key=authOpt$key))
   } else {
     #Signing for other endpoints not implemented
   }

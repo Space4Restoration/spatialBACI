@@ -53,7 +53,7 @@ matchCI <- function(cands, matchlyrs, eval=FALSE, cols=c("subclass", "x", "y", "
   }
 
   #Extract the matched dataset
-  m.data <- get_matches(m.out)[cols] %>% as.data.table()
+  m.data <- get_matches(m.out)[cols] |> as.data.table()
   
   return(m.data)
 }
@@ -67,11 +67,9 @@ matchCI <- function(cands, matchlyrs, eval=FALSE, cols=c("subclass", "x", "y", "
 #' candidate control pixels labeled as 0, and excluded pixels as NA.
 #' 
 #' @export matchCandidates
-#' @import data.table
-#' @import MatchIt
 #' @import terra
 #' @param x SpatVector: polygon of "impact" area
-#' @param x SpatRaster: reference geometry
+#' @param y SpatRaster: reference geometry
 #' @param excludeBufferIn Numeric: Buffer (in m) inside polygon to be excluded
 #' @param excludeBufferOut Numeric: Buffer (in m) outside polygon to be excluded
 #' @param excludeOther SpatVector: other areas to be excluded
@@ -92,15 +90,17 @@ matchCandidates <- function(x, y,
   
   #Define inner and outer buffers
   if(excludeBufferIn>0 | excludeBufferOut>0){
-    buf_o <- buffer(x, width=excludeBufferOut) %>% rasterize(y, background=0)
-    buf_i <- buffer(x, width=-excludeBufferIn) %>% rasterize(y, background=0)
+    buf_o <- buffer(x, width=excludeBufferOut) |> 
+      rasterize(y, background=0)
+    buf_i <- buffer(x, width=-excludeBufferIn) |> 
+      rasterize(y, background=0)
     buf_c <- buf_o-buf_i
     x_ras <- mask(x_ras, buf_c, maskvalues=1, updatevalue=NA)
   }
   #Exclude other areas
   if(!is.null(excludeOther)){
-    exc <- project(excludeOther, y) %>%
-      crop(y) %>%
+    exc <- project(excludeOther, y) |>
+      crop(y) |>
       rasterize(y, background=0)
     x_ras <- mask(x_ras, exc, maskvalues=1, updatevalue=NA)
     

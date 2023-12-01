@@ -13,7 +13,9 @@ matchCandidates(
 )
 }
 \arguments{
-\item{x}{SpatRaster: reference geometry}
+\item{x}{SpatVector: polygon of "impact" area}
+
+\item{y}{SpatRaster: reference geometry}
 
 \item{excludeBufferIn}{Numeric: Buffer (in m) inside polygon to be excluded}
 

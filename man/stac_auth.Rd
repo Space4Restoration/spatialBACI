@@ -4,7 +4,7 @@
 \alias{stac_auth}
 \title{STAC authentication}
 \usage{
-stac_auth(x, endpoint, ...)
+stac_auth(x, endpoint, authOpt = list())
 }
 \arguments{
 \item{x}{a STAC Feature or FeatureCollection}
