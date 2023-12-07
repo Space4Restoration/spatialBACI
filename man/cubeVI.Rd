@@ -31,10 +31,10 @@ Implemented vegetation indices:
 *MSAVI
 *NDMI
 *NBR
-*NBR2
-*NDSI
+*NBR2 = (swir1-swir2)/(swir1+swir2)
+*NDSI = (green-swir1)/(green+swir1)
 
-Scale for VIs with constants has to be checked for different endpoints
+Scale factor has to be applied when reflectance saved as integer instead of range 0-1. To be checked for different endpoints
 }
 \seealso{
 [reqBands()]

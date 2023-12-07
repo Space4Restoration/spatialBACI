@@ -12,7 +12,7 @@ nasadem(
   endpoint = "https://planetarycomputer.microsoft.com/api/stac/v1",
   collection = "nasadem",
   assets = "elevation",
-  signOpt = list(),
+  authOpt = list(),
   ...
 )
 }
@@ -31,9 +31,9 @@ nasadem(
 
 \item{assets}{character defining STAC assets name, defaults to "elevation"}
 
-\item{signOpt}{list with STAC authentication options passed to stac_auth (e.g. \code{list(key="abc")}), endpoint-specific}
-
 \item{...}{additional parameters passed to ???}
+
+\item{signOpt}{list with STAC authentication options passed to stac_auth (e.g. \code{list(key="abc")}), endpoint-specific}
 }
 \value{
 SpatRaster object

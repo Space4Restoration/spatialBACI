@@ -5,11 +5,11 @@
 \title{EO STAC composite}
 \usage{
 eo_stac_composite(
-  endpoint,
-  collection,
   spatRef,
   t0,
   t1,
+  endpoint,
+  collection,
   limit = 1000,
   maxCloud = 100,
   assets = eo_assets(collection = collection),
@@ -20,15 +20,15 @@ eo_stac_composite(
 )
 }
 \arguments{
-\item{endpoint}{STAC endpoint}
-
-\item{collection}{STAC collection}
-
 \item{spatRef}{SpatRaster object from which spatial reference is extracted}
 
 \item{t0}{composite start time, character or Date formatted as "yyyy-mm-dd",  or numeric formatted as yyyymmdd}
 
 \item{t1}{composite end time, character or Date formatted as "yyyy-mm-dd", or numeric formatted as yyyymmdd}
+
+\item{endpoint}{STAC endpoint}
+
+\item{collection}{STAC collection}
 
 \item{limit}{STAC item limit}
 

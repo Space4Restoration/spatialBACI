@@ -23,13 +23,14 @@
 #' 
 #' @returns proxy data cube object
 #' 
-eo_stac_composite <- function(endpoint, collection, spatRef, t0, t1, limit=1000, maxCloud=100,
+eo_stac_composite <- function(spatRef, t0, t1, endpoint, collection, 
+                              limit=1000, maxCloud=100,
                               assets=eo_assets(collection=collection),
                               maskSnow=FALSE, maskWater=FALSE,
                               aggregation="median", resampling="bilinear"){
   
   if(is.numeric(t0)) t0 <- as.character(t0) |> as.Date(format="%Y%m%d")
-  if(is.numeric(t0)) t1 <- as.character(t1) |> as.Date(format="%Y%m%d")
+  if(is.numeric(t1)) t1 <- as.character(t1) |> as.Date(format="%Y%m%d")
   
   items <- eo_stac_search(endpoint=endpoint,
                           collection=collection,

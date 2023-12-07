@@ -11,13 +11,14 @@
 #' 
 #' @param x a STAC Feature or FeatureCollection
 #' @param endpoint a STAC endpoint
-#' @param ... additional arguments specific to STAC endpoint
+#' @param ... additional arguments for authentication options specific to STAC endpoint (e.g., key="abc")
 #' 
 #' @returns description
 #' 
-stac_auth <- function(x, endpoint, authOpt=list()){
+stac_auth <- function(x, endpoint, ...){
+  authOpt=list(...)
   if(endpoint=="https://planetarycomputer.microsoft.com/api/stac/v1"){
-    x <- do.call(.stac_auth.planetarycomputer, 
+    x <- do.call(stac_auth.planetarycomputer, 
                  c(list(x=x), key=authOpt$key))
   } else {
     #Signing for other endpoints not implemented
@@ -25,7 +26,7 @@ stac_auth <- function(x, endpoint, authOpt=list()){
   return(x)
 }
 
-.stac_auth.planetarycomputer <- function(x, key=""){
+stac_auth.planetarycomputer <- function(x, key=""){
 
   endpoint <- "https://planetarycomputer.microsoft.com/api/stac/v1"
   

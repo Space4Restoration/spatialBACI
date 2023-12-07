@@ -133,7 +133,7 @@ setMethod("as.datetime", signature="character",
 #' 
 #' Format to STAC collection name for some commonly used collections and STAC endpoints
 #' 
-#' 
+#' @export
 #' @param x character
 #' @returns character 
 #' 

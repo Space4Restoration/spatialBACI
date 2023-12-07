@@ -4,14 +4,14 @@
 \alias{stac_auth}
 \title{STAC authentication}
 \usage{
-stac_auth(x, endpoint, authOpt = list())
+stac_auth(x, endpoint, ...)
 }
 \arguments{
 \item{x}{a STAC Feature or FeatureCollection}
 
 \item{endpoint}{a STAC endpoint}
 
-\item{...}{additional arguments specific to STAC endpoint}
+\item{...}{additional arguments for authentication options specific to STAC endpoint (e.g., key="abc")}
 }
 \value{
 description

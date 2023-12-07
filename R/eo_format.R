@@ -4,6 +4,7 @@
 #' 
 #' To be updated for correct naming under PC/LPDAAC/..., For now only PC Landsat and Sentinel-2 implemented
 #' 
+#' @export
 #' @param feature description
 #' @param collection description
 #' @param meta description
@@ -32,6 +33,7 @@ eo_assets <- function(feature, collection, meta=TRUE){
 #' 
 #' Limited number of collections/endpoints implemented, more to be added
 #' 
+#' @export
 #' @param bands description
 #' @param collection description
 #' @param endpoint description
@@ -41,8 +43,9 @@ eo_assets <- function(feature, collection, meta=TRUE){
 mapBand <- function(bands, collection, endpoint){
   #Re-assign band names to generically address Landsat/Sentinel-2 bands for calculation of VIs
   mapFun <- function(band, collection){
-    #Landsat (for planetary computer, check for other catalogs)
+    
     if(collection=="landsat-c2-l2"){
+      #Landsat (for planetary computer, check for other catalogs)
       name <- switch(band,
                      blue = "blue",
                      green = "green",
@@ -50,10 +53,8 @@ mapBand <- function(bands, collection, endpoint){
                      nir = "nir08",
                      swir1 = "swir16",
                      swir2 = "swir22")
-    }
-    
-    #HLS Landsat (for LPDAAC, check for other catalogs)
-    if(collection=="HLSL30.v2.0"){
+    } else if(collection=="HLSL30.v2.0"){
+      #HLS Landsat (for LPDAAC, check for other catalogs)
       name <- switch(band,
                      blue = "B02", 
                      green = "B03",
@@ -61,10 +62,8 @@ mapBand <- function(bands, collection, endpoint){
                      nir = "B05",
                      swir1 = "B06",
                      swir2 = "B07")
-    } 
-    
-    #Sentinel (PC), HLS Sentinel (LPDAAC)  
-    if(collection=="sentinel-2-l2a" | collection=="HLSS30.v2.0"){
+    } else if(collection=="sentinel-2-l2a" | collection=="HLSS30.v2.0"){
+      #Sentinel (PC), HLS Sentinel (LPDAAC)  
       name <- switch(band,
                      "blue" = "B02", 
                      "green" = "B03",
@@ -75,6 +74,8 @@ mapBand <- function(bands, collection, endpoint){
                      "nir" = "B08",
                      "swir1" = "B11", 
                      "swir2" = "B12")
+    } else {
+      stop(paste0("Collection ", collection, " not recognized"))
     }
     return(name)
   }
@@ -87,6 +88,7 @@ mapBand <- function(bands, collection, endpoint){
 #' 
 #' Possible values of \code{index} are "ndvi", "evi", "savi", "msavi", "ndmi", "nbr", "nbr2", "ndsi"
 #' 
+#' @export
 #' @param index description
 #' @returns character vector
 #' @seealso [cubeVI()]

@@ -9,12 +9,12 @@
 #' *MSAVI
 #' *NDMI
 #' *NBR
-#' *NBR2
-#' *NDSI
+#' *NBR2 = (swir1-swir2)/(swir1+swir2)
+#' *NDSI = (green-swir1)/(green+swir1)
 #' 
-#' Scale for VIs with constants has to be checked for different endpoints
+#' Scale factor has to be applied when reflectance saved as integer instead of range 0-1. To be checked for different endpoints
 #' 
-#' @importFrom gdalcubes select_bands apply_pixel
+#' @importFrom gdalcubes select_bands apply_pixel rename_bands
 #' @export
 #' 
 #' @param cube data cube with spectral bands
@@ -30,7 +30,7 @@
 cubeVI <- function(cube, VI, endpoint, collection, scale=0.00001){
   
   req <- reqBands(VI) 
-  req_map <- mapBand(req, endpoint, collection)
+  req_map <- mapBand(req, endpoint=endpoint, collection=collection)
   rename_args <- as.list(req)
   names(rename_args) <- req_map
   
@@ -66,4 +66,3 @@ cubeVI <- function(cube, VI, endpoint, collection, scale=0.00001){
   return(cube_vi)
 }
   
-

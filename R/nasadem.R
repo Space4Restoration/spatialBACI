@@ -21,18 +21,18 @@
 #' 
 setGeneric("nasadem", function(x, v=c("slope", "aspect"), unit="degrees", aspectTransform=TRUE, 
                                endpoint="https://planetarycomputer.microsoft.com/api/stac/v1",  collection="nasadem", assets="elevation",
-                               signOpt=list(), ...){
+                               authOpt=list(), ...){
   standardGeneric("nasadem")
 })
 
 nasadem2rast <- function(extent, 
                          endpoint="https://planetarycomputer.microsoft.com/api/stac/v1", collection="nasadem", assets="elevation",
-                         signOpt=list()){
+                         authOpt=list()){
 
   items <- stac(endpoint) |>
     stac_search(collections=collection, bbox=extent[c(1,3,2,4)]) |>
     get_request()
-  items <- do.call(stac_auth, c(list(x=items, endpoint=endpoint), signOpt))
+  items <- do.call(stac_auth, c(list(x=items, endpoint=endpoint), authOpt))
   
   #Changed this from ==1 to >1, think this was a bug, check if correct
   if(length(items$features)>1) dem <- assets2vrt(items, assets) else dem <- assets2rast(items$features[[1]], assets)
@@ -53,10 +53,10 @@ transform_aspect <- function(r, unit="degrees"){
 setMethod("nasadem", signature="SpatRaster",
           function(x, v=c("slope", "aspect"), unit="degrees", aspectTransform=TRUE,
                    endpoint="https://planetarycomputer.microsoft.com/api/stac/v1",  collection="nasadem", assets="elevation",
-                   signOpt=list()){
+                   authOpt=list()){
 
             extent <- terra::project(ext(x), crs(x), crs("epsg:4326"))
-            dem <- nasadem2rast(extent, endpoint=endpoint, collection=collection, assets=assets, signOpt=signOpt)
+            dem <- nasadem2rast(extent, endpoint=endpoint, collection=collection, assets=assets, authOpt=authOpt)
             
             dem <- terra::project(dem, x, method="bilinear")
             
@@ -76,7 +76,7 @@ setMethod("nasadem", signature="SpatExtent",
             #if(!missing(CRS)) CRS <- crs("epsg:4326")
             if(is.null(CRS)) CRS <- crs("epsg:4326")
             extent <- terra::project(extent, CRS, crs("epsg:4326"))
-            dem <- nasadem2rast(extent, endpoint=endpoint, collection=collection, assets=assets, signOpt=signOpt)
+            dem <- nasadem2rast(extent, endpoint=endpoint, collection=collection, assets=assets, authOpt=authOpt)
             if(!is.null(v)) {
               dem <- rast(list(dem=dem, terrain(dem, v=v, unit=unit)))
               if(("aspect" %in% v) & isTRUE(aspectTransform)) dem <- transform_aspect(dem)
