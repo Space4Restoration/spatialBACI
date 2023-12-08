@@ -3,21 +3,26 @@
 EO-based tools to evaluate the impact of conservation/restoration actions on ecosystems. The package was initiated as part of the [Space4Restoration](itc.nl/space4restoration) project of [ITC](ITC.nl).
 
 ## Package installation
-To development version of the `EnvImpactEval` package can be installed using the [`devtools`](https://cran.r-project.org/package=devtools) package. After installing and loading `devtools`, type: 
+To development version of the `EnvImpactEval` package can be installed using the [`devtools`](https://cran.r-project.org/package=devtools) package. 
+The package is not public yet so authentication is needed to install it with `install_github()`. Authentication tokens can be generated at [https://github.com/tokens](https://github.com/tokens).
+Then install the package:
 ```r
-install_github("Space4Restoration/EnvImpactEval")
+library(devtools)
+myToken <- "abc" #copy-paste your token here
+install_github("Space4Restoration/EnvImpactEval", auth_token=myToken)
 ```
 
 ## Usage 
+See vignette (in progress)
 
-To demonstrate the package, we use reference data on a protected area that can be downloaded from the [World Database on Protected Areas (WDPA)](https://www.protectedplanet.net/en/thematic-areas/wdpa?tab=WDPA). 
+## Contribute
+Visit the "Issues" tab to report issues, request features, or suggest improvements.
 
-```r
-library(EnvImpactEval)
-```
-
-
-
-
+## Contact
+[Jasper Van doninck](mailto:j.vandoninck@utwente.nl)  
+Faculty of Geo-Information Science and Earth Observation (ITC), University of Twente  
+P.O. Box 217, 7500 AE Enschede, The Netherlands  
+Office: Langezijds  1116  
+Tel.: +31534894768  
 
 
