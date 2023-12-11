@@ -2,6 +2,7 @@
 #' 
 #' Define the values of values to be masked from Landsat L2 products based on specified QA bits
 #' 
+#' @export
 #' 
 #' @param nbit description
 #' @param fill description
@@ -14,8 +15,6 @@
 #' 
 #' @returns integer vector
 #' 
-#' 
-
 bitmask_values <- function(nBit=8, fill=TRUE, dilCloud=TRUE, cirrus=TRUE, cloud=TRUE, cloudShadow=TRUE, snow=FALSE, water=FALSE){
   
   numToBinary <- function(nums, nBits){

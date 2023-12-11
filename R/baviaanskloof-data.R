@@ -18,6 +18,6 @@
 #' @examples
 #' data(baviaanskloof)
 #' baviaanskloof <- unwrap(baviaanskloof)
-#' plot(baviaanskloof)
+#' plot(baviaanskloof, "Planting_date")
 #' 
 "baviaanskloof"
