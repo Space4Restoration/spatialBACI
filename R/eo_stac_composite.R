@@ -27,7 +27,8 @@ eo_stac_composite <- function(spatRef, t0, t1, dt, endpoint, collection,
                               limit=1000, maxCloud=100,
                               assets=eo_assets(collection=collection),
                               maskSnow=FALSE, maskWater=FALSE,
-                              aggregation="median", resampling="bilinear"){
+                              aggregation="median", resampling="bilinear",
+                              authOpt=list()){
   
   if(is.numeric(t0)) t0 <- as.character(t0) |> as.Date(format="%Y%m%d")
   if(is.numeric(t1)) t1 <- as.character(t1) |> as.Date(format="%Y%m%d")
@@ -36,7 +37,8 @@ eo_stac_composite <- function(spatRef, t0, t1, dt, endpoint, collection,
                           collection=collection,
                           bbox=as.bbox(spatRef),
                           datetime=paste(t0,t1, sep="/"),
-                          limit=limit)
+                          limit=limit,
+                          authOpt=authOpt)
   
   suppressWarnings(img_collection <- gdalcubes::stac_image_collection(items$features, 
                                                                       asset_names = assets, 
@@ -105,12 +107,13 @@ eo_stac_composite <- function(spatRef, t0, t1, dt, endpoint, collection,
 #' 
 #' @returns proxy data cube object
 #' 
-eo_stac_composite_yearly <- function(spatRef, years, months,
-                                     endpoint, collection, 
-                                     limit=1000, maxCloud=100,
-                                     assets=eo_assets(collection=collection),
-                                     maskSnow=FALSE, maskWater=FALSE,
-                                     aggregation="median", resampling="bilinear"){
+eo_stac_yearly_composites <- function(spatRef, years, months,
+                                      endpoint, collection, 
+                                      limit=1000, maxCloud=100,
+                                      assets=eo_assets(collection=collection),
+                                      maskSnow=FALSE, maskWater=FALSE,
+                                      aggregation="median", resampling="bilinear",
+                                      authOpt=list()){
 
   items <- NULL
   for(year in years){
@@ -129,7 +132,8 @@ eo_stac_composite_yearly <- function(spatRef, years, months,
                                  collection=collection,
                                  bbox=as.bbox(spatRef),
                                  datetime=paste(t0,t1, sep="/"),
-                                 limit=limit)
+                                 limit=limit, 
+                                 authOpt=authOpt)
     if(is.null(items)){
       items <- items_year
     } else {
