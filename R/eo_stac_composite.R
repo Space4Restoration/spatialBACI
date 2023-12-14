@@ -103,8 +103,6 @@ eo_stac_composite <- function(spatRef, t0, t1, dt, endpoint, collection,
 #' @param aggregation aggregation method, see \code{gdalcubes::cubes_view}
 #' @param resampling resampling method, see \code{gdalcubes::cubes_view}
 #' 
-#' @seealso [eo_stac_composite()]
-#' 
 #' @returns proxy data cube object
 #' 
 eo_stac_yearly_composites <- function(spatRef, years, months,

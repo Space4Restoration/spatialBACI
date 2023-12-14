@@ -19,7 +19,7 @@ Data used and described in detail in del Río-Mena et al.
 \examples{
 data(baviaanskloof)
 baviaanskloof <- unwrap(baviaanskloof)
-plot(baviaanskloof)
+plot(baviaanskloof, "Planting_date")
 
 }
 \references{
