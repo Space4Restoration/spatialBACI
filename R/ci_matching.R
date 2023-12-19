@@ -13,7 +13,7 @@
 #' @param matchlyrs multilayer SpatRaster (same geometry as CI_cand) of matching variables
 #' @param eval should matching be evaluated, return NULL if matching is rejected
 #' @param cols columns to be returned in the data table
-#' @param ... additional inputs to matchit function
+#' @param ... additional inputs to \code{matchit} function
 #' @returns data table with matched control-impact units
 matchCI <- function(cands, matchlyrs, eval=FALSE, cols=c("subclass", "x", "y", "treatment"), ...){
 

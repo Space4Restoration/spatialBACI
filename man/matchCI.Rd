@@ -21,7 +21,7 @@ matchCI(
 
 \item{cols}{columns to be returned in the data table}
 
-\item{...}{additional inputs to matchit function}
+\item{...}{additional inputs to \code{matchit} function}
 }
 \value{
 data table with matched control-impact units

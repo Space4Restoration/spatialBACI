@@ -8,8 +8,8 @@ lulc(
   x,
   year,
   endpoint = "https://planetarycomputer.microsoft.com/api/stac/v1",
-  collection = "nasadem",
-  assets = "elevation",
+  collection = "io-lulc-9-class",
+  assets = "data",
   signOpt = list(),
   ...
 )

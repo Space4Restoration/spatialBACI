@@ -21,7 +21,7 @@
 #'
 #' 
 setGeneric("lulc", function(x, year,
-                            endpoint="https://planetarycomputer.microsoft.com/api/stac/v1",  collection="nasadem", assets="elevation",
+                            endpoint="https://planetarycomputer.microsoft.com/api/stac/v1",  collection="io-lulc-9-class", assets="data",
                             signOpt=list(), ...){
   standardGeneric("lulc")
 })

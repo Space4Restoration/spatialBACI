@@ -5,7 +5,7 @@
 #' Automatically applies masking if masking layer is provided
 #' 
 #' @export
-#' @importFrom gdalcubes stac_image_collection image_mask cube_view raster_cube
+#' @importFrom gdalcubes stac_image_collection image_mask cube_view raster_cube gdalcubes_options
 #' @importFrom terra rast ext res
 #' 
 #' @param endpoint STAC endpoint

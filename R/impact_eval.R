@@ -18,21 +18,21 @@ CI_contrast <- function(data, SpatRef=NULL){
   ##  Check columns
   if(!"subclass" %in% names(data)) stop('Column "subclass" is missing in "data".')
   if(!"treatment" %in% names(data)) stop('Column "treatment" is missing in "data".')
-  if(!"value" %in% names(data)) stop('Column "value" is missing in "data".')
+  if(!"effect" %in% names(data)) stop('Column "effect" is missing in "data".')
 
   ##  Calculate contrast/p_value
-  contrast <- merge(data[treatment==1, .(impact_value=mean(value)), by = .(subclass)],
-                    data[treatment==0, .(control_value=mean(value)), by = .(subclass)],
-                    by=c("subclass"))[,.(subclass, contrast=control_value-impact_value)]
-  #contrast <- data[, .(control = mean(.SD[treatment==0, value]) - mean(.SD[treatment==1, value])), by=subclass,]
+  contrast <- merge(data[treatment==1, .(impact_effect=mean(effect)), by = .(subclass)],
+                    data[treatment==0, .(control_effect=mean(effect)), by = .(subclass)],
+                    by=c("subclass"))[,.(subclass, contrast=control_effect-impact_effect)]
+  #contrast <- data[, .(control = mean(.SD[treatment==0, effect]) - mean(.SD[treatment==1, effect])), by=subclass,]
   #The more elegant version using .SD seems to be slightly slower.
 
   p_value <- data[ ,if(.SD[treatment==1,.N]) {
       #1:k (k control units for each impact unit, contrast/p.value for each control unit individually - t.test for means=0)
-      .(p_value= t.test(.SD[treatment==0, value]-.SD[treatment==1, value])$p.value)
+      .(p_value= t.test(.SD[treatment==0, effect]-.SD[treatment==1, effect])$p.value)
     } else {
       #n:k (n control units for k control units, contrast/p.value for all n control units combined - t.test for equal means)
-    .(p_value= t.test(.SD[treatment==0,value],.SD[treatment==1,value])$p.value)
+    .(p_value= t.test(.SD[treatment==0,effect],.SD[treatment==1,effect])$p.value)
     }, by=subclass]
 
   ##  Create output
@@ -110,10 +110,10 @@ BACI_contrast <- function(data, SpatRef=NULL){
   if(!"after" %in% names(data)) stop('Column "after" is missing in "data".')
   
   #Calculate effect
-  data[, ':='(value=after-before)]
+  data[, ':='(effect=after-before)]
   
   #Call CI_calc
-  BACI_out <- CI_calc(data, SpatRef) 
+  BACI_out <- CI_contrast(data, SpatRef) 
   return(BACI_out)
 } 
 
