@@ -1,8 +1,7 @@
 ---
 title: "BACI evaluation Baviaanskloof"
-output: github_document
-#output: html_document
 author: Jasper Van doninck, Other Authors
+output: github_document
 ---
 
 ```{r setup, include=FALSE}
@@ -75,8 +74,8 @@ vi_after <- eo_stac_yearly_composites(endpoint=stac_endpoint,
 avgtrend_before <- calc_ts_metrics(vi_before)
 avgtrend_after <- calc_ts_metrics(vi_after)
 
-plot(avgtrend_before, main="MSAVI, before")
-plot(avgtrend_after, main="MSAVI, before")
+plot(avgtrend_before, main=c("MSAVI average, before", "MSAVI trend, before"))
+plot(avgtrend_after, main=c("MSAVI average, after", "MSAVI trend, after"))
 ```
 
 ### Control-impact matching
@@ -85,11 +84,10 @@ Users should specify the covariates used in the matching analysis. Ideally, this
 
 ```{r}
 dem <- nasadem(refRas)
-plot(dem, main="Topography")
-lines(selected_sites_proj)
+plot(dem)
 
 landcover <- lulc(refRas, year=year)
-plot(landcover, main="Land use")
+plot(landcover)
 lines(selected_sites_proj)
 ```
 
@@ -102,15 +100,14 @@ matches <- matchCI(matchingCands, rast(matchingLayers), eval=FALSE, ratio=10, re
 
 ### Before-After-Control-Impact evaluation
 
-We can now run the BACI analysis. For this, we first have to extract the values of the evaluation metrics (in this case the average over the 10-year time series before and after intervention) for the control-impact pairs obtained in the matching. When running the BACI analysis, we specify a spatial reference to which the pixel-based results will be written. 
+To tun the BACI analysis, we first need to extract the values of the evaluation metrics (in this case the average over the 10-year time series before and after intervention) for the control-impact pairs obtained in the matching. When running the BACI analysis, we specify a spatial reference to which the pixel-based results will be written. 
 
 ```{r}
 baci_input <- extractMatches(matches, before=subset(avgtrend_before, "average"), after=subset(avgtrend_after, "average"))
 baci_results <- BACI_contrast(baci_input, SpatRef=crop(refRas, selected_sites_proj))
 ```
 
-The results of the BACI analysis can be viewed by printing the data.table associated to the We can now 
-
+The results of the BACI analysis can be viewed by printing the data.table associated to the output object. The data.table shows, for each impact unit, the BACI contrast and p-values. BACI contrast values smaller than zero indicate a positive effect of the revegetation intervention. The BACI results can also be plotted on a map, here with non-significant BACI contrast masked out. If desired, the pixel-based results can now be aggregated to different spatial levels, e.g., the revegetation site.
 
 ```{r}
 baci_results$data
