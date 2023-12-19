@@ -16,7 +16,7 @@ install_github("Space4Restoration/EnvImpactEval", auth_token=myToken)
 See vignette (in progress)
 
 ## Contribute
-Visit the "Issues" tab to report issues, request features, or suggest improvements.
+This package is under development and therefore still lacks certain functionalities and may contain some bugs. Visit the "Issues" tab to report issues, request features, or suggest improvements.
 
 ## Contact
 [Jasper Van doninck](mailto:j.vandoninck@utwente.nl)  
