@@ -1,7 +1,7 @@
 ---
 title: "BACI evaluation Baviaanskloof"
 author: Jasper Van doninck, Other Authors
-output: github_document
+output: html_document
 ---
 
 ```{r setup, include=FALSE}
