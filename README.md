@@ -4,7 +4,7 @@ EO-based tools to evaluate the impact of conservation/restoration actions on eco
 
 ## Package installation
 To development version of the `EnvImpactEval` package can be installed using the [`devtools`](https://cran.r-project.org/package=devtools) package. 
-The package is not public yet so authentication is needed to install it with `install_github()`. Authentication tokens can be generated at [https://github.com/tokens](https://github.com/tokens).
+The package is not public yet so authentication is needed to install it with `install_github()`. Authentication tokens can be generated at [https://github.com/settings/tokens](https://github.com/settings/tokens).
 Then install the package:
 ```r
 library(devtools)
