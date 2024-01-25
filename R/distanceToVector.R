@@ -10,6 +10,7 @@
 #' 
 #' @param x SpatRaster or Spatvector for which distances must calculated
 #' @param y a terra::SpatVector or sf::sf vector layer (points, lines or polygons) to which distances must be calculated
+#' @param ... Additional arguments to terra::distance
 #' 
 #' @returns SpatRaster or numerical vector
 

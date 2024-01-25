@@ -10,6 +10,8 @@ distanceToVector(x, y, ...)
 \item{x}{SpatRaster or Spatvector for which distances must calculated}
 
 \item{y}{a terra::SpatVector or sf::sf vector layer (points, lines or polygons) to which distances must be calculated}
+
+\item{...}{Additional arguments to terra::distance}
 }
 \value{
 SpatRaster or numerical vector
