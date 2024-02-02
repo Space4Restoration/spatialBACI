@@ -73,7 +73,7 @@ vi_before <- VI_composite(endpoint=stac_endpoint,
                          months = 3:5, 
                          maxCloud=60)
 
-vi_before <- VI_composite(endpoint=stac_endpoint, 
+vi_after <- VI_composite(endpoint=stac_endpoint, 
                          collection=stac_collection, 
                          VI="NDVI", 
                          spatRef = refRas, 
