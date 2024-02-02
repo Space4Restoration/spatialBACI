@@ -2,6 +2,7 @@
 
 export(BACI_contrast)
 export(CI_contrast)
+export(VI_composite)
 export(as.bbox)
 export(as.collection)
 export(as.datetime)
