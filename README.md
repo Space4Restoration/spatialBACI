@@ -13,7 +13,7 @@ install_github("Space4Restoration/EnvImpactEval", auth_token=myToken)
 ```
 
 ## Usage 
-See vignette (in progress)
+See [BACI_Baviaanskloof](https://github.com/Space4Restoration/EnvImpactEval/blob/main/tutorials/BACI_Baviaanskloof.md) for an example.
 
 ## Contribute
 This package is under development and therefore still lacks certain functionalities and may contain some bugs. Visit the "Issues" tab to report issues, request features, or suggest improvements.
