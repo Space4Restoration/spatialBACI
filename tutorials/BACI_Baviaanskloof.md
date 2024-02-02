@@ -16,16 +16,17 @@ Bijker
 We here use a part of the Baviaanskloof dataset created by [del Río-Mena
 et al.,
 2021](https://journals.plos.org/plosone/article?id=10.1371/journal.pone.0243020),
-included in the package, to demonstrate a before-after-control-impact
-(BACI) evaluation using the package. The Baviaanskloof dataset contains
-the sites of large-scale spekboom (*Portulacaria afra*) revegetation in
-the semi-arid Baviaanskloof Hartland Bawarea Conservancy, South-Africa.
-Attributes to the spatial data indicate in which year the revegetation
-was undertaken by the different restoration organizations active in the
-area (Commonland, Living Land, Grounded) and whether lifestock grazing
-exclusion was implemented as a restoration activity or not. As an
-example, we here select the sites revegetated in 2012 that were not
-subject to lifestock grazing exclusion.
+included in the `EnvImpactEval` package, to demonstrate a
+before-after-control-impact (BACI) evaluation using the package. The
+Baviaanskloof dataset contains the sites of large-scale spekboom
+(*Portulacaria afra*) revegetation in the semi-arid Baviaanskloof
+Hartland Bawarea Conservancy, South-Africa. Attributes to the spatial
+data indicate in which year the revegetation was undertaken by the
+different restoration organizations active in the area (Commonland,
+Living Land, Grounded) and whether lifestock grazing exclusion was
+implemented as a restoration activity or not. As an example, we here
+select the sites revegetated in 2012 that were not subject to lifestock
+grazing exclusion.
 
 ``` r
 library(EnvImpactEval)
@@ -43,40 +44,42 @@ lines(selected_sites, lwd=2)
 
 # 2 Spatial reference and the candidate control pixels
 
-The package requires the user to define the spatial parameters at which
-the analysis will be performed. This reference will define the spatial
-units of the analysis and the neighbourhood around the impact units in
-which we want to search for control units. For now, only a raster
-(pixel)-based framework is implemented, a vector-based framework is
-planned for a future release.
+The `EnvImpactEval` package requires the user to define the spatial
+parameters at which the analysis will be performed. This reference will
+define the spatial units of the analysis and the neighbourhood around
+the impact units in which we want to search for control units. For now,
+only a raster (pixel)-based framework is implemented, a vector-based
+framework is planned for a future release.
 
-Using the function, the user can easily define this spatial reference
-raster based on the input data of the intervention to be evaluated (in
-our example the Baviaanskloof revegetation polygons for the year 2012).
-The spatial resolution of the reference raster will typically be linked
-to the spatial resolution of the (earth observation) datasets used in
-the analysis and we here set this to 120 meters. In order to limit data
-download and processing time we restrict the search area for potential
-control units to a bounding box with a buffer of 5 km around the sites
-reforested in 2012, but the user can choose to set this neighbourhood in
-function of their knowledge of their study sites. The user can also
-specify the Coordinate Reference System (crs) of the reference raster.
-In our example we don’t provide the crs parameter, in which case the UTM
-zone of the Baviaanskloof reference dataset will be used.
+Using the `ref_rast` function, the user can easily define this spatial
+reference raster based on the input data of the intervention to be
+evaluated (in our example the Baviaanskloof revegetation polygons for
+the year 2012). The spatial resolution of the reference raster will
+typically be linked to the spatial resolution of the (earth observation)
+datasets used in the analysis and we here set this to 120 meters. In
+order to limit data download and processing time we restrict the search
+area for potential control units to a bounding box with a buffer of 5 km
+around the sites reforested in 2012, but the user can choose to set this
+neighbourhood in function of their knowledge of their study sites. The
+user can also specify the Coordinate Reference System (crs) of the
+reference raster. In our example we don’t provide the crs parameter, in
+which case the UTM zone of the Baviaanskloof reference dataset will be
+used.
 
 ``` r
 refRas <- ref_rast(selected_sites, resolution=120, buffer=5000, round_coords=-2)
 ```
 
-The function is then used to further specify the impact units (pixels)
-and candidate control units that will be used in the BACI analysis. In
-order to avoid undesired effects of spatial misregistration or adjacency
-effects (the area just outside a restoration or conservation
-intervention site may be subject to positive or negative effects from
-the intervention), the user can exclude pixels in a buffer within or
-around the impact sites. In the case of an outside buffer this is in our
-example done with the argument . We obviously also exclude the areas
-restored in the other years as control pixels with the argument.
+The `matchCandidates` function is then used to further specify the
+impact units (pixels) and candidate control units that will be used in
+the BACI analysis. In order to avoid undesired effects of spatial
+misregistration or adjacency effects (the area just outside a
+restoration or conservation intervention site may be subject to positive
+or negative effects from the intervention), the user can exclude pixels
+in a buffer within or around the impact sites. In the case of an outside
+buffer this is in our example done with the argument
+`excludeBufferOut=240m`. We obviously also exclude the areas restored in
+the other years as control pixels with the `excludeOther` argument.
 
 ``` r
 matchingCands <- matchCandidates(selected_sites, refRas, excludeBufferOut=150, excludeOther = other_sites)
@@ -85,10 +88,10 @@ matchingCands <- matchCandidates(selected_sites, refRas, excludeBufferOut=150, e
 We can now plot a map showing the impact pixels (in green), the
 potential control pixels (in grey), and the excluded pixels (in white).
 Notice that the map shows UTM coordinates (as this was by default for
-the argument in function), rather than the geographic coordinates of the
-Baviaanskloof reference dataset. In general, the package will
-automatically check the crs of used spatial datasets and reproject when
-required.
+the `crs` argument in `ref_rast` function), rather than the geographic
+coordinates of the Baviaanskloof reference dataset. In general, the
+`EnvImpactEval` package will automatically check the crs of used spatial
+datasets and reproject when required.
 
 ``` r
 plot(matchingCands)
@@ -149,7 +152,7 @@ have a cloud cover below 60%.
 We then calculate simple time series metrics from these two 10-year time
 series: the average value and trend (change in NDVI/year) over the time
 series. More advanced time series analysis methods will be added in a
-later version of the .
+later version of the `EnvImpactEval`.
 
 ``` r
 avgtrend_before <- calc_ts_metrics(vi_before)
@@ -172,10 +175,10 @@ In impact assessment using control-impact (of
 before-after-control-impact) schemes, it is crucial that the control
 units are carefully selected so that their characteristics only differ
 from those of the impact group by the received “treatment” (in our case
-a restoration intervention). This is in the package done by specifying a
-set of covariates to be used in the matching analysis. Ideally, users
-should include “all covariates likely to impact both the selection to
-the treatment and the outcome of interest” ([Schleicher et
+a restoration intervention). This is in the `EnvImpactEval` package done
+by specifying a set of covariates to be used in the matching analysis.
+Ideally, users should include “all covariates likely to impact both the
+selection to the treatment and the outcome of interest” ([Schleicher et
 al.](https://onlinelibrary.wiley.com/doi/abs/10.1111/cobi.13448)).
 
 For the Baviaanskloof example, we use a limited number of matching
@@ -185,12 +188,12 @@ variation will be small and mostly induced by local topography.
 Topographic slope and aspect may also determine whether or not a site is
 selected for revegetation or determine the success of the revegetation
 intervention. This terrain data can be extracted from the NASA Digital
-Elevation Model (DEM) based on SRTM data using the function. Unless
-specified otherwise, the DEM will be obtained from Microsoft’s Planetary
-Computer. The user can also specify the terrain derivatives to be
-calculated (by default the slope and the aspect), and whether the aspect
-should be transformed to “northness” and “eastness” by applying the
-cosine and sine function on it (default) or not.
+Elevation Model (DEM) based on SRTM data using the `nasadem` function.
+Unless specified otherwise, the DEM will be obtained from Microsoft’s
+Planetary Computer. The user can also specify the terrain derivatives to
+be calculated (by default the slope and the aspect), and whether the
+aspect should be transformed to “northness” and “eastness” by applying
+the cosine and sine function on it (default) or not.
 
 ``` r
 dem <- nasadem(refRas)
@@ -225,11 +228,12 @@ lines(selected_sites_proj)
 ![](BACI_Baviaanskloof_files/figure-gfm/unnamed-chunk-9-1.png)<!-- -->
 
 Distance to roads or settlements can explain the anthropogenic pressure
-on an area. The therefore includes functions to calculate the distance
-to the nearest road () or nearest settlement () based on OpenStreetMap
-data. For this example, we include the distance to the nearest road of
-OSM category “track” or higher as an environmental covariate in the
-matching analysis.
+on an area. The `EnvImpactEval` therefore includes functions to
+calculate the distance to the nearest road (`osm_distance_roads`) or
+nearest settlement (`osm_distance_places`) based on OpenStreetMap data.
+For this example, we include the distance to the nearest road of OSM
+category “track” or higher as an environmental covariate in the matching
+analysis.
 
 ``` r
 roadsDist <- osm_distance_roads(refRas, values="track+")
@@ -253,8 +257,8 @@ then perform the control-impact matching using propensity score matching
 (default method), and select 10 control pixels for each impact pixel
 with replacement (a control pixel can be paired with several impact
 pixels). This step can be performed interactively by setting the
-parameter , which will display matching results and plots after which
-the matching can be accepted or rejected.
+parameter `eval=TRUE`, which will display matching results and plots
+after which the matching can be accepted or rejected.
 
 ``` r
 matchingLayers <- list(dem, landcover, roadsDist, avgtrend_before)
