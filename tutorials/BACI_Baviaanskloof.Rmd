@@ -89,8 +89,8 @@ We then calculate simple time series metrics from these two 10-year time series:
 avgtrend_before <- calc_ts_metrics(vi_before)
 avgtrend_after <- calc_ts_metrics(vi_after)
 
-plot(avgtrend_before, main=c("NDVI average, before", "MSAVI trend, before"))
-plot(avgtrend_after, main=c("NDVI average, after", "MSAVI trend, after"))
+plot(avgtrend_before, main=c("NDVI average, before", "NDVI trend, before"))
+plot(avgtrend_after, main=c("NDVI average, after", "NDVI trend, after"))
 ```
 
 # Control-Impact Matching
