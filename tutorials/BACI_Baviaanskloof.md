@@ -13,8 +13,8 @@ Bijker
 
 # 1 The Baviaanskloof dataset
 
-We here use a part of the Baviaanskloof dataset created by [del Río-Mena
-et al.,
+We here use a part of the Baviaanskloof dataset used in [del Río-Mena et
+al.,
 2021](https://journals.plos.org/plosone/article?id=10.1371/journal.pone.0243020),
 included in the `EnvImpactEval` package, to demonstrate a
 before-after-control-impact (BACI) evaluation using the package. The
@@ -152,19 +152,19 @@ have a cloud cover below 60%.
 We then calculate simple time series metrics from these two 10-year time
 series: the average value and trend (change in NDVI/year) over the time
 series. More advanced time series analysis methods will be added in a
-later version of the `EnvImpactEval`.
+later version of the `EnvImpactEval` package.
 
 ``` r
 avgtrend_before <- calc_ts_metrics(vi_before)
 avgtrend_after <- calc_ts_metrics(vi_after)
 
-plot(avgtrend_before, main=c("NDVI average, before", "MSAVI trend, before"))
+plot(avgtrend_before, main=c("NDVI average, before", "NDVI trend, before"))
 ```
 
 ![](BACI_Baviaanskloof_files/figure-gfm/unnamed-chunk-7-1.png)<!-- -->
 
 ``` r
-plot(avgtrend_after, main=c("NDVI average, after", "MSAVI trend, after"))
+plot(avgtrend_after, main=c("NDVI average, after", "NDVI trend, after"))
 ```
 
 ![](BACI_Baviaanskloof_files/figure-gfm/unnamed-chunk-7-2.png)<!-- -->
@@ -228,7 +228,7 @@ lines(selected_sites_proj)
 ![](BACI_Baviaanskloof_files/figure-gfm/unnamed-chunk-9-1.png)<!-- -->
 
 Distance to roads or settlements can explain the anthropogenic pressure
-on an area. The `EnvImpactEval` therefore includes functions to
+on an area. The `EnvImpactEval` package therefore includes functions to
 calculate the distance to the nearest road (`osm_distance_roads`) or
 nearest settlement (`osm_distance_places`) based on OpenStreetMap data.
 For this example, we include the distance to the nearest road of OSM
@@ -269,7 +269,7 @@ matches <- matchCI(matchingCands, rast(matchingLayers), eval=TRUE, ratio=10, rep
     ##  - method: 10:1 nearest neighbor matching with replacement
     ##  - distance: Propensity score
     ##              - estimated with logistic regression
-    ##  - number of obs.: 11782 (original), 1708 (matched)
+    ##  - number of obs.: 11782 (original), 1709 (matched)
     ##  - target estimand: ATT
     ##  - covariates: elevation, slope, cos_aspect, sin_aspect, landcover, dist_roads, average, trend
     ## Press <Enter> to continue.
@@ -279,7 +279,7 @@ matches <- matchCI(matchingCands, rast(matchingLayers), eval=TRUE, ratio=10, rep
     ## 
     ## Summary of Balance for All Data:
     ##                      Means Treated Means Control Std. Mean Diff. Var. Ratio
-    ## distance                    0.0864        0.0185          0.9921     3.2613
+    ## distance                    0.0916        0.0184          0.9858     3.7093
     ## elevation                 546.9688      701.6467         -2.3803     0.1123
     ## slope                       9.5154       12.4234         -0.7395     0.2211
     ## cos_aspect                  0.0530        0.0727         -0.0289     0.9508
@@ -291,10 +291,10 @@ matches <- matchCI(matchingCands, rast(matchingLayers), eval=TRUE, ratio=10, rep
     ## landcoverBare ground        0.0000        0.0137         -0.1190          .
     ## landcoverRangeland          1.0000        0.9443          0.2453          .
     ## dist_roads                526.1387      999.0099         -1.3502     0.1085
-    ## average                     0.1228        0.1380         -1.4151     0.0961
-    ## trend                      -0.0233       -0.0279          1.8639     0.0765
+    ## average                     0.1240        0.1388         -1.3754     0.0985
+    ## trend                       0.0017        0.0006          1.2628     0.1495
     ##                      eCDF Mean eCDF Max
-    ## distance                0.3765   0.5898
+    ## distance                0.3843   0.5975
     ## elevation               0.2394   0.5518
     ## slope                   0.1271   0.2609
     ## cos_aspect              0.0354   0.0911
@@ -306,48 +306,48 @@ matches <- matchCI(matchingCands, rast(matchingLayers), eval=TRUE, ratio=10, rep
     ## landcoverBare ground    0.0137   0.0137
     ## landcoverRangeland      0.0557   0.0557
     ## dist_roads              0.0882   0.2645
-    ## average                 0.1629   0.3499
-    ## trend                   0.2069   0.4220
+    ## average                 0.1624   0.3548
+    ## trend                   0.2044   0.3693
     ## 
     ## Summary of Balance for Matched Data:
     ##                      Means Treated Means Control Std. Mean Diff. Var. Ratio
-    ## distance                    0.0864        0.0864         -0.0004     0.9990
-    ## elevation                 546.9688      542.9632          0.0616     0.2460
-    ## slope                       9.5154        9.1908          0.0826     0.1864
-    ## cos_aspect                  0.0530        0.0832         -0.0444     1.0611
-    ## sin_aspect                  0.5133        0.5119          0.0027     0.9269
+    ## distance                    0.0916        0.0916          0.0003     1.0022
+    ## elevation                 546.9688      544.5570          0.0371     0.2697
+    ## slope                       9.5154        9.7453         -0.0585     0.1762
+    ## cos_aspect                  0.0530        0.0431          0.0146     1.0701
+    ## sin_aspect                  0.5133        0.5095          0.0074     0.8928
     ## landcoverWater              0.0000        0.0000          0.0000          .
     ## landcoverTrees              0.0000        0.0000          0.0000          .
     ## landcoverCrops              0.0000        0.0000          0.0000          .
     ## landcoverBuilt area         0.0000        0.0000          0.0000          .
     ## landcoverBare ground        0.0000        0.0000          0.0000          .
     ## landcoverRangeland          1.0000        1.0000          0.0000          .
-    ## dist_roads                526.1387      494.0952          0.0915     0.3538
-    ## average                     0.1228        0.1233         -0.0444     0.1735
-    ## trend                      -0.0233       -0.0233          0.0136     0.1699
+    ## dist_roads                526.1387      520.3636          0.0165     0.3322
+    ## average                     0.1240        0.1244         -0.0388     0.1672
+    ## trend                       0.0017        0.0017          0.0155     0.3223
     ##                      eCDF Mean eCDF Max Std. Pair Dist.
-    ## distance                0.0002   0.0098          0.0091
-    ## elevation               0.0963   0.2667          1.3609
-    ## slope                   0.1526   0.3457          1.9592
-    ## cos_aspect              0.0478   0.1073          1.1736
-    ## sin_aspect              0.0201   0.0560          0.8815
+    ## distance                0.0002   0.0132          0.0108
+    ## elevation               0.0855   0.2474          1.3264
+    ## slope                   0.1495   0.3269          2.0484
+    ## cos_aspect              0.0422   0.0983          1.1639
+    ## sin_aspect              0.0200   0.0615          0.9121
     ## landcoverWater          0.0000   0.0000          0.0000
     ## landcoverTrees          0.0000   0.0000          0.0000
     ## landcoverCrops          0.0000   0.0000          0.0000
     ## landcoverBuilt area     0.0000   0.0000          0.0000
     ## landcoverBare ground    0.0000   0.0000          0.0000
     ## landcoverRangeland      0.0000   0.0000          0.0000
-    ## dist_roads              0.0825   0.2162          1.3196
-    ## average                 0.1019   0.2026          1.8946
-    ## trend                   0.0906   0.1816          1.8057
+    ## dist_roads              0.0754   0.2047          1.3647
+    ## average                 0.1091   0.2308          2.0239
+    ## trend                   0.0758   0.1440          1.5417
     ## 
     ## Sample Sizes:
-    ##               Control Treated
-    ## All           11548.      234
-    ## Matched (ESS)   995.2     234
-    ## Matched        1474.      234
-    ## Unmatched     10074.        0
-    ## Discarded         0.        0
+    ##                Control Treated
+    ## All           11548.       234
+    ## Matched (ESS)   981.99     234
+    ## Matched        1475.       234
+    ## Unmatched     10073.         0
+    ## Discarded         0.         0
     ## 
     ## Press <Enter> to continue.
 
@@ -390,17 +390,17 @@ baci_results$data
     ## Key: <subclass>
     ##      subclass       x        y      contrast      p_value
     ##        <fctr>   <num>    <num>         <num>        <num>
-    ##   1:        1 2473220 -3922900 -0.0010567364 7.397913e-01
-    ##   2:        2 2473340 -3922900  0.0017609016 2.850812e-01
-    ##   3:        3 2473100 -3923020  0.0087419604 3.127099e-02
-    ##   4:        4 2473220 -3923020  0.0047498201 3.194068e-02
-    ##   5:        5 2473340 -3923020 -0.0006903289 8.626671e-01
+    ##   1:        1 2473220 -3922900  0.0026579992 5.210958e-01
+    ##   2:        2 2473340 -3922900 -0.0077246252 2.776557e-03
+    ##   3:        3 2473100 -3923020  0.0010438368 6.692965e-01
+    ##   4:        4 2473220 -3923020  0.0003944248 9.279116e-01
+    ##   5:        5 2473340 -3923020  0.0033902796 4.287808e-01
     ##  ---                                                     
-    ## 230:      230 2474420 -3925300 -0.0164995292 1.554355e-06
-    ## 231:      231 2474180 -3925420 -0.0020698763 4.691941e-01
-    ## 232:      232 2474300 -3925420 -0.0155974200 2.868748e-04
-    ## 233:      233 2474180 -3925540 -0.0092595581 1.094736e-02
-    ## 234:      234 2474180 -3925660 -0.0116526078 1.124227e-02
+    ## 230:      230 2474420 -3925300 -0.0141403838 2.921116e-06
+    ## 231:      231 2474180 -3925420 -0.0033446828 4.132455e-02
+    ## 232:      232 2474300 -3925420 -0.0096663851 2.227222e-06
+    ## 233:      233 2474180 -3925540 -0.0038216977 1.884310e-01
+    ## 234:      234 2474180 -3925660 -0.0095621575 3.075556e-02
 
 The BACI results can also be plotted on a map, here with non-significant
 BACI contrast masked out. If desired, the pixel-based results can now be
