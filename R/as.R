@@ -1,11 +1,14 @@
 #' As bounding box
 #' 
-#' Create a Bounding Box from a SpatRaster or SpatExtent object in target CRS. Bounding box is a 4-element vector in the order c(xmin, ymin, xmax, ymax)
+#' Create a Bounding Box from a SpatRaster, SpatVector, or SpatExtent object in target CRS. Bounding box is a 4-element vector in the order c(xmin, ymin, xmax, ymax)
 #' 
 #' @import terra
 #' 
 #' @export
 #' @param x a SpatRaster, SpatVector or SpatExtent object
+#' @param crs_to character. Description of the Coordinate Reference System of the created bounding box, in PROJ.4, WKT or authority:code notation. Defaults to longitude/latitude.
+#' @param crs_from If x has no CRS attached (i.e., if x is a SpatExtend or numeric), a character description of the Coordinate Reference System corresponding to the calues of x. Defaults to longitude/latitude.
+#' @param xy logical. If x is a numeric vector of length 4 (or 4 numeric values), set this parameter to TRUE if coordinates are in order (xmin, ymin, xmax, ymax) or FALSE if in order (xmin, xmax, ymin, ymax).
 #' @returns numeric vector of length four
 #' 
 #' 
@@ -62,11 +65,13 @@ setMethod("as.bbox", signature="NULL",
 
 #' As datetime
 #' 
-#' Format to datetime 
+#' Format a range of dates as STAC datetime format 
 #' 
+#' If x is a single numeric or character formatted as YYYYMMDD, the output will be "YYYY-MM-DD", if x is a numeric or character vector of length 2, formatted as YYYYMMDD, output wil be "YYYY-MM-DD/YYYY-MM-DD"
+#' If x is a list the list elements should be named "years" (required), and "months" and "days" (optional). E.g., list(years=2011:2012, months=5:7) returns 2011-05-01/2012-07-31". List element named "days" will be ignored if "months" is not provided.
 #' 
 #' @export
-#' @param x a numeric (or character?)
+#' @param x a numeric, character or list (see Details)
 #' @returns a character string in STAC datetime format
 #' 
 #' 
@@ -85,12 +90,12 @@ setMethod("as.datetime", signature="numeric",
             dots <- as.vector(unlist(list(...)))
             x <- c(x, dots)
             n <- length(x)
-            if (n != 2) {
-              stop("as.datetime: expected two numbers")
+            if (n == 2) {
+              datetime <- as.Date(as.character(x), format="%Y%m%d") |>
+                paste(collapse="/")
+            } else {
+              datetime <- as.character(as.Date(as.character(x), format="%Y%m%d"))
             }
-            datetime <- as.character(x) |> 
-              as.Date(format="%Y%m%d") |>
-              paste(collapse="/")
             return(datetime)
           }
 )
@@ -120,11 +125,10 @@ setMethod("as.datetime", signature="character",
             if (n == 2) {
               datetime <- as.Date(x, format="%Y%m%d") |>
                 paste(collapse="/")
-              return(datetime)
             } else {
-              datetime <- x
-              return(x)
+              datetime <- as.Date(x, format="%Y%m%d")
             }
+            return(datetime)
           }
 )
 
@@ -133,8 +137,17 @@ setMethod("as.datetime", signature="character",
 #' 
 #' Format to STAC collection name for some commonly used collections and STAC endpoints
 #' 
+#' Possible values:
+#' 
+#'   For endpoint=as.endpoint("PlanetaryComputer"):
+#'   * For collection "landsat-c2-l2": "landsat", "landsat-c2-l2"
+#'   * For collection "sentinel-2-l2a": "s2", "sentinel2", "sentinel-2-l2a"
+#' 
+#' @md
+#' 
 #' @export
-#' @param x character
+#' @param x character. Simplified collection name (see Details)
+#' @param endpoint character. STAC endpoint (see as.endpoint)
 #' @returns character 
 #' 
 #' 
@@ -156,12 +169,18 @@ as.collection <- function(x, endpoint=as.endpoint("PlanetaryComputer")){
 
 #' As endpoint
 #' 
-#' Some endpoints of STAC APIs because I'm too lazy to remember/search 
+#' Simplified representation of some STAC API endpoints 
 #' 
-#' Defaults to Planetary Computer
+#' Defaults to "https://planetarycomputer.microsoft.com/api/stac/v1" (Planetary Computer). 
+#' 
+#' Possible values:
+#'  * "lpdaac" = "https://cmr.earthdata.nasa.gov/stac/LPCLOUD",
+#'  * "lpcloud" = "https://cmr.earthdata.nasa.gov/stac/LPCLOUD",
+#'  * "planetarycomputer" = "https://planetarycomputer.microsoft.com/api/stac/v1",
+#'  * "planetary computer" = "https://planetarycomputer.microsoft.com/api/stac/v1"
 #' 
 #' @export
-#' @param name character
+#' @param name character. Simplified endpoint name
 #' @returns a character
 #' 
 #' 

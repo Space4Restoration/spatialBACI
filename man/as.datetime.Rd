@@ -7,11 +7,15 @@
 as.datetime(x, ...)
 }
 \arguments{
-\item{x}{a numeric (or character?)}
+\item{x}{a numeric, character or list (see Details)}
 }
 \value{
 a character string in STAC datetime format
 }
 \description{
-Format to datetime
+Format a range of dates as STAC datetime format
+}
+\details{
+If x is a single numeric or character formatted as YYYYMMDD, the output will be "YYYY-MM-DD", if x is a numeric or character vector of length 2, formatted as YYYYMMDD, output wil be "YYYY-MM-DD/YYYY-MM-DD"
+If x is a list the list elements should be named "years" (required), and "months" and "days" (optional). E.g., list(years=2011:2012, months=5:7) returns 2011-05-01/2012-07-31". List element named "days" will be ignored if "months" is not provided.
 }

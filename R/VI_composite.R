@@ -12,6 +12,7 @@
 #' *NBR
 #' *NBR2 = (swir1-swir2)/(swir1+swir2)
 #' *NDSI = (green-swir1)/(green+swir1)
+#' @md
 #' 
 #' @export
 #' 

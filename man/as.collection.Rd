@@ -7,11 +7,22 @@
 as.collection(x, endpoint = as.endpoint("PlanetaryComputer"))
 }
 \arguments{
-\item{x}{character}
+\item{x}{character. Simplified collection name (see Details)}
+
+\item{endpoint}{character. STAC endpoint (see as.endpoint)}
 }
 \value{
 character
 }
 \description{
 Format to STAC collection name for some commonly used collections and STAC endpoints
+}
+\details{
+Possible values:
+
+For endpoint=as.endpoint("PlanetaryComputer"):
+\itemize{
+\item For collection "landsat-c2-l2": "landsat", "landsat-c2-l2"
+\item For collection "sentinel-2-l2a": "s2", "sentinel2", "sentinel-2-l2a"
+}
 }

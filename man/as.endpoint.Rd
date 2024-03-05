@@ -7,14 +7,20 @@
 as.endpoint(name)
 }
 \arguments{
-\item{name}{character}
+\item{name}{character. Simplified endpoint name}
 }
 \value{
 a character
 }
 \description{
-Some endpoints of STAC APIs because I'm too lazy to remember/search
+Simplified representation of some STAC API endpoints
 }
 \details{
-Defaults to Planetary Computer
+Defaults to "https://planetarycomputer.microsoft.com/api/stac/v1" (Planetary Computer). 
+
+Possible values:
+ * "lpdaac" = "https://cmr.earthdata.nasa.gov/stac/LPCLOUD",
+ * "lpcloud" = "https://cmr.earthdata.nasa.gov/stac/LPCLOUD",
+ * "planetarycomputer" = "https://planetarycomputer.microsoft.com/api/stac/v1",
+ * "planetary computer" = "https://planetarycomputer.microsoft.com/api/stac/v1"
 }
