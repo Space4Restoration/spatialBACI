@@ -21,7 +21,7 @@
 #' @param VI vegetation index
 #' @param endpoint STAC endpoint
 #' @param collection STAC collection
-#' @param scale of source surface reflectance data
+#' @param scale scale of source surface reflectance data
 #' 
 #' @returns proxy data cube object
 #' 

@@ -1,8 +1,8 @@
 #' EO STAC composite
 #' 
-#' Create EO image composite from STAC collection
+#' Create EO image composite from STAC collection.
 #' 
-#' Automatically applies masking if masking layer is provided
+#' Automatically applies masking if masking layer is provided. For an image time series without compositing, set dt="P1D"
 #' 
 #' @export
 #' @importFrom gdalcubes stac_image_collection image_mask cube_view raster_cube gdalcubes_options
@@ -30,8 +30,8 @@ eo_stac_composite <- function(spatRef, t0, t1, dt, endpoint, collection,
                               aggregation="median", resampling="bilinear",
                               authOpt=list()){
   
-  if(is.numeric(t0)) t0 <- as.character(t0) |> as.Date(format="%Y%m%d")
-  if(is.numeric(t1)) t1 <- as.character(t1) |> as.Date(format="%Y%m%d")
+  if(is.numeric(t0)) t0 <- as.character(t0) |> as.Date(format="%Y%m%d") |> as.character()
+  if(is.numeric(t1)) t1 <- as.character(t1) |> as.Date(format="%Y%m%d") |> as.character()
   
   items <- eo_stac_search(endpoint=endpoint,
                           collection=collection,
@@ -66,13 +66,13 @@ eo_stac_composite <- function(spatRef, t0, t1, dt, endpoint, collection,
   }
   if(missing(dt)) dt <- paste0("P",as.numeric(as.Date(t1)-as.Date(t0))+1, "D")
   
-  v.ref <- cube_view(srs=crs(spatRef), 
-                     extent=list(t0=t0, t1=t1,
-                                 left= ext(spatRef)$xmin, right= ext(spatRef)$xmax,
-                                 top=ext(spatRef)$ymax, bottom=ext(spatRef)$ymin),
-                     dx=res(spatRef)[1], dy=res(spatRef)[1], dt=dt,
-                     aggregation=aggregation, resampling=resampling)
-  
+  v.ref <- gdalcubes::cube_view(srs=crs(spatRef, proj=TRUE), 
+                                extent=list(t0=t0, t1=t1,
+                                            left= ext(spatRef)$xmin, right= ext(spatRef)$xmax,
+                                            top=ext(spatRef)$ymax, bottom=ext(spatRef)$ymin),
+                                dx=res(spatRef)[1], dy=res(spatRef)[1], dt=dt,
+                                aggregation=aggregation, resampling=resampling)
+
   composite <- raster_cube(img_collection, v.ref, msk) |>
     select_bands(assets)
 
@@ -164,7 +164,7 @@ eo_stac_yearly_composites <- function(spatRef, years, months,
     msk <- NULL
   }
 
-  v.ref <- cube_view(srs=crs(spatRef), 
+  v.ref <- gdalcubes::cube_view(srs=crs(spatRef), 
                      extent=list(t0=paste(min(years), "01", "01", sep="-"), t1=paste(max(years), "12", "31", sep="-"),
                                  left= ext(spatRef)$xmin, right= ext(spatRef)$xmax,
                                  top=ext(spatRef)$ymax, bottom=ext(spatRef)$ymin),
