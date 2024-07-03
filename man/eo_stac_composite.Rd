@@ -50,8 +50,8 @@ eo_stac_composite(
 proxy data cube object
 }
 \description{
-Create EO image composite from STAC collection
+Create EO image composite from STAC collection.
 }
 \details{
-Automatically applies masking if masking layer is provided
+Automatically applies masking if masking layer is provided. For an image time series without compositing, set dt="P1D"
 }

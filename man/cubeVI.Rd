@@ -15,7 +15,7 @@ cubeVI(cube, VI, endpoint, collection, scale = 1e-05)
 
 \item{collection}{STAC collection}
 
-\item{scale}{of source surface reflectance data}
+\item{scale}{scale of source surface reflectance data}
 }
 \value{
 proxy data cube object
