@@ -1,54 +1,75 @@
 #' EO cube from STAC
 #' 
-#' Create a gdalcubes data cube for EO images retrieved through STAC
+#' Create a data cube for EO images retrieved from a STAC catalog.
 #' 
-#' Warning: masking only works now when asset_names are explicitely defined
+#' t0 and t1 can be provided as numeric in format yyyymmdd, as a character in the format "yyyymmdd" or "yyyy-mm-dd", or as a Date object. 
+#' For now, only date is implemented, not time.
 #' 
 #' @export
-#' @import gdalcubes
+#' @importFrom gdalcubes stac_image_collection cube_view raster_cube select_bands
 #' 
-#' @param x spatRaster. Spatial reference
-#' @param endpoint STAC endpoint
-#' @param collection STAC collection
-#' @param t0 t0
-#' @param t1 t1
-#' @param dt dt
-#' @param asset_names description
-#' @param aggregations description
-#' @param resampling description
-#' @param maxCloud description
-#' @param maskOptions description
-#' @param stacOptions Optional arguments to be passed to eo_stac_search, e.g. authentication options
+#' @param x spatRaster. Defines spatial reference of the output data cube
+#' @param endpoint character. STAC endpoint
+#' @param collection character. STAC collection
+#' @param stacOptions list. Optional arguments to be passed to eo_stac_search, e.g. authentication options
+#' @param t0 start date as numeric, character or Date
+#' @param t1 end date as numeric, character or Date
+#' @param dt size of pixels in time-direction, expressed as ISO8601 period string
+#' @param asset_names character vector of asset (band) names to be used, or NULL for all asset names with "eo:bands" attributes
+#' @param joint_assets logical indicating if only the assets (bands) present in all features should be used, if argument asset_names is NULL
+#' @param aggregations see gdalcubes::cube_view
+#' @param resampling see gdalcubes::cube_view
+#' @param maxCloud maximum cloud cover [0-100] of images to be included in data cube, only relevant for collections with "eo:cloud_cover" attributes 
+#' @param maskOptions list specifying layer used to create mask and masking options (see eo_mask.cube)
 #' 
-#' 
-#' 
+#' @returns proxy data cube object
+
+
 eo_cube.stac <- function(x,
-                         endpoint, collection,
+                         endpoint, collection, stacOptions=list(limit=1000, authOpt=list()),
                          t0, t1, dt="P1D",
-                         asset_names=NULL,
+                         asset_names=NULL, joint_assets=TRUE,
                          maxCloud=NULL,
                          maskOptions=list(NULL),
-                         stacOptions=list(limit=1000, authOpt=list()),
                          aggregation="first", resampling="bilinear"){
   
   ##  Format dates
-  if(is.numeric(t0)) t0 <- as.character(t0) |> as.Date(format="%Y%m%d") |> as.character()
-  if(is.numeric(t1)) t1 <- as.character(t1) |> as.Date(format="%Y%m%d") |> as.character()
+  formatDate <- function(d){
+    switch(class(d),
+           Date = as.character(d),
+           numeric = as.character(d) |> as.Date(format="%Y%m%d") |> as.character(),
+           character = if(nchar(d)==8) as.character(as.Date(d, format="%Y%m%d")) else d
+    )}
+  t0 <- formatDate(t0)
+  t1 <- formatDate(t1)
   
   ##  Create STAC ItemCollection
   s_args <- list(endpoint=endpoint, collection=collection, bbox=as.bbox(x), datetime=paste(t0,t1, sep="/"))
   s_args <- c(s_args, stacOptions)
   itemCollection <- do.call(eo_stac_search, s_args)
-
+  
   ##  Create gdalcubes image collection from STAC ItemCollection
   f_args <- list(s=itemCollection$features)
-  if(!is.null(asset_names)) f_args$asset_names <- c(asset_names,maskOptions$maskLyr)
+  if(is.null(asset_names)){
+    all_asset_names <- lapply(f_args$s, function(s){
+      names(s$assets)[sapply(s$assets, function(a){
+        "eo:bands" %in% names(a)})]
+    })
+    if(isTRUE(joint_assets)){
+      tab <- table(unlist(all_asset_names))
+      tab <- tab[unlist(all_asset_names)|> unique()]
+      asset_names <- names(tab[tab==length(all_asset_names)])
+    } else {
+      asset_names <- unlist(all_asset_names)|> unique()
+    }
+  }
+  f_args$asset_names <- c(asset_names,maskOptions$maskLyr)
   if(!is.null(maxCloud)) f_args$property_filter <- function(x) {x[["eo:cloud_cover"]] < maxCloud}
   suppressWarnings(imgCollection <- do.call(gdalcubes::stac_image_collection, f_args))
   
-  ##  Masking (only if mask layer is provided in "maskOptions" argument)
-  if(!is.null(maskOptions$maskLyr)) msk <- eo_image_mask(maskOptions) else msk <- NULL
-
+  ##  Masking (if mask layer is provided in "maskOptions" argument)
+  if(!is.null(maskOptions$maskLyr)) msk <- eo_mask.cube(maskOptions) else msk <- NULL
+  
   ##  Define Cube View
   v.ref <- gdalcubes::cube_view(srs=crs(x, proj=TRUE), 
                                 extent=list(t0=t0, t1=t1,
@@ -58,149 +79,9 @@ eo_cube.stac <- function(x,
                                 aggregation=aggregation, resampling=resampling)
   
   imgCube <- gdalcubes::raster_cube(imgCollection, v.ref, msk)
-  if(!is.null(asset_names)) imgCube <- gdalcubes::select_bands(imgCube, asset_names)
+  imgCube <- gdalcubes::select_bands(imgCube, asset_names)
   
   return(imgCube)
 }
   
 
-#' Create a median value composite image
-#' 
-#' Create a median value composite image from a data cube
-#' 
-#' @export
-#' 
-#' @importFrom gdalcubes bands reduce_time rename_bands
-#' 
-#' @param cube source data cube
-#' 
-#' 
-#' 
-
-cube_composite.median <- function(cube){
-  names <- gdalcubes::bands(cube)$name
-  comp_args <- list(x=cube)
-  comp_args <- c(comp_args, lapply(names, function(x){paste0("median","(",x,")")}))
-  composite <- do.call(gdalcubes::reduce_time, comp_args)
-
-  rename_args <- as.list(names)
-  names(rename_args) <- gdalcubes::bands(composite)$name
-  rename_args$cube <- composite
-  composite <- do.call(gdalcubes::rename_bands, rename_args)
-
-  return(composite)
-}
-
-# cube_composite.median2 <- function(cube){ #Could try a test of performance expr versus fun.
-#   names <- gdalcubes::bands(cube)$name
-#   composite <- gdalcubes::reduce_time(cube, names=names, FUN=function(x){
-#     x_median <- apply(x, 1, median, na.rm=TRUE)
-#     return(x_median)
-#   })
-#   return(composite)
-# }
-
-
-cube_composite.pseudoMedoid <- function(cube){
-  names <- gdalcubes::bands(cube)$name
-
-  composite <- gdalcubes::reduce_time(cube, names=names, FUN=function(x){
-    #calculate median over time
-    x_median <- apply(x, 1, median, na.rm=TRUE)
-    #calculate euclidean distance for each time step to median
-    y <- (x-x_median)^2 |>
-      apply(2,sum) |>
-      sqrt()
-
-    #select time step with minimum y
-    if (all(is.na(y))) return(rep(NA,nrow(x)))
-    return(x[, which.min(y)])
-  })
-
-  return(composite)
-}
-
-
-#' Composite cube
-#'
-#'
-#'
-#'
-#'
-#'
-
-
-cube_composite <- function(cube, method="median", collection, endpoint){
-
-
-
-  if(method=="median"){
-    composite <- cube_composite.median(cube)
-  }
-  return(composite)
-}
-
-
-    
-    
-    
-#'   } else if(method=="maxNDVI"){
-#'     names <- gdalcubes::bands(cube)$name
-#' 
-#'     #Calculate and add NDVI band
-#'     cube_NDVI <- gdalcubes::apply_pixel(cube, keep_bands=TRUE, names="NDVI", FUN=cubeVI, VI="NDVI", collection=collection, endpoint=endpoint)
-#'     #Use NDVI band to reduce over time
-#'     composite <- gdalcubes::reduce_time(cube_NDVI, names=names, FUN=function(x){
-#'       if (all(is.na(x["NDVI",]))) return(rep(NA,length(names)))
-#'       return (x[names, which.max(x["NDVI",])])
-#'     })
-#' 
-#'     return(composite)
-#' 
-#'   } else if(method=="pseudo-medoid"){
-#'     names <- gdalcubes::bands(cube)$name
-#' 
-#'     # cube_dist <- gdalcubes::apply_time(cube, keep_bands=FALSE, FUN=function(x){
-#'     #   x-rowMeans(x, na.rm=TRUE)
-#'     # })
-#'     #
-#'     #
-#'     #
-#'     # cube_dist <- gdalcubes::apply_time(cube, names="dist", keep_bands=TRUE, FUN=function(x){
-#'     #   return(sqrt(colSums((x-rowMeans(x, na.rm=TRUE))^2)))
-#'     # })
-#' 
-#' 
-#' 
-#' 
-#' 
-#' 
-#' 
-#' 
-#' 
-#' 
-#' 
-#'     # #Calculate band-wise median composite
-#'     # median_composite <- cube_composite.median(cube)
-#'     #
-#'     # dist_to_median <-
-#'     #
-#'     # cube - median_composite
-#' 
-#' 
-#' 
-#' 
-#' 
-#' 
-#'     #nothing yet
-#'     return(NULL)
-#' 
-#'   }else {
-#'     return(NULL)
-#' 
-#'   }
-#' 
-#' 
-#' }
-#' 
-#' 

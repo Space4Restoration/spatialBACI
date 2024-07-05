@@ -8,45 +8,52 @@ eo_cube.stac(
   x,
   endpoint,
   collection,
+  stacOptions = list(limit = 1000, authOpt = list()),
   t0,
   t1,
   dt = "P1D",
   asset_names = NULL,
+  joint_assets = TRUE,
   maxCloud = NULL,
   maskOptions = list(NULL),
-  stacOptions = list(limit = 1000, authOpt = list()),
   aggregation = "first",
   resampling = "bilinear"
 )
 }
 \arguments{
-\item{x}{spatRaster. Spatial reference}
+\item{x}{spatRaster. Defines spatial reference of the output data cube}
 
-\item{endpoint}{STAC endpoint}
+\item{endpoint}{character. STAC endpoint}
 
-\item{collection}{STAC collection}
+\item{collection}{character. STAC collection}
 
-\item{t0}{t0}
+\item{stacOptions}{list. Optional arguments to be passed to eo_stac_search, e.g. authentication options}
 
-\item{t1}{t1}
+\item{t0}{start date as numeric, character or Date}
 
-\item{dt}{dt}
+\item{t1}{end date as numeric, character or Date}
 
-\item{asset_names}{description}
+\item{dt}{size of pixels in time-direction, expressed as ISO8601 period string}
 
-\item{maxCloud}{description}
+\item{asset_names}{character vector of asset (band) names to be used, or NULL for all asset names with "eo:bands" attributes}
 
-\item{maskOptions}{description}
+\item{joint_assets}{logical indicating if only the assets (bands) present in all features should be used, if argument asset_names is NULL}
 
-\item{stacOptions}{Optional arguments to be passed to eo_stac_search, e.g. authentication options}
+\item{maxCloud}{maximum cloud cover [0-100] of images to be included in data cube, only relevant for collections with "eo:cloud_cover" attributes}
 
-\item{resampling}{description}
+\item{maskOptions}{list specifying layer used to create mask and masking options (see eo_mask.cube)}
 
-\item{aggregations}{description}
+\item{resampling}{see gdalcubes::cube_view}
+
+\item{aggregations}{see gdalcubes::cube_view}
+}
+\value{
+proxy data cube object
 }
 \description{
-Create a gdalcubes data cube for EO images retrieved through STAC
+Create a data cube for EO images retrieved from a STAC catalog.
 }
 \details{
-Warning: masking only works now when asset_names are explicitely defined
+t0 and t1 can be provided as numeric in format yyyymmdd, as a character in the format "yyyymmdd" or "yyyy-mm-dd", or as a Date object. 
+For now, only date is implemented, not time.
 }
