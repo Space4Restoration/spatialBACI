@@ -4,26 +4,16 @@
 \alias{eo_stac_search}
 \title{Search STAC EO data}
 \usage{
-eo_stac_search(
-  endpoint,
-  collection = NULL,
-  ids = NULL,
-  bbox = NULL,
-  datetime = NULL,
-  intersects = NULL,
-  limit = NULL,
-  eocc = NULL,
-  authOpt = list()
-)
+eo_stac_search(endpoint, ...)
 }
 \arguments{
 \item{endpoint}{see rstac::search}
 
+\item{...}{see rstac::search}
+
 \item{eocc}{maximum cloud cover (for "eo:cloud_cover" field)}
 
 \item{authOpt}{list specifying STAC authentication options (e.g. list(key="abc"))}
-
-\item{...}{see rstac::search}
 }
 \value{
 STACItemCollection
@@ -32,5 +22,5 @@ STACItemCollection
 Easier searching for EO data in STAC collections
 }
 \details{
-For now only tested/specified for Planetary Computer, LPCLOUD
+For now only implemented for Planetary Computer
 }
