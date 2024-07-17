@@ -2,18 +2,15 @@
 % Please edit documentation in R/soilgrids.R
 \name{SoilGrids2rast}
 \alias{SoilGrids2rast}
-\title{Extract most probable soil type from SoilGrids}
+\title{Read SoilGrids layer as spatRaster}
 \usage{
 SoilGrids2rast(product = "MostProbable")
 }
 \arguments{
-\item{x}{reference SpatRaster}
+\item{product}{SoilGrids layer to be read as spatRaster, defaults to "MostProbable"}
 }
 \description{
-Read most probable soil time from ISRIC SoilGrids data as SpatRaster
-}
-\details{
-This is a quick draft that should be further developed based on the soilDB package
+Read SoilGrids layer as spatRaster
 }
 \references{
 SoilGrids ISRIC CC-BY 4.0 License

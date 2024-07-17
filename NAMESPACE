@@ -3,6 +3,7 @@
 export(BACI_contrast)
 export(CI_contrast)
 export(SoilGrids2rast)
+export(SoilGrids_soilgroup)
 export(as.bbox)
 export(as.collection)
 export(as.datetime)

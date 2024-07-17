@@ -27,8 +27,8 @@ CI_contrast <- function(data, SpatRef=NULL){
   #contrast <- data[, .(control = mean(.SD[treatment==0, effect]) - mean(.SD[treatment==1, effect])), by=subclass,]
   #The more elegant version using .SD seems to be slightly slower.
 
-  p_value <- data[ ,if(.SD[treatment==1,.N]) {
-      #1:k (k control units for each impact unit, contrast/p.value for each control unit individually - t.test for means=0)
+  p_value <- data[ ,if(.SD[treatment==1,.N]==1) {
+    #1:k (k control units for each impact unit, contrast/p.value for each control unit individually - t.test for means=0)
       .(p_value= t.test(.SD[treatment==0, effect]-.SD[treatment==1, effect])$p.value)
     } else {
       #n:k (n control units for k control units, contrast/p.value for all n control units combined - t.test for equal means)
