@@ -47,7 +47,7 @@ eo_stac_search <- function(endpoint, ...){
 eo_stac_search.PlanetaryComputer <- function(collection=NULL, ids=NULL, bbox=NULL, datetime=NULL, intersects=NULL, limit=NULL,
                                              eocc=NULL, sat.orbit.state=NULL, sat.orbit=NULL, authOpt=list()){
     
-  endpoint<- as.endpoint("PlanetaryComputer")
+  endpoint <- as.endpoint("PlanetaryComputer")
   
   searchArgs <- list()
   searchArgs$q <- stac(endpoint)
@@ -56,9 +56,9 @@ eo_stac_search.PlanetaryComputer <- function(collection=NULL, ids=NULL, bbox=NUL
   searchArgs$bbox <- bbox
   searchArgs$datetime <- datetime
   searchArgs$intersects <- intersects
-  #Set limit for planetary computer (max=1000)
-  searchArgs$limit <- min(limit, 1000)
-  if(isTRUE(limit>1000)) warning("Limit set to 1000 (maximum for Planetary Computer)")
+  # #Set limit for planetary computer (max=1000)    #Disable due to rare error.
+  # searchArgs$limit <- min(limit, 1000)
+  # if(isTRUE(limit>1000)) warning("Limit set to 1000 (maximum for Planetary Computer)")
   
   #Extend query
   query <- do.call(stac_search, searchArgs)
@@ -68,8 +68,8 @@ eo_stac_search.PlanetaryComputer <- function(collection=NULL, ids=NULL, bbox=NUL
   #post query
   items <- post_request(query)
   
-  #check if search limit reached
-  if(isTRUE(length(items$features)==limit)) warning(paste0("Limit of ",limit," items reached."))
+  # #check if search limit reached
+  # if(isTRUE(length(items$features)==limit)) warning(paste0("Limit of ",limit," items reached."))
   
   #Authenticate 
   items <- stac_auth(items, endpoint = endpoint, authOpt=authOpt)
