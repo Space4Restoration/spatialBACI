@@ -12,6 +12,9 @@ install_github("Space4Restoration/EnvImpactEval")
 ## Usage 
 See [BACI_Baviaanskloof](https://github.com/Space4Restoration/EnvImpactEval/blob/main/tutorials/BACI_Baviaanskloof.md) for an example.
 
+## User requirements survey
+We are still in the process of collecting user requirements to guide the development of the package. Please fill in the [user survey](https://forms.office.com/e/A69mNGYfzs) to contribute.
+
 ## Contribute
 This package is under development and therefore still lacks certain functionalities and may contain some bugs. Visit the "Issues" tab to report issues, request features, or suggest improvements.
 
