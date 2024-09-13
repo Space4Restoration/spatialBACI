@@ -14,8 +14,8 @@ eo_composites.stac(
   asset_names = NULL,
   joint_assets = TRUE,
   maxCloud = NULL,
-  maskOptions = list(maskLyr = maskLyrName.stac(endpoint, collection), maskSnow = FALSE,
-    maskWater = FALSE),
+  maskOptions = list(maskLyr = eo_maskLyrName.stac(endpoint, collection), maskSnow =
+    FALSE, maskWater = FALSE),
   ...
 )
 }

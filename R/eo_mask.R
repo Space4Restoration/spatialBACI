@@ -157,6 +157,8 @@ bitmask_values <- function(nBit=8, fill=TRUE, dilCloud=TRUE, cirrus=TRUE, cloud=
 #' 
 #' Currently only implemented for collections "landsat-c2-l2" and "sentinel-2-l2a" at Planetary Computer. Returns NULL for all other values. Additional endpoints/collections will be added. 
 #' 
+#' @export
+#' 
 #' @param endpoint STAC endpoint
 #' @param collection STAC collection
 #' 

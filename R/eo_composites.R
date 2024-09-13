@@ -30,7 +30,7 @@ eo_composites.stac <- function(x,
                                method="median",
                                asset_names=NULL, joint_assets=TRUE,
                                maxCloud=NULL,
-                               maskOptions=list(maskLyr=maskLyrName.stac(endpoint, collection), maskSnow=FALSE, maskWater=FALSE),
+                               maskOptions=list(maskLyr=eo_maskLyrName.stac(endpoint, collection), maskSnow=FALSE, maskWater=FALSE),
                                ...){
   
   #If compositing is provided as $years/$months, convert to list of t0-t1-pairs; if only a single t0-t1 pair, convert to 1-element list

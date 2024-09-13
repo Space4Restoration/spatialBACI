@@ -41,5 +41,5 @@ SpatRaster
 Create yearly composite image time series of a selected vegetation index
 }
 \details{
-Limited functionalities for now, see \cide{calc_VI.cube} for implemented vegetation indices:
+Limited functionalities for now, see \code{calc_VI.cube} for implemented vegetation indices:
 }
