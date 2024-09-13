@@ -34,8 +34,10 @@ data(baviaanskloof)
 baviaanskloof <- unwrap(baviaanskloof)
 
 year <- 2012
-selected_sites <- baviaanskloof[baviaanskloof$Planting_date==year & baviaanskloof$Lifestock_exclusion==0]
-other_sites <- baviaanskloof[baviaanskloof$Planting_date!=year | baviaanskloof$Lifestock_exclusion==1]
+selected_sites <- baviaanskloof[baviaanskloof$Planting_date==year &
+                                baviaanskloof$Lifestock_exclusion==0]
+other_sites <- baviaanskloof[baviaanskloof$Planting_date!=year |
+                             baviaanskloof$Lifestock_exclusion==1]
 plot(baviaanskloof, "Planting_date")
 lines(selected_sites, lwd=2)
 ```
