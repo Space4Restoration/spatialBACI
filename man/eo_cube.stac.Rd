@@ -17,7 +17,8 @@ eo_cube.stac(
   maxCloud = NULL,
   maskOptions = list(NULL),
   aggregation = "first",
-  resampling = "bilinear"
+  resampling = "bilinear",
+  harm_bandnames = TRUE
 )
 }
 \arguments{
@@ -44,6 +45,8 @@ eo_cube.stac(
 \item{maskOptions}{list specifying layer used to create mask and masking options (see eo_mask.cube)}
 
 \item{resampling}{see gdalcubes::cube_view}
+
+\item{harm_bandnames}{logical indicating whether endpoint/collection-specific band names should be changed to generic band names}
 
 \item{aggregations}{see gdalcubes::cube_view}
 }

@@ -21,9 +21,9 @@
 #' @param resampling see gdalcubes::cube_view
 #' @param maxCloud maximum cloud cover [0-100] of images to be included in data cube, only relevant for collections with "eo:cloud_cover" attributes 
 #' @param maskOptions list specifying layer used to create mask and masking options (see eo_mask.cube)
+#' @param harm_bandnames logical indicating whether endpoint/collection-specific band names should be changed to generic band names
 #' 
 #' @returns proxy data cube object
-
 
 eo_cube.stac <- function(x,
                          endpoint, collection, stacOptions=list(),
@@ -31,7 +31,8 @@ eo_cube.stac <- function(x,
                          asset_names=NULL, joint_assets=TRUE,
                          maxCloud=NULL,
                          maskOptions=list(NULL),
-                         aggregation="first", resampling="bilinear"){
+                         aggregation="first", resampling="bilinear",
+                         harm_bandnames=TRUE){
   
   ##  Format dates
   formatDate <- function(d){
@@ -68,7 +69,7 @@ eo_cube.stac <- function(x,
   suppressWarnings(imgCollection <- do.call(gdalcubes::stac_image_collection, f_args))
   
   ##  Masking (if mask layer is provided in "maskOptions" argument)
-  if(!is.null(maskOptions$maskLyr)) msk <- eo_mask.cube(maskOptions) else msk <- NULL
+  if(!is.null(maskOptions$maskLyr)) msk <- do.call(eo_mask.cube, maskOptions) else msk <- NULL
   
   ##  Define Cube View
   v.ref <- gdalcubes::cube_view(srs=crs(x, proj=TRUE), 
@@ -81,6 +82,8 @@ eo_cube.stac <- function(x,
   imgCube <- gdalcubes::raster_cube(imgCollection, v.ref, msk)
   imgCube <- gdalcubes::select_bands(imgCube, asset_names)
   
+  if(isTRUE(harm_bandnames)) imgCube <- eo_harm_bandnames.cube(imgCube, endpoint, collection)
+  
   return(imgCube)
 }
   
@@ -89,7 +92,7 @@ eo_cube.stac <- function(x,
 #' 
 #' Create a data cube with yearly time intervals for EO images retrieved from a STAC catalog.
 #' 
-#' This function bypasses limits on the length of the queried STAC itemCollection by posting subserquent queries for each year
+#' This function bypasses limits on the length of the queried STAC itemCollection by posting subsequent queries for each year
 #' 
 #' @export
 #' @importFrom gdalcubes stac_image_collection cube_view raster_cube select_bands
@@ -106,6 +109,9 @@ eo_cube.stac <- function(x,
 #' @param maskOptions list specifying layer used to create mask and masking options (see eo_mask.cube)
 #' @param aggregation see gdalcubes::cube_view
 #' @param resampling see gdalcubes::cube_view
+#' @param harm_bandnames logical indicating whether endpoint/collection-specific band names should be changed to generic band names
+#' 
+#' @returns proxy data cube object
 #' 
 eo_cube_yearly.stac <- function(x,
                                 endpoint, collection, stacOptions=list(),
@@ -114,7 +120,8 @@ eo_cube_yearly.stac <- function(x,
                                 asset_names=NULL, joint_assets=TRUE,
                                 maxCloud=NULL,
                                 maskOptions=list(NULL),
-                                aggregation="median", resampling="bilinear"){
+                                aggregation="median", resampling="bilinear",
+                                harm_bandnames=TRUE){
   
   itemCollection <- NULL
   for(year in years){
@@ -162,7 +169,7 @@ eo_cube_yearly.stac <- function(x,
   suppressWarnings(imgCollection <- do.call(gdalcubes::stac_image_collection, f_args))
   
   ##  Masking (if mask layer is provided in "maskOptions" argument)
-  if(!is.null(maskOptions$maskLyr)) msk <- eo_mask.cube(maskOptions) else msk <- NULL
+  if(!is.null(maskOptions$maskLyr)) msk <- do.call(eo_mask.cube, maskOptions) else msk <- NULL
   
   ##  Define Cube View
   v.ref <- gdalcubes::cube_view(srs=crs(x, proj=TRUE), 
@@ -172,11 +179,13 @@ eo_cube_yearly.stac <- function(x,
                                 dx=res(x)[1], dy=res(x)[2], dt="P1Y",
                                 aggregation=aggregation, resampling=resampling)
   
-  
   imgCube <- gdalcubes::raster_cube(imgCollection, v.ref, msk)
   imgCube <- gdalcubes::select_bands(imgCube, asset_names)
   
+  if(isTRUE(harm_bandnames)) imgCube <- eo_harm_bandnames.cube(imgCube, endpoint, collection)
+  
   return(imgCube)
 }
+
 
 

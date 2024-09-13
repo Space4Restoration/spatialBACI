@@ -4,20 +4,32 @@
 \alias{eo_mask.cube}
 \title{EO mask for data cube}
 \usage{
-eo_mask.cube(maskOptions = list(maskLyr = NULL))
+eo_mask.cube(maskLyr, maskSnow = FALSE, maskWater = FALSE)
 }
 \arguments{
+\item{maskLyr}{description}
+
+\item{maskSnow}{logical. Defines whether snow should be masked.}
+
+\item{maskWater}{logical. Defines whether water should be masked.}
+
 \item{maskOptions}{named list. Masking options. See details.}
 }
 \value{
 an object of class "image_mask"
 }
 \description{
-Create mask from Landsat QA layer or Sentinel-2 SCL to be used in gdalcubes::raster_cube
+Create mask from Landsat QA layer or Sentinel-2 SCL that can be used in gdalcubes::raster_cube
 }
 \details{
-The image mask is specified by the list elements provided in the maskOptions argument. 
-The metadata layer from which the mask is derived should be specified as maskOptions$maskLyr. For now, mask derived from "qa_pixel" (for Landsat) and "SCL" (for Sentinel-2) are implemented.
+The metadata layer from which the mask is derived should be specified in \code{maskLyr}. For now, mask derived from "qa_pixel" (for Landsat) and "SCL" (for Sentinel-2) are implemented.
 Clouds, cloud shadow and pixels adjacent to clouds are always masked (when these fields are specified in the masking layer). 
-Snow and water can be masked by setting maskOptions$maskSnow=TRUE and maskOptions$maskWater=TRUE, respectively. By default, these are not masked
+Snow and water can be masked by setting the respective parameters, by default these are not masked
+}
+\examples{
+# mask from Landsat "qa_pixel" layer
+eo_mask.cube("qa_pixel")
+# mask from Sentinel-2 "SCL" layer
+eo_mask.cube("SCL", maskSnow=TRUE, maskWater=TRUE)
+
 }

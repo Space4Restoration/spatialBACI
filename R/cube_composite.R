@@ -54,8 +54,6 @@ cube_composite.medoid <- function(cube){
 }
 
 
-
-
 #' Composite cube
 #'
 #' Create a pixel-based composite image from a multitemporal data cube
@@ -82,8 +80,6 @@ cube_composite <- function(cube, method="median", ...){
   }
   return(composite)
 }
-
-
 
 # cube_composite.maxNDVI <- function(cube, collection, endpoint){
 # 

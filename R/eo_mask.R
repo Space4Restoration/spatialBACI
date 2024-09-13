@@ -1,58 +1,77 @@
+####  FUNCTIONS RELATED TO MASKING OF EO DATA
+####    For now, focus on Landsat/Sentinel2
+
+
 #' EO mask for data cube
 #' 
-#' Create mask from Landsat QA layer or Sentinel-2 SCL to be used in gdalcubes::raster_cube
+#' Create mask from Landsat QA layer or Sentinel-2 SCL that can be used in gdalcubes::raster_cube
 #' 
-#' The image mask is specified by the list elements provided in the maskOptions argument. 
-#' The metadata layer from which the mask is derived should be specified as maskOptions$maskLyr. For now, mask derived from "qa_pixel" (for Landsat) and "SCL" (for Sentinel-2) are implemented.
+#' The metadata layer from which the mask is derived should be specified in \code{maskLyr}. For now, mask derived from "qa_pixel" (for Landsat) and "SCL" (for Sentinel-2) are implemented.
 #' Clouds, cloud shadow and pixels adjacent to clouds are always masked (when these fields are specified in the masking layer). 
-#' Snow and water can be masked by setting maskOptions$maskSnow=TRUE and maskOptions$maskWater=TRUE, respectively. By default, these are not masked
+#' Snow and water can be masked by setting the respective parameters, by default these are not masked
 #' 
 #' @export
 #' @importFrom gdalcubes image_mask
 #' 
 #' @param maskOptions named list. Masking options. See details.
+#' @param maskLyr description
+#' @param maskSnow logical. Defines whether snow should be masked.
+#' @param maskWater logical. Defines whether water should be masked.
 #' 
 #' @returns an object of class "image_mask"
+#' 
+#' @examples
+#' # mask from Landsat "qa_pixel" layer
+#' eo_mask.cube("qa_pixel")
+#' # mask from Sentinel-2 "SCL" layer
+#' eo_mask.cube("SCL", maskSnow=TRUE, maskWater=TRUE)
+#' 
 
-eo_mask.cube <- function(maskOptions=list(maskLyr=NULL)){
+eo_mask.cube <- function(maskLyr,
+                         maskSnow=FALSE,
+                         maskWater=FALSE){
   
-  #Default values for maskSnow and maskWater
-  if(is.null(maskOptions$maskSnow)) maskOptions$maskSnow <- FALSE
-  if(is.null(maskOptions$maskWater)) maskOptions$maskWater <- FALSE
+  if(missing(maskLyr)) return(NULL)
+  maskSnow <- as.logical(maskSnow)
+  maskWater <- as.logical(maskWater)
 
-  if(isTRUE(maskOptions$maskLyr == "qa_pixel")){
+  if(isTRUE(maskLyr == "qa_pixel")){
     bits <- 0:7
-    mskValues <- bitmask_values(8, snow=maskOptions$maskSnow, water=maskOptions$maskWater)
-  } else if (isTRUE(maskOptions$maskLyr == "SCL")){
+    mskValues <- bitmask_values(8, snow=maskSnow, water=maskWater)
+  } else if (isTRUE(maskLyr == "SCL")){
     bits <- NULL
     mskValues <- c(0,1,2,3,8,9,10)
-    if(maskOptions$maskWater) mskValues <- c(mskValues,6)
-    if(maskOptions$maskSnow) mskValues <- c(mskValues,11)
+    if(maskWater) mskValues <- c(mskValues,6)
+    if(maskSnow) mskValues <- c(mskValues,11)
   } else {
-    #warning("unrecognized mask layer name")
+    warning("Mask layer name is not implemented")
     return(NULL)
   }
-  msk <- gdalcubes::image_mask(maskOptions$maskLyr, bits=bits, values=mskValues)
+  msk <- gdalcubes::image_mask(maskLyr, bits=bits, values=mskValues)
   return(msk)
 }
-  
+
 
 #' EO mask for spatRaster
 #' 
 #' Create mask from Landsat QA layer or Sentinel-2 SCL terra::spatRaster objects
 #' 
+#' The metadata layer from which the mask is derived should be specified in \code{maskLyr}. For now, mask derived from "qa_pixel" (for Landsat) and "SCL" (for Sentinel-2) are implemented.
 #' Clouds, cloud shadow and pixels adjacent to clouds are always masked (when these fields are specified in the masking layer). 
-#' Snow and water can be masked by setting maskOptions$maskSnow=TRUE and maskOptions$maskWater=TRUE, respectively. By default, these are not masked.
+#' Snow and water can be masked by setting the respective parameters, by default these are not masked
 #' 
 #' @export
 #' @importFrom terra app classify subset
 #' 
 #' @param r a spatRaster object containing a layer names "qa_pixel" (for Landsat mask) or "SCL" (for Sentinel-2 mask)
-#' @param maskOptions list. see Details.
+#' @param maskSnow logical. Defines whether snow should be masked.
+#' @param maskWater logical. Defines whether water should be masked.
 #' 
 #' @returns a spatRaster mask with NA for values to be masked and 0 for other values
 #' 
-eo_mask.rast <- function(r, maskOptions=list(NULL)){
+eo_mask.rast <- function(r, 
+                         maskSnow=FALSE,
+                         maskWater=FALSE){
   
   maskLyrName <- names(r)[names(r) %in% c("qa_pixel", "SCL")]
   maskLyr <- terra::subset(r,maskLyrName)
@@ -60,8 +79,8 @@ eo_mask.rast <- function(r, maskOptions=list(NULL)){
   if(maskLyrName=="qa_pixel"){
     #Bits: c("Fill", "Dilated Cloud", "Cirrus", "Cloud", "Cloud Shadow", "Snow", "Clear", "Water")
     whichBits <- seq(1:5) #always mask c"Fill", "Dilated Cloud", "Cirrus", "Cloud", "Cloud Shadow"
-    if(isTRUE(maskOptions$maskSnow)) whichBits <- c(whichBits, 6)
-    if(isTRUE(maskOptions$maskWater)) whichBits <- c(whichBits, 8)
+    if(isTRUE(maskSnow)) whichBits <- c(whichBits, 6)
+    if(isTRUE(maskWater)) whichBits <- c(whichBits, 8)
     
     numToBinary <- function(nums, nBits){
       sapply(nums, function(x){as.integer(intToBits(x)[1:nBits])})
@@ -73,8 +92,8 @@ eo_mask.rast <- function(r, maskOptions=list(NULL)){
   } else if(maskLyrName=='SCL'){
     #Apply mask based on "scene classification map" layer
     mskValues <- c(0,1,2,3,8,9,10)
-    if(isTRUE(maskOptions$maskWater)) mskValues <- c(mskValues,6)
-    if(isTRUE(maskOptions$maskSnow)) mskValues <- c(mskValues,11)
+    if(isTRUE(maskWater)) mskValues <- c(mskValues,6)
+    if(isTRUE(maskSnow)) mskValues <- c(mskValues,11)
     
     classMatrix <- matrix(data=c(0:11, rep(0,12)), ncol=2)
     classMatrix[classMatrix[,1] %in% mskValues,2] <- NA
@@ -131,4 +150,24 @@ bitmask_values <- function(nBit=8, fill=TRUE, dilCloud=TRUE, cirrus=TRUE, cloud=
   return(values)
 }
 
+
+#' Retrieve mask layer name
+#' 
+#' This function returns the metadata layer name from which a mask can be derived for a collection at a STAC endpoint
+#' 
+#' Currently only implemented for collections "landsat-c2-l2" and "sentinel-2-l2a" at Planetary Computer. Returns NULL for all other values. Additional endpoints/collections will be added. 
+#' 
+#' @param endpoint STAC endpoint
+#' @param collection STAC collection
+#' 
+#' @returns character or NULL
+#' 
+eo_maskLyrName.stac <- function(endpoint, collection){
+  metaLyr <- NULL
+  if(endpoint=="https://planetarycomputer.microsoft.com/api/stac/v1"){
+    if(collection=="landsat-c2-l2") metaLyr <- "qa_pixel"
+    if(collection=="sentinel-2-l2a") metaLyr <- "SCL"
+  }
+  return(metaLyr)
+}
 

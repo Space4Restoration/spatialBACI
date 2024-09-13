@@ -16,7 +16,8 @@ eo_cube_yearly.stac(
   maxCloud = NULL,
   maskOptions = list(NULL),
   aggregation = "median",
-  resampling = "bilinear"
+  resampling = "bilinear",
+  harm_bandnames = TRUE
 )
 }
 \arguments{
@@ -43,10 +44,15 @@ eo_cube_yearly.stac(
 \item{aggregation}{see gdalcubes::cube_view}
 
 \item{resampling}{see gdalcubes::cube_view}
+
+\item{harm_bandnames}{logical indicating whether endpoint/collection-specific band names should be changed to generic band names}
+}
+\value{
+proxy data cube object
 }
 \description{
 Create a data cube with yearly time intervals for EO images retrieved from a STAC catalog.
 }
 \details{
-This function bypasses limits on the length of the queried STAC itemCollection by posting subserquent queries for each year
+This function bypasses limits on the length of the queried STAC itemCollection by posting subsequent queries for each year
 }

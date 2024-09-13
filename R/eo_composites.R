@@ -1,23 +1,3 @@
-#' Mask layer name
-#' 
-#' Function that defines metadata layer name from which mask can be derived for a collection at a STAC endpoint
-#' 
-#' Currently only implemented for collections "landsat-c2-l2" and "sentinel-2-l2a" at Planetary Computer. Returns NULL for all other values 
-#' 
-#' @param endpoint STAC endpoint
-#' @param collection STAC collection
-#' 
-#' @returns character or NULL
-#' 
-
-maskLyrName.stac <- function(endpoint, collection){
-  metaLyr <- NULL
-  if(endpoint=="https://planetarycomputer.microsoft.com/api/stac/v1"){
-    if(collection=="landsat-c2-l2") metaLyr <- "qa_pixel"
-    if(collection=="sentinel-2-l2a") metaLyr <- "SCL"
-  }
-  return(metaLyr)
-}
 
 
 #' Image composites from STAC
