@@ -13,8 +13,12 @@
 #' 
 #' 
 gdalcube_as_terra <- function(cube){
-  r <- st_as_stars.cube(cube) |>
+  
+  cube_names <- names(cube)
+  r <- gdalcubes::st_as_stars.cube(cube) |>
     terra::rast()
+  names(r) <- cube_names
+  
   return(r)
 }
 
@@ -22,10 +26,6 @@ gdalcube_as_terra <- function(cube){
 
 is.cube <- function(obj) {
   if(!("cube" %in% class(obj))) {
-    return(FALSE)
-  }
-  if (gc_is_null(obj)) {
-    warning("GDAL data cube proxy object is invalid")
     return(FALSE)
   }
   return(TRUE)
