@@ -7,6 +7,8 @@
 #' 
 #' @export
 #' 
+#' @importFrom gdalcubes cube_view raster_cube select_bands
+#' 
 #' @returns SpatRaster
 #' 
 #' @param x description
@@ -66,10 +68,11 @@ eo_VI_yearly.stac <- function(x, VI,
                                             top=ext(x)$ymax, bottom=ext(x)$ymin),
                                 dx=res(x)[1], dy=res(x)[2], dt="P1Y",
                                 aggregation="median", resampling="bilinear")
-  composite <- raster_cube(imgCollection, v.ref, msk) |>
-    select_bands(asset_names)
+  composite <- gdalcubes::raster_cube(imgCollection, v.ref, msk) |>
+    gdalcubes::select_bands(asset_names) |>
+    eo_harm_bandnames.cube(endpoint, collection)
 
-  out <- cubeVI(composite, VI=VI, endpoint=endpoint, collection=collection)
+  out <- calc_VI.cube(composite, VI=VI)
   return(out)
   
 }

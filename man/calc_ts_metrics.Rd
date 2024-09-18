@@ -4,20 +4,16 @@
 \alias{calc_ts_metrics}
 \title{Calculate time series metrics}
 \usage{
-calc_ts_metrics(rastTimeSeries, average = 1, trend = 1, immediate = 0)
+calc_ts_metrics(x, ...)
 }
 \arguments{
-\item{rastTimeSeries}{SpatRaster. Each layer represents a time step, provided in "time" field}
+\item{x}{data cube or spatRaster}
 
-\item{average}{numeric. If not 0, calculate the time series average}
-
-\item{trend}{numeric. If not 0, calculate the time series trend}
-
-\item{immediate}{numeric. If not 0, calculate the time series component required to calculate the immediate effect. Provide negative value for the "before", positive value for the "after" time series.}
-}
-\value{
-SpatRaster with selected parameters as layers
+\item{...}{additional arguments passed to \code{calc_ts_metrics.cube} or \code{calc_ts_metrics.rast}}
 }
 \description{
-Calculate average and trend from a SpatRaster times series
+Generic function for \code{calc_ts_metrics.cube} and \code{calc_ts_metrics.rast}
+}
+\details{
+Currently, there are some differences in the output of the functions for data cube and spatRaster, has to be harmonized.
 }

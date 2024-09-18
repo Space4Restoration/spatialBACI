@@ -1,3 +1,55 @@
+
+#' Collate matching layers
+#' 
+#' Process different matching layers in compatible format
+#' 
+#' All matching layers should be provided as additional arguments (\code{...}). Matching layers can be provided as spatRaster, data cube, or a character (which will be interpreted as a readable file name). 
+#' 
+#' @importFrom terra compareGeom rast
+#' 
+#' @export
+#' 
+#' @param x spatRaster providing spatial reference
+#' @param ... Matching layers. See Details.
+#' 
+collate_matching_layers <- function(x, ...){
+  
+  input_args <- list(...)
+  rast_list <- vector(mode="list", length=length(input_args))
+  
+  for(i in 1:length(input_args)){
+    inLyr <- input_args[[i]]
+    
+    #If gdalcube > transform to spatRaster
+    if(is.cube(inLyr)){
+      inLyr <- gdalcube_as_terra(inLyr)
+    }
+    
+    #If character > assume it is filename, read as spatRaster
+    if(is.character(inLyr)){
+      inLyr <- terra::rast(inLyr)
+    }
+    
+    #If spatRaster > check if 
+    if(is.spatRaster(inLyr)){
+      if(isTRUE(terra::compareGeom(x, inLyr))){
+        i_out <- inLyr
+      } else {
+        i_out <- terra::project(inLyr, x)
+      }
+    } else {
+      warning("Unrecognized format, skipping input")
+      i_out <- NULL
+    }
+    
+    rast_list[[i]] <- i_out  
+  }
+  
+  out <- terra::rast(rast_list)
+  return(out)
+}
+
+
 #' Control-impact matching
 #' 
 #' Match control units to impact units
@@ -9,6 +61,7 @@
 #' @import data.table
 #' @import MatchIt
 #' @import terra
+#' 
 #' @param cands Control-Impact candidates - SpatRaster - 0=control, 1=impact, NA=exclude
 #' @param matchlyrs multilayer SpatRaster (same geometry as CI_cand) of matching variables
 #' @param eval should matching be evaluated, return NULL if matching is rejected

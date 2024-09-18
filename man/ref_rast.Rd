@@ -33,7 +33,7 @@ if a negative integer rounded to the corresponding power of 10 (e.g., \code{roun
 SpatRaster
 }
 \description{
-Given a polygon or center coordinates, and additional spatial argument, create an empty reference raster.
+Define a spatial reference spatRaster object based on a polygon of pair of coordinates, and additional spatial arguments.
 }
 \examples{
 ref_rast(30, 45, resolution=10, buffer=200, round_coords=-1)

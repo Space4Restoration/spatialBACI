@@ -1,5 +1,8 @@
 #' Harmonize STAC endpoint/collection specific band names
 #' 
+#' Shorthand for eo_harm_bandnames.cube
+#' 
+#' 
 #' @export
 #' 
 #' @param x data cube
@@ -8,13 +11,13 @@
 #' 
 eo_harm_bandnames <- function(x, ...){
   if ("cube" %in% class(x)){
-    x <- eo_harm_bandnames.cube(x, ...)
+    y <- eo_harm_bandnames.cube(x, ...)
     # } else if (class(x)=="SpatRaster"){
-    #   vi <- calc_VI.rast(x, ...)
+    #   y <- eo_harm_bandnames.rast(x, ...)
   } else {
     stop('unrecognized class of "X"')
   }
-  return(x)
+  return(y)
 }
 
 #' Harmonize STAC endpoint/collection-specific band names of data cubes

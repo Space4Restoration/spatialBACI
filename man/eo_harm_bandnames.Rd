@@ -12,5 +12,5 @@ eo_harm_bandnames(x, ...)
 \item{...}{additional arguments passed to \code{eo_harm_bandnames.cube}}
 }
 \description{
-Harmonize STAC endpoint/collection specific band names
+Shorthand for eo_harm_bandnames.cube
 }
