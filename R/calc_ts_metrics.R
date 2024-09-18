@@ -28,17 +28,20 @@ calc_ts_metrics <- function(x, ...){
 #' 
 #' Calculate average and trend from a multitemporal data cube
 #' 
-#' @importFrom gdalcubes reduce_time join_bands
+#' @importFrom gdalcubes reduce_time join_bands select_bands
 #'
 #' @export
 #' 
 #' @param cube data cube with a t dimension.
 #' @param average numeric. If not 0, calculate the time series average
 #' @param trend numeric. If not 0, calculate the time series trend, and the intercept at tmin and tmax
-#'
+#' @param intercept_tmin logical. Calculate the intercept at tmin
+#' @param intercept_tmax logical. Calculate the intercept at tmax
+#' 
+#' 
 #' @returns data cube
 #' 
-calc_ts_metrics.cube <- function(cube, average=1, trend=1){
+calc_ts_metrics.cube <- function(cube, average=1, trend=1, intercept_tmin=FALSE, intercept_tmax=FALSE){
   
   out_list <- list()
   
@@ -63,9 +66,16 @@ calc_ts_metrics.cube <- function(cube, average=1, trend=1){
 
                                     return(c(average, trend, intercept_tmin, intercept_tmax))
                                   })
-    
-  }
   
+    sbands <- c()
+    if(average==1) sbands <- c(sbands, "average")
+    if(trend==1) sbands <- c(sbands, "trend")
+    if(intercept_tmin) sbands <- c(sbands, "intercept_tmin")
+    if(intercept_tmax) sbands <- c(sbands, "intercept_tmax")
+    
+    out <- gdalcubes::select_bands(out, sbands)
+  }
+
   return(out)
 }
 

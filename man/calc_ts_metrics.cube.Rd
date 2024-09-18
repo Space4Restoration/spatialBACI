@@ -4,7 +4,13 @@
 \alias{calc_ts_metrics.cube}
 \title{Calculate time series metrics from a data cube}
 \usage{
-calc_ts_metrics.cube(cube, average = 1, trend = 1)
+calc_ts_metrics.cube(
+  cube,
+  average = 1,
+  trend = 1,
+  intercept_tmin = FALSE,
+  intercept_tmax = FALSE
+)
 }
 \arguments{
 \item{cube}{data cube with a t dimension.}
@@ -12,6 +18,10 @@ calc_ts_metrics.cube(cube, average = 1, trend = 1)
 \item{average}{numeric. If not 0, calculate the time series average}
 
 \item{trend}{numeric. If not 0, calculate the time series trend, and the intercept at tmin and tmax}
+
+\item{intercept_tmin}{logical. Calculate the intercept at tmin}
+
+\item{intercept_tmax}{logical. Calculate the intercept at tmax}
 }
 \value{
 data cube
