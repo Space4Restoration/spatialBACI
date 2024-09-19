@@ -16,5 +16,5 @@ a SpatRaster object
 Convert a proxy data cube object to a terra SpatRaster object
 }
 \details{
-Currently only works for data cubes with a single time dimension. To be improved.
+Currently only works for data cubes with a single time dimension or a single band. To be improved.
 }
