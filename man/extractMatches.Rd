@@ -4,7 +4,7 @@
 \alias{extractMatches}
 \title{Extract data for matches}
 \usage{
-extractMatches(matches, effect, before, after)
+extractMatches(matches, effect, before, after, band = NULL)
 }
 \arguments{
 \item{matches}{output of \code{matchCI}}
@@ -14,10 +14,9 @@ extractMatches(matches, effect, before, after)
 \item{before}{SpatRaster of before values}
 
 \item{after}{SpatRaster of after values}
+
+\item{band}{character. If before/after contain more than one band, this parameter can be used to select the band to be extracted}
 }
 \description{
 Extract the "before" and "after", or "effect", values for the matching pairs
-}
-\seealso{
-[matchCI()]
 }

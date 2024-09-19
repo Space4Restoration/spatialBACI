@@ -2,6 +2,8 @@
 #' 
 #' Convert a proxy data cube object to a terra SpatRaster object
 #' 
+#' Currently only works for data cubes with a single time dimension. To be improved.
+#' 
 #' @importFrom terra rast
 #' @importFrom gdalcubes st_as_stars.cube
 #' 
@@ -32,7 +34,7 @@ is.cube <- function(obj) {
 }
 
 is.spatRaster <- function(obj){
-  if(class(obj)=="SpatRaster"){
+  if("SpatRaster" %in% class(obj)){
     return(TRUE)
   }
   return(FALSE)

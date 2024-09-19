@@ -1,9 +1,9 @@
 
 #' Calculate time series metrics
 #' 
-#' Generic function for \code{calc_ts_metrics.cube} and \code{calc_ts_metrics.rast}
+#' Generic function for \code{calc_ts_metrics.cube} and \code{calc_ts_metrics.spatRaster}
 #' 
-#' Currently, there are some differences in the output of the functions for data cube and spatRaster, has to be harmonized.
+#' Currently, there are some differences in the inputs/outputs of the functions for data cube and spatRaster, this has to be harmonized.
 #' 
 #' @export
 #' 
@@ -11,41 +11,34 @@
 #' @param ... additional arguments passed to \code{calc_ts_metrics.cube} or \code{calc_ts_metrics.rast}
 #' 
 #' 
-calc_ts_metrics <- function(x, ...){
-  if ("cube" %in% class(x)){
-    y <- calc_ts_metrics.cube(x, ...)
-    
-  } else if (class(x)=="SpatRaster"){
-    y <- calc_ts_metrics.rast(x, ...)
-  } else {
-    stop('unrecognized class of "X"')
-  }
-  return(y)
+calc_ts_metrics <- function(x, ...) {
+  UseMethod("calc_ts_metrics")
 }
+
 
 
 #' Calculate time series metrics from a data cube
 #' 
-#' Calculate average and trend from a multitemporal data cube
+#' Calculate average, trend, and intercepts from a multitemporal data cube
 #' 
 #' @importFrom gdalcubes reduce_time join_bands select_bands
 #'
 #' @export
 #' 
-#' @param cube data cube with a t dimension.
-#' @param average numeric. If not 0, calculate the time series average
-#' @param trend numeric. If not 0, calculate the time series trend, and the intercept at tmin and tmax
-#' @param intercept_tmin logical. Calculate the intercept at tmin
-#' @param intercept_tmax logical. Calculate the intercept at tmax
+#' @param cube data cube with a t dimension and single band.
+#' @param average logical. Calculate the time series average.
+#' @param trend logical. Calculate the time series trend (= slope of linear regression).
+#' @param intercept_tmin logical. Calculate the intercept at tmin.
+#' @param intercept_tmax logical. Calculate the intercept at tmax.
 #' 
 #' 
 #' @returns data cube
 #' 
-calc_ts_metrics.cube <- function(cube, average=1, trend=1, intercept_tmin=FALSE, intercept_tmax=FALSE){
+calc_ts_metrics.cube <- function(cube, average=TRUE, trend=TRUE, intercept_tmin=FALSE, intercept_tmax=FALSE){
   
   out_list <- list()
   
-  if(average==1 & trend == 0){
+  if(isTRUE(average) & !isTRUE(trend)){
     out <- gdalcubes::reduce_time(cube, names="mean", 
                                                FUN=function(x){mean(x, na.rm=TRUE)})
   } else if (trend==1){
@@ -95,7 +88,7 @@ calc_ts_metrics.cube <- function(cube, average=1, trend=1, intercept_tmin=FALSE,
 #' 
 #' @returns SpatRaster with selected parameters as layers
 #' 
-calc_ts_metrics.rast <- function(rastTimeSeries, average=1, trend=1, immediate=0){
+calc_ts_metrics.SpatRaster <- function(rastTimeSeries, average=1, trend=1, immediate=0){
 
   out <- list()
   

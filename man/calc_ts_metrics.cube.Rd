@@ -4,28 +4,28 @@
 \alias{calc_ts_metrics.cube}
 \title{Calculate time series metrics from a data cube}
 \usage{
-calc_ts_metrics.cube(
+\method{calc_ts_metrics}{cube}(
   cube,
-  average = 1,
-  trend = 1,
+  average = TRUE,
+  trend = TRUE,
   intercept_tmin = FALSE,
   intercept_tmax = FALSE
 )
 }
 \arguments{
-\item{cube}{data cube with a t dimension.}
+\item{cube}{data cube with a t dimension and single band.}
 
-\item{average}{numeric. If not 0, calculate the time series average}
+\item{average}{logical. Calculate the time series average.}
 
-\item{trend}{numeric. If not 0, calculate the time series trend, and the intercept at tmin and tmax}
+\item{trend}{logical. Calculate the time series trend (= slope of linear regression).}
 
-\item{intercept_tmin}{logical. Calculate the intercept at tmin}
+\item{intercept_tmin}{logical. Calculate the intercept at tmin.}
 
-\item{intercept_tmax}{logical. Calculate the intercept at tmax}
+\item{intercept_tmax}{logical. Calculate the intercept at tmax.}
 }
 \value{
 data cube
 }
 \description{
-Calculate average and trend from a multitemporal data cube
+Calculate average, trend, and intercepts from a multitemporal data cube
 }

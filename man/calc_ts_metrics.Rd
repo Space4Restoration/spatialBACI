@@ -12,8 +12,8 @@ calc_ts_metrics(x, ...)
 \item{...}{additional arguments passed to \code{calc_ts_metrics.cube} or \code{calc_ts_metrics.rast}}
 }
 \description{
-Generic function for \code{calc_ts_metrics.cube} and \code{calc_ts_metrics.rast}
+Generic function for \code{calc_ts_metrics.cube} and \code{calc_ts_metrics.spatRaster}
 }
 \details{
-Currently, there are some differences in the output of the functions for data cube and spatRaster, has to be harmonized.
+Currently, there are some differences in the inputs/outputs of the functions for data cube and spatRaster, this has to be harmonized.
 }
