@@ -4,10 +4,11 @@ Jasper Van doninck, Trinidad del Río-Mena, Wieteke Willemen, Wietske
 Bijker
 
 - [1 The Baviaanskloof dataset](#1-the-baviaanskloof-dataset)
-- [2 Evaluation metric](#2-evaluation-metric)
-- [3 Control-Impact Matching](#3-control-impact-matching)
-- [4 Before-After-Control-Impact
-  evaluation](#4-before-after-control-impact-evaluation)
+- [2 Spatial reference and the candidate control pixels](#2-spatial-reference-and-the-candidate-control-pixels)
+- [3 Evaluation metric](#3-evaluation-metric)
+- [4 Control-Impact Matching](#4-control-impact-matching)
+- [5 Before-After-Control-Impact
+  evaluation](#5-before-after-control-impact-evaluation)
 
 # 1 The Baviaanskloof dataset
 
@@ -39,7 +40,8 @@ lines(selected_sites, lwd=2)
 ```
 
 ![](BACI_Baviaanskloof_files/figure-gfm/unnamed-chunk-1-1.png)<!-- -->
-\# Spatial reference and the candidate control pixels
+
+# 2 Spatial reference and the candidate control pixels
 
 The `EnvImpactEval` package requires the user to define the spatial
 parameters at which the analysis will be performed. This reference will
@@ -98,7 +100,7 @@ lines(selected_sites_proj)
 
 ![](BACI_Baviaanskloof_files/figure-gfm/unnamed-chunk-4-1.png)<!-- -->
 
-# 2 Evaluation metric
+# 3 Evaluation metric
 
 We here chose Landsat Normalized Difference Vegetation Index (NDVI) as
 the metric to use in the impact evaluation. NDVI is indicative of
@@ -181,7 +183,7 @@ avgtrend_before <- calc_ts_metrics(vi_before)
 avgtrend_after <- calc_ts_metrics(vi_after)
 ```
 
-# 3 Control-Impact Matching
+# 4 Control-Impact Matching
 
 In impact assessment using control-impact (of
 before-after-control-impact) schemes, it is crucial that the control
@@ -240,8 +242,6 @@ analysis.
 ``` r
 roadsDist <- osm_distance_roads(refRas, values="track+")
 ```
-
-    ## |---------|---------|---------|---------|=========================================                                          
 
 In addition to parameters described above, we also included as matching
 covariates the average and trend of the selected vegetation index in the
@@ -366,7 +366,7 @@ Standardized Mean Difference for all covariates is below (or marginally
 above) the threshold of 0.1. We therefore accept this matching and use
 it as an input to the BACI evaluation.
 
-# 4 Before-After-Control-Impact evaluation
+# 5 Before-After-Control-Impact evaluation
 
 To tun the BACI analysis, we first need to extract the values of the
 evaluation metrics (in this case the average over the 10-year time
