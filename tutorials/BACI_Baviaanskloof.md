@@ -120,7 +120,7 @@ stac_collection <- as.collection("Landsat", stac_endpoint)
 The timeframes over which conservation or restoration impacts are
 assessed will depend on the application and study site. Assuming we want
 to evaluate the impact of the Baviaanskloof revegetation from the
-8-years periods before and after the intervention year, we can first
+10-years periods before and after the intervention year, we can first
 generate yearly NDVI time series.
 
 ``` r
@@ -135,7 +135,7 @@ vi_before <- gdalcube_as_terra(vi_before)
 ``` r
 vi_after <- eo_VI_yearly.stac(refRas, "NDVI",
                               endpoint=stac_endpoint, collection=stac_collection,
-                              years=seq(year+1, year+9, 1),
+                              years=seq(year+1, year+10, 1),
                               months = 3:5,
                               maxCloud=60)
 vi_after <- gdalcube_as_terra(vi_after)
