@@ -27,6 +27,7 @@ other_sites <- baviaanskloof[baviaanskloof$Planting_date!=year | baviaanskloof$L
 plot(baviaanskloof, "Planting_date")
 lines(selected_sites, lwd=2)
 ```
+
 # Spatial reference and the candidate control pixels
 
 The `EnvImpactEval` package requires the user to define the spatial parameters at which the analysis will be performed. This reference will define the spatial units of the analysis and the neighbourhood around the impact units in which we want to search for control units. For now, only a raster (pixel)-based framework is implemented, a vector-based framework is planned for a future release.
