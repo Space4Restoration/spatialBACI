@@ -4,12 +4,10 @@ Jasper Van doninck, Trinidad del Río-Mena, Wieteke Willemen, Wietske
 Bijker
 
 - [1 The Baviaanskloof dataset](#1-the-baviaanskloof-dataset)
-- [2 Spatial reference and the candidate control
-  pixels](#2-spatial-reference-and-the-candidate-control-pixels)
-- [3 Evaluation metric](#3-evaluation-metric)
-- [4 Control-Impact Matching](#4-control-impact-matching)
-- [5 Before-After-Control-Impact
-  evaluation](#5-before-after-control-impact-evaluation)
+- [2 Evaluation metric](#2-evaluation-metric)
+- [3 Control-Impact Matching](#3-control-impact-matching)
+- [4 Before-After-Control-Impact
+  evaluation](#4-before-after-control-impact-evaluation)
 
 # 1 The Baviaanskloof dataset
 
@@ -34,17 +32,14 @@ data(baviaanskloof)
 baviaanskloof <- unwrap(baviaanskloof)
 
 year <- 2012
-selected_sites <- baviaanskloof[baviaanskloof$Planting_date==year &
-                                baviaanskloof$Lifestock_exclusion==0]
-other_sites <- baviaanskloof[baviaanskloof$Planting_date!=year |
-                             baviaanskloof$Lifestock_exclusion==1]
+selected_sites <- baviaanskloof[baviaanskloof$Planting_date==year & baviaanskloof$Lifestock_exclusion==0]
+other_sites <- baviaanskloof[baviaanskloof$Planting_date!=year | baviaanskloof$Lifestock_exclusion==1]
 plot(baviaanskloof, "Planting_date")
 lines(selected_sites, lwd=2)
 ```
 
 ![](BACI_Baviaanskloof_files/figure-gfm/unnamed-chunk-1-1.png)<!-- -->
-
-# 2 Spatial reference and the candidate control pixels
+\# Spatial reference and the candidate control pixels
 
 The `EnvImpactEval` package requires the user to define the spatial
 parameters at which the analysis will be performed. This reference will
@@ -103,7 +98,7 @@ lines(selected_sites_proj)
 
 ![](BACI_Baviaanskloof_files/figure-gfm/unnamed-chunk-4-1.png)<!-- -->
 
-# 3 Evaluation metric
+# 2 Evaluation metric
 
 We here chose Landsat Normalized Difference Vegetation Index (NDVI) as
 the metric to use in the impact evaluation. NDVI is indicative of
@@ -123,33 +118,58 @@ stac_collection <- as.collection("Landsat", stac_endpoint)
 The timeframes over which conservation or restoration impacts are
 assessed will depend on the application and study site. Assuming we want
 to evaluate the impact of the Baviaanskloof revegetation from the
-10-years periods before and after the intervention year, we can first
-generate yearly NDVI time series (these steps can take a few minutes
-depending on the defined size and spatial resolution of the reference
-raster):
+8-years periods before and after the intervention year, we can first
+generate yearly NDVI time series.
 
 ``` r
-vi_before <- VI_composite(endpoint=stac_endpoint, 
-                         collection=stac_collection, 
-                         VI="NDVI", 
-                         spatRef = refRas, 
-                         years = seq(year-10, year-1, 1), 
-                         months = 3:5, 
-                         maxCloud=60)
+vi_before <- eo_VI_yearly.stac(refRas, "NDVI",
+                               endpoint=stac_endpoint, collection=stac_collection,
+                               years=seq(year-10, year-1, 1),
+                               months = 3:5,
+                               maxCloud=60)
+vi_before <- gdalcube_as_terra(vi_before)
+```
 
-vi_after <- VI_composite(endpoint=stac_endpoint, 
-                         collection=stac_collection, 
-                         VI="NDVI", 
-                         spatRef = refRas, 
-                         years = seq(year+1, year+10, 1), 
-                         months = 3:5, 
-                         maxCloud=60)
+``` r
+vi_after <- eo_VI_yearly.stac(refRas, "NDVI",
+                              endpoint=stac_endpoint, collection=stac_collection,
+                              years=seq(year+1, year+9, 1),
+                              months = 3:5,
+                              maxCloud=60)
+vi_after <- gdalcube_as_terra(vi_after)
 ```
 
 In the above code, we specified that we want to make a pixel-based NDVI
 composite image for each year, using for each pixel and each year the
 median value from the images acquired in the months March until May that
 have a cloud cover below 60%.
+
+The function `eo_VI_yearly.stac` above generates proxy data cubes, which
+don’t contain any data but describe the dimension of the object. Data
+retrieval and calculations are only performed when the data values
+contained in these objects are needed. Working with data cubes has the
+advantage that unnecessary calculations are avoided for bands, time
+steps and/or coordinates that are not used in later steps. Currently,
+however, we are occasionally encountering issues when reading the EO
+data from cloud catalogs as data cubes. We hope to identify and fix
+these issues in an update of the `EnvImpactEval` package. For now we
+choose to transform the data cubes to SpatRaster object and plot the
+data at this step in the workflow, which will access the actual image
+data indicate whether errors / incompleteness are encountered. If so,
+these two steps can be re-run. Alternatively, these lines can be
+skipped, but potential warning or error messages could then occur later.
+
+``` r
+plot(vi_before, main=paste0("NDVI - ",seq(year-10, year-1, 1)))
+```
+
+![](BACI_Baviaanskloof_files/figure-gfm/unnamed-chunk-8-1.png)<!-- -->
+
+``` r
+plot(vi_after, main=paste0("NDVI - ",seq(year+1, year+10, 1)))
+```
+
+![](BACI_Baviaanskloof_files/figure-gfm/unnamed-chunk-8-2.png)<!-- -->
 
 We then calculate simple time series metrics from these two 10-year time
 series: the average value and trend (change in NDVI/year) over the time
@@ -159,19 +179,9 @@ later version of the `EnvImpactEval` package.
 ``` r
 avgtrend_before <- calc_ts_metrics(vi_before)
 avgtrend_after <- calc_ts_metrics(vi_after)
-
-plot(avgtrend_before, main=c("NDVI average, before", "NDVI trend, before"))
 ```
 
-![](BACI_Baviaanskloof_files/figure-gfm/unnamed-chunk-7-1.png)<!-- -->
-
-``` r
-plot(avgtrend_after, main=c("NDVI average, after", "NDVI trend, after"))
-```
-
-![](BACI_Baviaanskloof_files/figure-gfm/unnamed-chunk-7-2.png)<!-- -->
-
-# 4 Control-Impact Matching
+# 3 Control-Impact Matching
 
 In impact assessment using control-impact (of
 before-after-control-impact) schemes, it is crucial that the control
@@ -199,10 +209,7 @@ the cosine and sine function on it (default) or not.
 
 ``` r
 dem <- nasadem(refRas)
-plot(dem)
 ```
-
-![](BACI_Baviaanskloof_files/figure-gfm/unnamed-chunk-8-1.png)<!-- -->
 
 We also included land cover as a matching covariate. This will ensure
 that control pixel are selected from the same landcover type
@@ -222,13 +229,6 @@ landcover <- lulc(refRas, year=year)
     ## collection, : Land cover product io-lulc-9-class currently has data 2017-2022.
     ## 2017 selected.
 
-``` r
-plot(landcover)
-lines(selected_sites_proj)
-```
-
-![](BACI_Baviaanskloof_files/figure-gfm/unnamed-chunk-9-1.png)<!-- -->
-
 Distance to roads or settlements can explain the anthropogenic pressure
 on an area. The `EnvImpactEval` package therefore includes functions to
 calculate the distance to the nearest road (`osm_distance_roads`) or
@@ -243,28 +243,28 @@ roadsDist <- osm_distance_roads(refRas, values="track+")
 
     ## |---------|---------|---------|---------|=========================================                                          
 
-``` r
-plot(roadsDist)
-lines(selected_sites_proj)
-```
-
-![](BACI_Baviaanskloof_files/figure-gfm/unnamed-chunk-10-1.png)<!-- -->
-
 In addition to parameters described above, we also included as matching
 covariates the average and trend of the selected vegetation index in the
 10-year period before the restoration intervention. This way, control
 pixels will be selected that have undergone a similar temporal
-trajectory as the impact pixels in the years before intervention. We
-then perform the control-impact matching using propensity score matching
-(default method), and select 10 control pixels for each impact pixel
-with replacement (a control pixel can be paired with several impact
-pixels). This step can be performed interactively by setting the
+trajectory as the impact pixels in the years before intervention.
+
+``` r
+matchingLayers <- collate_matching_layers(refRas, dem, landcover, roadsDist, avgtrend_before)
+plot(matchingLayers)
+```
+
+![](BACI_Baviaanskloof_files/figure-gfm/unnamed-chunk-13-1.png)<!-- -->
+
+We then perform the control-impact matching using propensity score
+matching (default method), and select 10 control pixels for each impact
+pixel with replacement (a control pixel can be paired with several
+impact pixels). This step can be performed interactively by setting the
 parameter `eval=TRUE`, which will display matching results and plots
 after which the matching can be accepted or rejected.
 
 ``` r
-matchingLayers <- list(dem, landcover, roadsDist, avgtrend_before)
-matches <- matchCI(matchingCands, rast(matchingLayers), eval=TRUE, ratio=10, replace=TRUE)
+matches <- matchCI(matchingCands, matchingLayers, eval=TRUE, ratio=10, replace=TRUE)
 ```
 
     ## A matchit object
@@ -353,11 +353,11 @@ matches <- matchCI(matchingCands, rast(matchingLayers), eval=TRUE, ratio=10, rep
     ## 
     ## Press <Enter> to continue.
 
-![](BACI_Baviaanskloof_files/figure-gfm/unnamed-chunk-11-1.png)<!-- -->
+![](BACI_Baviaanskloof_files/figure-gfm/unnamed-chunk-14-1.png)<!-- -->
 
     ## Press <Enter> to continue.
 
-![](BACI_Baviaanskloof_files/figure-gfm/unnamed-chunk-11-2.png)<!-- -->
+![](BACI_Baviaanskloof_files/figure-gfm/unnamed-chunk-14-2.png)<!-- -->
 
     ## Accept matching (Y/N)?
 
@@ -366,7 +366,7 @@ Standardized Mean Difference for all covariates is below (or marginally
 above) the threshold of 0.1. We therefore accept this matching and use
 it as an input to the BACI evaluation.
 
-# 5 Before-After-Control-Impact evaluation
+# 4 Before-After-Control-Impact evaluation
 
 To tun the BACI analysis, we first need to extract the values of the
 evaluation metrics (in this case the average over the 10-year time
@@ -375,7 +375,7 @@ obtained in the matching. When running the BACI analysis, we specify a
 spatial reference to which the pixel-based results will be written.
 
 ``` r
-baci_input <- extractMatches(matches, before=subset(avgtrend_before, "average"), after=subset(avgtrend_after, "average"))
+baci_input <- extractMatches(matches, before=avgtrend_before, after=avgtrend_after, band="average")
 baci_results <- BACI_contrast(baci_input, SpatRef=crop(refRas, selected_sites_proj))
 ```
 
@@ -390,19 +390,19 @@ baci_results$data
 ```
 
     ## Key: <subclass>
-    ##      subclass       x        y      contrast      p_value
-    ##        <fctr>   <num>    <num>         <num>        <num>
-    ##   1:        1 2473220 -3922900  0.0026579992 5.210958e-01
-    ##   2:        2 2473340 -3922900 -0.0077246252 2.776557e-03
-    ##   3:        3 2473100 -3923020  0.0010438368 6.692965e-01
-    ##   4:        4 2473220 -3923020  0.0003944248 9.279116e-01
-    ##   5:        5 2473340 -3923020  0.0033902796 4.287808e-01
-    ##  ---                                                     
-    ## 230:      230 2474420 -3925300 -0.0141403838 2.921116e-06
-    ## 231:      231 2474180 -3925420 -0.0033446828 4.132455e-02
-    ## 232:      232 2474300 -3925420 -0.0096663851 2.227222e-06
-    ## 233:      233 2474180 -3925540 -0.0038216977 1.884310e-01
-    ## 234:      234 2474180 -3925660 -0.0095621575 3.075556e-02
+    ##      subclass       x        y     contrast      p_value
+    ##        <fctr>   <num>    <num>        <num>        <num>
+    ##   1:        1 2473220 -3922900  0.011264212 9.744361e-02
+    ##   2:        2 2473340 -3922900 -0.005690035 1.618870e-01
+    ##   3:        3 2473100 -3923020  0.005185367 1.441457e-01
+    ##   4:        4 2473220 -3923020  0.005456525 4.067758e-01
+    ##   5:        5 2473340 -3923020  0.013802957 5.012782e-02
+    ##  ---                                                    
+    ## 230:      230 2474420 -3925300 -0.014392357 2.383635e-06
+    ## 231:      231 2474180 -3925420 -0.007194363 1.414131e-03
+    ## 232:      232 2474300 -3925420 -0.011781652 2.253605e-07
+    ## 233:      233 2474180 -3925540 -0.010660805 2.621487e-03
+    ## 234:      234 2474180 -3925660 -0.010758167 4.584164e-02
 
 The BACI results can also be plotted on a map, here with non-significant
 BACI contrast masked out. If desired, the pixel-based results can now be
@@ -419,4 +419,4 @@ plot(as.numeric(baci_results$spat["p_value"]<0.05),
 lines(selected_sites_proj)
 ```
 
-![](BACI_Baviaanskloof_files/figure-gfm/unnamed-chunk-14-1.png)<!-- -->
+![](BACI_Baviaanskloof_files/figure-gfm/unnamed-chunk-17-1.png)<!-- -->
