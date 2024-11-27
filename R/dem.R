@@ -24,7 +24,6 @@
 #' @md
 #' 
 #' @export
-#' @import gdalcubes
 #' @importFrom terra ext res crs
 #' 
 #' @param x a SpatRaster, spatVector, or SpatExtent object, defining the area for which the DEM should be extracted
@@ -115,7 +114,7 @@ setMethod("dem", signature="SpatExtent",
 
 #' Wrapper function for DEM and terrain derivatives calculation
 #'
-#' @importFrom terra crs is.lonlat
+#' @importFrom terra rast ext res crs is.lonlat terrain
 #'
 #' @noRd
 #' 
@@ -177,18 +176,18 @@ get_dem <- function(xmin, xmax, ymin, ymax,
     #If terrain derivatives are to be calculated, transform to SpatRaster and use terra::terrain for efficiency
     
     elev_r <- as.SpatRaster(elev)
-    ter_r <- terrain(elev_r, v=d, neighbors=neighbors, unit=unit)
+    ter_r <- terra::terrain(elev_r, v=d, neighbors=neighbors, unit=unit)
     
     if(("aspect" %in% d) & isTRUE(transformAspect)){
       if(unit=="degrees") d2r <- pi/180 else d2r <- 1
-      aspect_trans <- rast(list(northness=cos(d2r*subset(ter_r, "aspect")),
-                                eastness= sin(d2r*subset(ter_r, "aspect"))))
-      ter_r <- rast(list(subset(ter_r, "aspect", negate=TRUE), 
-                         aspect_trans))
+      aspect_trans <- terra::rast(list(northness=cos(d2r*subset(ter_r, "aspect")),
+                                       eastness= sin(d2r*subset(ter_r, "aspect"))))
+      ter_r <- terra::rast(list(subset(ter_r, "aspect", negate=TRUE), 
+                                aspect_trans))
     }
     
     if("elevation" %in% v)
-      return(rast(list(elev_r, ter_r)))
+      return(terra::rast(list(elev_r, ter_r)))
     else
       return(ter_r)
 
@@ -203,7 +202,7 @@ get_dem <- function(xmin, xmax, ymin, ymax,
 #' 
 #' @export
 #' 
-#' @import gdalcubes
+#' @importFrom gdalcubes stac_image_collection cube_view extent raster_cube rename_bands
 #' @import rstac
 #' 
 #' @param xmin numeric. Minimum x-coordinate of output DEM
@@ -281,7 +280,7 @@ dem2cube <- function(xmin, xmax, ymin, ymax,
 #' Currently, only "slope" and "aspect" are implemented, and only projected DEM layers with equal resolution in x and y are supported.
 #' Only 8 ngb case implemented. Aspect is provided in the range [-pi,pi], rather than the conventional [0,2*pi].
 #' 
-#' @import gdalcubes 
+#' @importFrom gdalcubes dimensions window_space rename_bands apply_pixel
 #' 
 #' @param cube data cube. Digital Elevation Model
 #' @param v character vector. Terrain parameters to be calculated
