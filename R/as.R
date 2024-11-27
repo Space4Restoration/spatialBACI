@@ -1,3 +1,33 @@
+##  ***********
+##  Various functions to coerce to specific class/format
+
+
+
+#' Coerce to SpatRaster
+#' 
+#' Writes a data cube as a temporal file and reads that as SpatRaster object
+#' 
+#' 
+#' 
+#' @importFrom gdalcubes write_tif
+#' @importFrom terra rast
+#' 
+#' @param x data cube
+#' 
+#' @returns SpatRaster
+#' 
+as.SpatRaster <- function(x){
+  
+  stopifnot(is.cube(x))
+
+  x_files <- gdalcubes::write_tif(x)
+  r <- terra::rast(x_files)
+  
+  return(r)  
+} 
+    
+    
+    
 #' As bounding box
 #' 
 #' Create a Bounding Box from a SpatRaster, SpatVector, or SpatExtent object in target CRS. Bounding box is a 4-element vector in the order c(xmin, ymin, xmax, ymax)

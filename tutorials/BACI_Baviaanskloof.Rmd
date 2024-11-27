@@ -75,7 +75,7 @@ vi_before <- gdalcube_as_terra(vi_before)
 ```{r, warning=FALSE}
 vi_after <- eo_VI_yearly.stac(refRas, "NDVI",
                               endpoint=stac_endpoint, collection=stac_collection,
-                              years=seq(year+1, year+10, 1),
+                              years=seq(year+1, year+9, 1),
                               months = 3:5,
                               maxCloud=60)
 vi_after <- gdalcube_as_terra(vi_after)
@@ -83,7 +83,8 @@ vi_after <- gdalcube_as_terra(vi_after)
 
 In the above code, we specified that we want to make a pixel-based NDVI composite image for each year, using for each pixel and each year the median value from the images acquired in the months March until May that have a cloud cover below 60%.
 
-The function `eo_VI_yearly.stac` above generates proxy data cubes, which don't contain any data but describe the dimension of the object. Data retrieval and calculations are only performed when the data values contained in these objects are needed. Working with data cubes has the advantage that unnecessary calculations are avoided for bands, time steps and/or coordinates that are not used in later steps. Currently, however, we are occasionally encountering issues when reading the EO data from cloud catalogs as data cubes. We hope to identify and fix these issues in an update of the `EnvImpactEval` package. For now we choose to transform the data cubes to SpatRaster object and plot the data at this step in the workflow, which will access the actual image data indicate whether errors / incompleteness are encountered. If so, these two steps can be re-run. Alternatively, these lines can be skipped, but potential warning or error messages could then occur later.
+The function `eo_VI_yearly.stac` above generates proxy data cubes, which don't contain any data but describe the dimension of the object. Data retrieval and calculations are only performed when the data values contained in these objects are needed. Working with data cubes has the advantage that unnecessary calculations are avoided for bands, time steps and/or coordinates that are not used in later steps. Currently, however, we are occasionally encountering issues when reading the EO data from cloud catalogs as da
+ta cubes. We hope to identify and fix these issues in an update of the `EnvImpactEval` package. For now we choose to transform the data cubes to SpatRaster object and plot the data at this step in the workflow, which will access the actual image data and indicate whether errors / incompleteness are encountered. If so, these two steps can be re-run. Alternatively, these lines can be skipped, but potential warning or error messages could then occur later.
 
 ```{r, warning=FALSE}
 plot(vi_before, main=paste0("NDVI - ",seq(year-10, year-1, 1)))
