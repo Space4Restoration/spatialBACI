@@ -6,7 +6,7 @@ EO-based tools to evaluate the impact of conservation/restoration actions on eco
 To development version of the `EnvImpactEval` package can be installed using the [`devtools`](https://cran.r-project.org/package=devtools) package: 
 ```r
 library(devtools)
-install_github("Space4Restoration/EnvImpactEval")
+install_github("Space4Restoration/EnvImpactEval", dependencies=TRUE)
 ```
 
 ## Usage 
