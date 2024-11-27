@@ -10,8 +10,11 @@ as.SpatRaster(x)
 \item{x}{data cube}
 }
 \value{
-SpatRaster
+(list of) SpatRaster object(s)
 }
 \description{
 Writes a data cube as a temporal file and reads that as SpatRaster object
+}
+\details{
+Data cubes with n>1 in both the "time" and "bands" dimension will be transformed to a list of SpatRaster objects with the list elements corresponding to different time steps. Otherwise the function will return a single (multi-layer) SpatRaster.
 }

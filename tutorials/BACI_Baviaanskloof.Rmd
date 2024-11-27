@@ -69,7 +69,7 @@ vi_before <- eo_VI_yearly.stac(refRas, "NDVI",
                                years=seq(year-10, year-1, 1),
                                months = 3:5,
                                maxCloud=60)
-vi_before <- gdalcube_as_terra(vi_before)
+vi_before <- as.SpatRaster(vi_before)
 ```
 
 ```{r, warning=FALSE}
@@ -78,7 +78,7 @@ vi_after <- eo_VI_yearly.stac(refRas, "NDVI",
                               years=seq(year+1, year+9, 1),
                               months = 3:5,
                               maxCloud=60)
-vi_after <- gdalcube_as_terra(vi_after)
+vi_after <- as.SpatRaster(vi_after)
 ```
 
 In the above code, we specified that we want to make a pixel-based NDVI composite image for each year, using for each pixel and each year the median value from the images acquired in the months March until May that have a cloud cover below 60%.

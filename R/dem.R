@@ -11,15 +11,15 @@
 #' \code{dem_source} must be a list with STAC specifications (named list with list elements "endpoint", "collection", "assets" and (optionally) "authOpt". 
 #' If no DEM source it provided, this argument defaults to \code{list(endpoint="https://planetarycomputer.microsoft.com/api/stac/v1", collection="nasadem", assets="elevation", authOpt=list())}
 #' 
-#' Available DEMs for selected STAC endpoints:
-#' * endpoint="https://planetarycomputer.microsoft.com/api/stac/v1"
+#' Examples of available global DEMs with STAC endpoint/collection/assets specification and whether authentication is required to access the DEM:
 #' 
-#' | name | collection= | assets= | auth. required | 
-#' | --- | --- | ---| --- |
-#' | NASA DEM | "nasadem" | "elevation" | no |
-#' | ALOS World 3D-30m | "alos-dem" | "data" | no |
-#' | Copernicus DEM GLO-30 | "cop-dem-glo-30" | "data" | yes |
-#' | Copernicus DEM GLO-90 | "cop-dem-glo-90" | "data" | yes |
+#' | name | endpoint | collection | assets | auth. | 
+#' | --- | --- | ---| --- | --- |
+#' | | | | |
+#' | \strong{NASA DEM (default)} | https://planetarycomputer.microsoft.com/api/stac/v1 | "nasadem" | "elevation" | no |
+#' | ALOS World DEM 30m | https://planetarycomputer.microsoft.com/api/stac/v1 | "alos-dem" | "data" | no |
+#' | Copernicus DEM 30m | https://planetarycomputer.microsoft.com/api/stac/v1 | "cop-dem-glo-30" | "data" | yes |
+#' | Copernicus DEM 90m | https://planetarycomputer.microsoft.com/api/stac/v1 | "cop-dem-glo-90" | "data" | yes |
 #' 
 #' @md
 #' 

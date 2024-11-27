@@ -7,27 +7,43 @@
 #' 
 #' Writes a data cube as a temporal file and reads that as SpatRaster object
 #' 
+#' Data cubes with n>1 in both the "time" and "bands" dimension will be transformed to a list of SpatRaster objects with the list elements corresponding to different time steps. Otherwise the function will return a single (multi-layer) SpatRaster.
 #' 
+#' @export
 #' 
-#' @importFrom gdalcubes write_tif
+#' @importFrom gdalcubes write_tif nbands nt dimension_values
 #' @importFrom terra rast
 #' 
 #' @param x data cube
 #' 
-#' @returns SpatRaster
+#' @returns (list of) SpatRaster object(s)
 #' 
 as.SpatRaster <- function(x){
   
   stopifnot(is.cube(x))
-
-  x_files <- gdalcubes::write_tif(x)
-  r <- terra::rast(x_files)
   
+  #write gdalcube as .tif file(s)
+  x_files <- gdalcubes::write_tif(x)
+  
+  if(gdalcubes::nbands(x)==1 | gdalcubes::nt(x)==1){
+    #Max three dimensions -> read as single SpatRaster
+    if(gdalcubes::nt(x)>1){
+      #Single band, multiple time steps
+      r <- lapply(x_files, rast) |> rast()
+      time(r) <- dimension_values(x)$t |> as.Date() 
+    } else {
+      #Multiple (or single) bands, single time
+      r <- rast(x_files, rast)
+      time(r) <- dimension_values(x)$t |> as.Date() |> rep(times=nlyr(r))
+    }
+  } else {
+    #Four dimensions -> load as list of SpatRasters
+    r <- lapply(x_files, rast)
+    for(i in 1:length(r)) time(r[[i]]) <- dimension_values(x)$t[i] |> as.Date() 
+  }
   return(r)  
 } 
-    
-    
-    
+
 #' As bounding box
 #' 
 #' Create a Bounding Box from a SpatRaster, SpatVector, or SpatExtent object in target CRS. Bounding box is a 4-element vector in the order c(xmin, ymin, xmax, ymax)

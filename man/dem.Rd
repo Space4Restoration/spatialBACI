@@ -38,14 +38,12 @@ The reason for this is that calculating terrain parameters using the terra::terr
 \code{dem_source} must be a list with STAC specifications (named list with list elements "endpoint", "collection", "assets" and (optionally) "authOpt".
 If no DEM source it provided, this argument defaults to \code{list(endpoint="https://planetarycomputer.microsoft.com/api/stac/v1", collection="nasadem", assets="elevation", authOpt=list())}
 
-Available DEMs for selected STAC endpoints:
-\itemize{
-\item endpoint="https://planetarycomputer.microsoft.com/api/stac/v1"
-}\tabular{llll}{
-   name \tab collection= \tab assets= \tab auth. required \cr
-   NASA DEM \tab "nasadem" \tab "elevation" \tab no \cr
-   ALOS World 3D-30m \tab "alos-dem" \tab "data" \tab no \cr
-   Copernicus DEM GLO-30 \tab "cop-dem-glo-30" \tab "data" \tab yes \cr
-   Copernicus DEM GLO-90 \tab "cop-dem-glo-90" \tab "data" \tab yes \cr
+Examples of available global DEMs with STAC endpoint/collection/assets specification and whether authentication is required to access the DEM:\tabular{lllll}{
+   name \tab endpoint \tab collection \tab assets \tab auth. \cr
+    \tab  \tab  \tab  \tab  \cr
+   \strong{NASA DEM (default)} \tab https://planetarycomputer.microsoft.com/api/stac/v1 \tab "nasadem" \tab "elevation" \tab no \cr
+   ALOS World DEM 30m \tab https://planetarycomputer.microsoft.com/api/stac/v1 \tab "alos-dem" \tab "data" \tab no \cr
+   Copernicus DEM 30m \tab https://planetarycomputer.microsoft.com/api/stac/v1 \tab "cop-dem-glo-30" \tab "data" \tab yes \cr
+   Copernicus DEM 90m \tab https://planetarycomputer.microsoft.com/api/stac/v1 \tab "cop-dem-glo-90" \tab "data" \tab yes \cr
 }
 }
