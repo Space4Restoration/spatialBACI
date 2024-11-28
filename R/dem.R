@@ -57,6 +57,7 @@ setMethod("dem", signature="SpatRaster",
             dem_args$dy <- terra::res(x)[2]
             dem_args$srs <- terra::crs(x)
             dem_args$v <- v
+            dem_args$neighbors <- neighbors
             dem_args$unit <- unit
             dem_args$transformAspect <- transformAspect
             if(!missing(dem_source)) dem_args$dem_source <- dem_source
@@ -79,6 +80,7 @@ setMethod("dem", signature="SpatVector",
             dem_args$ymax <- extent$ymax
             dem_args$srs <- terra::crs(x)
             dem_args$v <- v
+            dem_args$neighbors <- neighbors
             dem_args$unit <- unit
             dem_args$transformAspect <- transformAspect
             if(!missing(dx)) dem_args$dx <- dx
@@ -101,6 +103,7 @@ setMethod("dem", signature="SpatExtent",
             dem_args$ymin <- x$ymin
             dem_args$ymax <- x$ymax
             dem_args$v <- v
+            dem_args$neighbors <- neighbors
             dem_args$unit <- unit
             dem_args$transformAspect <- transformAspect
             dem_args$srs <- srs
@@ -121,7 +124,7 @@ setMethod("dem", signature="SpatExtent",
 get_dem <- function(xmin, xmax, ymin, ymax,
                     dx, dy, srs,
                     dem_source,
-                    v, unit, transformAspect){
+                    v, neighbors, unit, transformAspect){
   
   if(missing(dem_source)) dem_source <- list(endpoint="https://planetarycomputer.microsoft.com/api/stac/v1", collection="nasadem", assets="elevation", authOpt=list())
 
