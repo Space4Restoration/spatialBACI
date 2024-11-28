@@ -123,47 +123,37 @@ get_dem <- function(xmin, xmax, ymin, ymax,
                     dem_source,
                     v, unit, transformAspect){
   
-  
   if(missing(dem_source)) dem_source <- list(endpoint="https://planetarycomputer.microsoft.com/api/stac/v1", collection="nasadem", assets="elevation", authOpt=list())
 
-  ## Source == STAC resource
-  if(isTRUE("endpoint" %in% names(dem_source))){
-    
-    
-    #Default values for missing srs (assume epsg:4326)
-    
-    #Default values for missing dx, dy
-    if(missing(dx) | missing(dy)){
-      if(!(missing(dx) & missing(dy))){
-        warning("Missing output resolution for one dimension missing, same resolution for both dimensions used")
-        if(missing(dx)) dx <- dy else dy <- dx
+  #Default values for missing srs? (assume epsg:4326) - To be added
+  
+  #Default values for missing dx, dy
+  if(missing(dx) | missing(dy)){
+    if(!(missing(dx) & missing(dy))){
+      warning("Missing output resolution for one dimension missing, same resolution for both dimensions used")
+      if(missing(dx)) dx <- dy else dy <- dx
+    } else {
+      warning("Missing output resolution in x and y dimension, applying collection default")
+      
+      if(dem_source$endpoint=="https://planetarycomputer.microsoft.com/api/stac/v1"){
+        if(dem_source$collection=="nasadem") if(terra::is.lonlat(srs)) dx <- dy <- 0.0002777778 else dx <- dy <- 30
+        if(dem_source$collection=="cop-dem-glo-30") if(terra::is.lonlat(srs)) dx <- dy <- 0.0002777778 else dx <- dy <- 30
+        if(dem_source$collection=="cop-dem-glo-90") if(terra::is.lonlat(srs)) dx <- dy <- 0.0008333333 else dx <- dy <- 90
       } else {
-        warning("Missing output resolution in x and y dimension, applying collection default")
-        
-        if(dem_source$endpoint=="https://planetarycomputer.microsoft.com/api/stac/v1"){
-          if(dem_source$collection=="nasadem") if(terra::is.lonlat(srs)) dx <- dy <- 0.0002777778 else dx <- dy <- 30
-          if(dem_source$collection=="cop-dem-glo-30") if(terra::is.lonlat(srs)) dx <- dy <- 0.0002777778 else dx <- dy <- 30
-          if(dem_source$collection=="cop-dem-glo-90") if(terra::is.lonlat(srs)) dx <- dy <- 0.0008333333 else dx <- dy <- 90
-        } else {
-          stop("Defaults for endpoint not implemented")
-        }
+        stop("Defaults for endpoint not implemented")
       }
     }
-    
-    dem_args <- dem_source
-    dem_args$xmin <- xmin
-    dem_args$xmax <- xmax
-    dem_args$ymin <- ymin
-    dem_args$ymax <- ymax
-    dem_args$dx <- dx
-    dem_args$dy <- dy
-    dem_args$srs <- srs
-
-  } else {
-    #loading from file not yet implemented
-    stop("data source DEM is missing")
   }
-  
+    
+  dem_args <- dem_source
+  dem_args$xmin <- xmin
+  dem_args$xmax <- xmax
+  dem_args$ymin <- ymin
+  dem_args$ymax <- ymax
+  dem_args$dx <- dx
+  dem_args$dy <- dy
+  dem_args$srs <- srs
+
   #load DEM cube 
   elev <- do.call(dem2cube, dem_args)
   
