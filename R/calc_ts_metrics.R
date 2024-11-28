@@ -98,7 +98,7 @@ calc_ts_metrics.SpatRaster <- function(rastTimeSeries, average=1, trend=1, immed
   
   if(trend!=0 | immediate!=0){
     app_lm <- function(ts){
-      x <- time(ts)
+      x <- time(ts) |> as.numeric()
       Y <- ts
       
       sum_x <- sum(x)
@@ -121,9 +121,9 @@ calc_ts_metrics.SpatRaster <- function(rastTimeSeries, average=1, trend=1, immed
     }
     
     if(immediate < 0){
-      out$immediate <- subset(int_slope,1) + max(time(rastTimeSeries))* subset(int_slope,2)
+      out$immediate <- subset(int_slope,1) + max(as.numeric(time(rastTimeSeries)))* subset(int_slope,2)
     } else if(immediate > 0){
-      out$immediate <- subset(int_slope,1) + min(time(rastTimeSeries))* subset(int_slope,2)
+      out$immediate <- subset(int_slope,1) + min(as.numeric(time(rastTimeSeries)))* subset(int_slope,2)
     }
   }
   return(rast(out))
