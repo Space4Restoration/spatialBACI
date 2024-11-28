@@ -4,7 +4,8 @@ Jasper Van doninck, Trinidad del Río-Mena, Wieteke Willemen, Wietske
 Bijker
 
 - [1 The Baviaanskloof dataset](#1-the-baviaanskloof-dataset)
-- [2 Spatial reference and the candidate control pixels](#2-spatial-reference-and-the-candidate-control-pixels)
+- [2 Spatial reference and the candidate control
+  pixels](#2-spatial-reference-and-the-candidate-control-pixels)
 - [3 Evaluation metric](#3-evaluation-metric)
 - [4 Control-Impact Matching](#4-control-impact-matching)
 - [5 Before-After-Control-Impact
@@ -129,7 +130,7 @@ vi_before <- eo_VI_yearly.stac(refRas, "NDVI",
                                years=seq(year-10, year-1, 1),
                                months = 3:5,
                                maxCloud=60)
-vi_before <- gdalcube_as_terra(vi_before)
+vi_before <- as.SpatRaster(vi_before)
 ```
 
 ``` r
@@ -138,7 +139,7 @@ vi_after <- eo_VI_yearly.stac(refRas, "NDVI",
                               years=seq(year+1, year+10, 1),
                               months = 3:5,
                               maxCloud=60)
-vi_after <- gdalcube_as_terra(vi_after)
+vi_after <- as.SpatRaster(vi_after)
 ```
 
 In the above code, we specified that we want to make a pixel-based NDVI
@@ -157,9 +158,8 @@ data from cloud catalogs as data cubes. We hope to identify and fix
 these issues in an update of the `EnvImpactEval` package. For now we
 choose to transform the data cubes to SpatRaster object and plot the
 data at this step in the workflow, which will access the actual image
-data indicate whether errors / incompleteness are encountered. If so,
-these two steps can be re-run. Alternatively, these lines can be
-skipped, but potential warning or error messages could then occur later.
+data and indicate whether errors / incompleteness are encountered. If
+so, these previous two steps can be re-run.
 
 ``` r
 plot(vi_before, main=paste0("NDVI - ",seq(year-10, year-1, 1)))
@@ -210,7 +210,7 @@ aspect should be transformed to “northness” and “eastness” by applying
 the cosine and sine function on it (default) or not.
 
 ``` r
-dem <- nasadem(refRas)
+dem <- dem(refRas)
 ```
 
 We also included land cover as a matching covariate. This will ensure
@@ -243,6 +243,8 @@ analysis.
 roadsDist <- osm_distance_roads(refRas, values="track+")
 ```
 
+    ## |---------|---------|---------|---------|=========================================                                          
+
 In addition to parameters described above, we also included as matching
 covariates the average and trend of the selected vegetation index in the
 10-year period before the restoration intervention. This way, control
@@ -267,13 +269,12 @@ after which the matching can be accepted or rejected.
 matches <- matchCI(matchingCands, matchingLayers, eval=TRUE, ratio=10, replace=TRUE)
 ```
 
-    ## A matchit object
+    ## A `matchit` object
     ##  - method: 10:1 nearest neighbor matching with replacement
-    ##  - distance: Propensity score
-    ##              - estimated with logistic regression
-    ##  - number of obs.: 11782 (original), 1709 (matched)
+    ##  - distance: Propensity score             - estimated with logistic regression
+    ##  - number of obs.: 11782 (original), 1711 (matched)
     ##  - target estimand: ATT
-    ##  - covariates: elevation, slope, cos_aspect, sin_aspect, landcover, dist_roads, average, trend
+    ##  - covariates: elevation, slope, northness, eastness, landcover, dist_roads, average, trend
     ## Press <Enter> to continue.
     ## 
     ## Call:
@@ -281,11 +282,11 @@ matches <- matchCI(matchingCands, matchingLayers, eval=TRUE, ratio=10, replace=T
     ## 
     ## Summary of Balance for All Data:
     ##                      Means Treated Means Control Std. Mean Diff. Var. Ratio
-    ## distance                    0.0916        0.0184          0.9858     3.7093
-    ## elevation                 546.9688      701.6467         -2.3803     0.1123
-    ## slope                       9.5154       12.4234         -0.7395     0.2211
-    ## cos_aspect                  0.0530        0.0727         -0.0289     0.9508
-    ## sin_aspect                  0.5133        0.1259          0.7407     0.5564
+    ## distance                    0.0930        0.0184          0.9867     3.7898
+    ## elevation                 546.9395      701.6508         -2.3898     0.1115
+    ## slope                       0.1637        0.2153         -0.7789     0.2091
+    ## northness                   0.0563        0.0736         -0.0256     0.9388
+    ## eastness                    0.5233        0.1264          0.7629     0.5484
     ## landcoverWater              0.0000        0.0002         -0.0133          .
     ## landcoverTrees              0.0000        0.0179         -0.1365          .
     ## landcoverCrops              0.0000        0.0232         -0.1557          .
@@ -294,13 +295,13 @@ matches <- matchCI(matchingCands, matchingLayers, eval=TRUE, ratio=10, replace=T
     ## landcoverRangeland          1.0000        0.9443          0.2453          .
     ## dist_roads                526.1387      999.0099         -1.3502     0.1085
     ## average                     0.1240        0.1388         -1.3754     0.0985
-    ## trend                       0.0017        0.0006          1.2628     0.1495
+    ## trend                       0.0000        0.0000          1.2626     0.1495
     ##                      eCDF Mean eCDF Max
-    ## distance                0.3843   0.5975
-    ## elevation               0.2394   0.5518
-    ## slope                   0.1271   0.2609
-    ## cos_aspect              0.0354   0.0911
-    ## sin_aspect              0.1565   0.2748
+    ## distance                0.3854   0.6120
+    ## elevation               0.2395   0.5523
+    ## slope                   0.1301   0.2774
+    ## northness               0.0366   0.0884
+    ## eastness                0.1608   0.2797
     ## landcoverWater          0.0002   0.0002
     ## landcoverTrees          0.0179   0.0179
     ## landcoverCrops          0.0232   0.0232
@@ -309,46 +310,46 @@ matches <- matchCI(matchingCands, matchingLayers, eval=TRUE, ratio=10, replace=T
     ## landcoverRangeland      0.0557   0.0557
     ## dist_roads              0.0882   0.2645
     ## average                 0.1624   0.3548
-    ## trend                   0.2044   0.3693
+    ## trend                   0.2043   0.3691
     ## 
     ## Summary of Balance for Matched Data:
     ##                      Means Treated Means Control Std. Mean Diff. Var. Ratio
-    ## distance                    0.0916        0.0916          0.0003     1.0022
-    ## elevation                 546.9688      544.5570          0.0371     0.2697
-    ## slope                       9.5154        9.7453         -0.0585     0.1762
-    ## cos_aspect                  0.0530        0.0431          0.0146     1.0701
-    ## sin_aspect                  0.5133        0.5095          0.0074     0.8928
+    ## distance                    0.0930        0.0929          0.0012     1.0070
+    ## elevation                 546.9395      545.3125          0.0251     0.2409
+    ## slope                       0.1637        0.1614          0.0340     0.1799
+    ## northness                   0.0563        0.0799         -0.0350     1.0548
+    ## eastness                    0.5233        0.5371         -0.0265     0.9875
     ## landcoverWater              0.0000        0.0000          0.0000          .
     ## landcoverTrees              0.0000        0.0000          0.0000          .
     ## landcoverCrops              0.0000        0.0000          0.0000          .
     ## landcoverBuilt area         0.0000        0.0000          0.0000          .
     ## landcoverBare ground        0.0000        0.0000          0.0000          .
     ## landcoverRangeland          1.0000        1.0000          0.0000          .
-    ## dist_roads                526.1387      520.3636          0.0165     0.3322
-    ## average                     0.1240        0.1244         -0.0388     0.1672
-    ## trend                       0.0017        0.0017          0.0155     0.3223
+    ## dist_roads                526.1387      523.2731          0.0082     0.2928
+    ## average                     0.1240        0.1256         -0.1515     0.1680
+    ## trend                       0.0000        0.0000         -0.0855     0.3253
     ##                      eCDF Mean eCDF Max Std. Pair Dist.
-    ## distance                0.0002   0.0132          0.0108
-    ## elevation               0.0855   0.2474          1.3264
-    ## slope                   0.1495   0.3269          2.0484
-    ## cos_aspect              0.0422   0.0983          1.1639
-    ## sin_aspect              0.0200   0.0615          0.9121
+    ## distance                0.0002   0.0115          0.0105
+    ## elevation               0.0944   0.2632          1.4032
+    ## slope                   0.1489   0.3359          2.0251
+    ## northness               0.0430   0.0962          1.1732
+    ## eastness                0.0192   0.0624          0.9040
     ## landcoverWater          0.0000   0.0000          0.0000
     ## landcoverTrees          0.0000   0.0000          0.0000
     ## landcoverCrops          0.0000   0.0000          0.0000
     ## landcoverBuilt area     0.0000   0.0000          0.0000
     ## landcoverBare ground    0.0000   0.0000          0.0000
     ## landcoverRangeland      0.0000   0.0000          0.0000
-    ## dist_roads              0.0754   0.2047          1.3647
-    ## average                 0.1091   0.2308          2.0239
-    ## trend                   0.0758   0.1440          1.5417
+    ## dist_roads              0.0816   0.2141          1.4075
+    ## average                 0.1094   0.2466          2.0022
+    ## trend                   0.0716   0.1509          1.5410
     ## 
     ## Sample Sizes:
     ##                Control Treated
     ## All           11548.       234
-    ## Matched (ESS)   981.99     234
-    ## Matched        1475.       234
-    ## Unmatched     10073.         0
+    ## Matched (ESS)   961.98     234
+    ## Matched        1477.       234
+    ## Unmatched     10071.         0
     ## Discarded         0.         0
     ## 
     ## Press <Enter> to continue.
@@ -390,19 +391,19 @@ baci_results$data
 ```
 
     ## Key: <subclass>
-    ##      subclass       x        y     contrast      p_value
-    ##        <fctr>   <num>    <num>        <num>        <num>
-    ##   1:        1 2473220 -3922900  0.011264212 9.744361e-02
-    ##   2:        2 2473340 -3922900 -0.005690035 1.618870e-01
-    ##   3:        3 2473100 -3923020  0.005185367 1.441457e-01
-    ##   4:        4 2473220 -3923020  0.005456525 4.067758e-01
-    ##   5:        5 2473340 -3923020  0.013802957 5.012782e-02
-    ##  ---                                                    
-    ## 230:      230 2474420 -3925300 -0.014392357 2.383635e-06
-    ## 231:      231 2474180 -3925420 -0.007194363 1.414131e-03
-    ## 232:      232 2474300 -3925420 -0.011781652 2.253605e-07
-    ## 233:      233 2474180 -3925540 -0.010660805 2.621487e-03
-    ## 234:      234 2474180 -3925660 -0.010758167 4.584164e-02
+    ##      subclass       x        y      contrast      p_value
+    ##        <fctr>   <num>    <num>         <num>        <num>
+    ##   1:        1 2473220 -3922900  0.0037478785 2.752083e-01
+    ##   2:        2 2473340 -3922900 -0.0025130055 2.752068e-01
+    ##   3:        3 2473100 -3923020  0.0082877362 2.868638e-02
+    ##   4:        4 2473220 -3923020  0.0029630961 4.190995e-01
+    ##   5:        5 2473340 -3923020  0.0008993401 7.587022e-01
+    ##  ---                                                     
+    ## 230:      230 2474420 -3925300 -0.0127505002 1.241851e-03
+    ## 231:      231 2474180 -3925420  0.0005551150 8.230524e-01
+    ## 232:      232 2474300 -3925420 -0.0089247435 2.323604e-06
+    ## 233:      233 2474180 -3925540 -0.0066545618 5.353127e-02
+    ## 234:      234 2474180 -3925660 -0.0065308489 6.425568e-02
 
 The BACI results can also be plotted on a map, here with non-significant
 BACI contrast masked out. If desired, the pixel-based results can now be
