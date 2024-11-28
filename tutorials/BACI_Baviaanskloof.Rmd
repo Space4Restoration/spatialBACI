@@ -75,7 +75,7 @@ vi_before <- as.SpatRaster(vi_before)
 ```{r, warning=FALSE}
 vi_after <- eo_VI_yearly.stac(refRas, "NDVI",
                               endpoint=stac_endpoint, collection=stac_collection,
-                              years=seq(year+1, year+9, 1),
+                              years=seq(year+1, year+10, 1),
                               months = 3:5,
                               maxCloud=60)
 vi_after <- as.SpatRaster(vi_after)
@@ -83,8 +83,7 @@ vi_after <- as.SpatRaster(vi_after)
 
 In the above code, we specified that we want to make a pixel-based NDVI composite image for each year, using for each pixel and each year the median value from the images acquired in the months March until May that have a cloud cover below 60%.
 
-The function `eo_VI_yearly.stac` above generates proxy data cubes, which don't contain any data but describe the dimension of the object. Data retrieval and calculations are only performed when the data values contained in these objects are needed. Working with data cubes has the advantage that unnecessary calculations are avoided for bands, time steps and/or coordinates that are not used in later steps. Currently, however, we are occasionally encountering issues when reading the EO data from cloud catalogs as da
-ta cubes. We hope to identify and fix these issues in an update of the `EnvImpactEval` package. For now we choose to transform the data cubes to SpatRaster object and plot the data at this step in the workflow, which will access the actual image data and indicate whether errors / incompleteness are encountered. If so, these two steps can be re-run. Alternatively, these lines can be skipped, but potential warning or error messages could then occur later.
+The function `eo_VI_yearly.stac` above generates proxy data cubes, which don't contain any data but describe the dimension of the object. Data retrieval and calculations are only performed when the data values contained in these objects are needed. Working with data cubes has the advantage that unnecessary calculations are avoided for bands, time steps and/or coordinates that are not used in later steps. Currently, however, we are occasionally encountering issues when reading the EO data from cloud catalogs as data cubes. We hope to identify and fix these issues in an update of the `EnvImpactEval` package. For now we choose to transform the data cubes to SpatRaster object and plot the data at this step in the workflow, which will access the actual image data and indicate whether errors / incompleteness are encountered. If so, these previous two steps can be re-run. 
 
 ```{r, warning=FALSE}
 plot(vi_before, main=paste0("NDVI - ",seq(year-10, year-1, 1)))
@@ -105,7 +104,7 @@ In impact assessment using control-impact (of before-after-control-impact) schem
 For the Baviaanskloof example, we use a limited number of matching covariates. Because we restricted the search window for control units to a relatively small area around the impact sites, we assume that climatic variation will be small and mostly induced by local topography. Topographic slope and aspect may also determine whether or not a site is selected for revegetation or determine the success of the revegetation intervention. This terrain data can be extracted from the NASA Digital Elevation Model (DEM) based on SRTM data using the `nasadem` function. Unless specified otherwise, the DEM will be obtained from Microsoft's Planetary Computer. The user can also specify the terrain derivatives to be calculated (by default the slope and the aspect), and whether the aspect should be transformed to "northness" and "eastness" by applying the cosine and sine function on it (default) or not.
 
 ```{r}
-dem <- nasadem(refRas)
+dem <- dem(refRas)
 ```
 
 We also included land cover as a matching covariate. This will ensure that control pixel are selected from the same landcover type (i.e. "rangeland"). Note that in the current implementation the 9-class land use land cover layer from Impact Observatory is used. This product is first generated for the year 2017, so we assume no change in land cover change between the intervention year (2012) and 2017. Given that terrain revegetated with spekboom will still be classified as "rangeland" this is not an issue in this example, but it may be a problem for other situations.

@@ -33,7 +33,7 @@ as.SpatRaster <- function(x){
       time(r) <- dimension_values(x)$t |> as.Date() 
     } else {
       #Multiple (or single) bands, single time
-      r <- rast(x_files, rast)
+      r <- rast(x_files)
       time(r) <- dimension_values(x)$t |> as.Date() |> rep(times=nlyr(r))
     }
   } else {
