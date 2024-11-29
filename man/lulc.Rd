@@ -2,7 +2,7 @@
 % Please edit documentation in R/lulc.R
 \name{lulc}
 \alias{lulc}
-\title{Extract Land USe / Land Cover data}
+\title{Extract Land Use / Land Cover data}
 \usage{
 lulc(
   x,
@@ -10,7 +10,7 @@ lulc(
   endpoint = "https://planetarycomputer.microsoft.com/api/stac/v1",
   collection = "io-lulc-9-class",
   assets = "data",
-  signOpt = list(),
+  authOpt = list(),
   ...
 )
 }
@@ -25,15 +25,13 @@ lulc(
 
 \item{assets}{character defining STAC assets name, defaults to "data"}
 
-\item{signOpt}{list with STAC authentication options passed to stac_auth (e.g. \code{list(key="abc")}), endpoint-specific}
-
-\item{...}{additional parameters passed to \code{terra:project}}
+\item{authOpt}{list with STAC authentication options passed to stac_auth (e.g. \code{list(key="abc")}), endpoint-specific}
 }
 \value{
 SpatRaster object
 }
 \description{
-Read LULC as SpatRaster
+Read a Land Use or Land Cover layer
 }
 \details{
 Designed to be flexible with regard to STAC endpoint and collection, but for now only tested for io-lulc-9-class on PlanetaryComputer 
