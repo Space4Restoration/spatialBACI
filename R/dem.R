@@ -25,6 +25,7 @@
 #' 
 #' @export
 #' @importFrom terra ext res crs
+#' @importFrom sf st_as_sf
 #' 
 #' @param x a SpatRaster, spatVector, or SpatExtent object, defining the area for which the DEM should be extracted
 #' @param dx numeric. output resolution in x dimension
@@ -35,8 +36,10 @@
 #' @param neighbors integer. Either 8 (queen case) or 4 (rook case), indicating which neighbors to use to compute slope or aspect. 
 #' @param unit character. "degrees" or "radians" for the output of "slope" and "aspect"
 #' @param transformAspect logical. Should aspect be transformed to "northness" and "eastness" 
+#' @param fun function to summarize the extracted data by line or polygon geometry
+#' @param method method for extracting values with points ("simple" or "bilinear"), see \code{terra::extract}
 #' 
-#' @returns a data cube or SpatRaster object (see Details)
+#' @returns a data cube, SpatRaster or SpatVector object (see Details)
 #' 
 setGeneric("dem", function(x, ...){
   standardGeneric("dem")
@@ -66,31 +69,6 @@ setMethod("dem", signature="SpatRaster",
             return(out)
 })
 
-setMethod("dem", signature="SpatVector",
-          function(x, 
-                   dx, dy,
-                   dem_source,
-                   v=c("elevation", "slope", "aspect"), neighbors=8, unit="radians", transformAspect=TRUE){
-            
-            dem_args <- list()
-            extent <- terra::ext(x)
-            dem_args$xmin <- extent$xmin
-            dem_args$xmax <- extent$xmax
-            dem_args$ymin <- extent$ymin
-            dem_args$ymax <- extent$ymax
-            dem_args$srs <- terra::crs(x)
-            dem_args$v <- v
-            dem_args$neighbors <- neighbors
-            dem_args$unit <- unit
-            dem_args$transformAspect <- transformAspect
-            if(!missing(dx)) dem_args$dx <- dx
-            if(!missing(dy)) dem_args$dy <- dy
-            if(!missing(dem_source)) dem_args$dem_source <- dem_source
-            
-            out <- do.call(get_dem, dem_args) 
-            return(out)
-})
-
 setMethod("dem", signature="SpatExtent",
           function(x,
                    dx, dy, srs,
@@ -114,6 +92,43 @@ setMethod("dem", signature="SpatExtent",
             out <- do.call(get_dem, dem_args) 
             return(out)
 })
+
+
+setMethod("dem", signature="SpatVector",
+          function(x, 
+                   dx, dy,
+                   dem_source,
+                   v=c("elevation", "slope", "aspect"), neighbors=8, unit="radians", transformAspect=TRUE,
+                   fun=mean, method="simple", na.rm=TRUE){
+            
+            dem_args <- list()
+            extent <- terra::ext(x)
+            dem_args$xmin <- extent$xmin
+            dem_args$xmax <- extent$xmax
+            dem_args$ymin <- extent$ymin
+            dem_args$ymax <- extent$ymax
+            dem_args$srs <- terra::crs(x)
+            dem_args$v <- v
+            dem_args$neighbors <- neighbors
+            dem_args$unit <- unit
+            dem_args$transformAspect <- transformAspect
+            if(!missing(dx)) dem_args$dx <- dx
+            if(!missing(dy)) dem_args$dy <- dy
+            if(!missing(dem_source)) dem_args$dem_source <- dem_source
+            
+            dem_out <- do.call(get_dem, dem_args)
+            
+            if(is.SpatRaster(dem_out)){
+              out <- terra::extract(dem_out, x, fun=fun, na.rm=na.rm)
+              out <- merge(x,out)
+            } else {
+              x_sf <- sf::st_as_sf(x)
+              out <- gdalcubes::extract_geom(dem_out, x_sf, FUN=fun, method=method, na.rm=na.rm, reduce_time=TRUE, merge=TRUE) |>
+                vect()
+            }
+            return(out)
+          })
+
 
 #' Wrapper function for DEM and terrain derivatives calculation
 #'
@@ -209,7 +224,6 @@ get_dem <- function(xmin, xmax, ymin, ymax,
 #' @param collection character. STAC collection
 #' @param assets character. STAC asset name
 #' @param authOpt STAC authentication options (endpoint-dependent)
-#' @param filename character vector of input filenames
 #' @param ... additional arguments (not used)
 #' 
 #' @returns a gdalcubes data cube
@@ -217,17 +231,10 @@ get_dem <- function(xmin, xmax, ymin, ymax,
 dem2cube <- function(xmin, xmax, ymin, ymax,
                      dx, dy, srs,
                      endpoint,  collection, assets, authOpt=list(),
-                     filename=NULL, ...
+                     ...
                      ){
    
-  #to do: 
-  # * implement reading data cube from file (using mock date_time="2000-01-01")
-  # if(!is.null(filename)){
-  #   
-  # } else {
-  #   
-  #   
-  # }
+  #TODO? : implement reading data cube from file
 
   ##  STAC items from query
   searchArgs <- list()
@@ -260,88 +267,87 @@ dem2cube <- function(xmin, xmax, ymin, ymax,
   cube <- do.call(gdalcubes::rename_bands, rename_args)
   
   return(cube)
-  
 }
 
 
-##Calculating terrain characteristics unefficient for large data cubes, function to be archived
+# ##Calculating terrain characteristics unefficient for large data cubes, function to be archived
+# 
+# #' Terrain characteristics
+# #' 
+# #' Compute terrain characteristics from digital elevation model data cube.
+# #' 
+# #' Currently, only "slope" and "aspect" are implemented, and only projected DEM layers with equal resolution in x and y are supported.
+# #' Only 8 ngb case implemented. Aspect is provided in the range [-pi,pi], rather than the conventional [0,2*pi].
+# #' 
+# #' @importFrom gdalcubes dimensions window_space rename_bands apply_pixel
+# #' 
+# #' @param cube data cube. Digital Elevation Model
+# #' @param v character vector. Terrain parameters to be calculated
+# #' @param neighbors integer. Either 8 (queen case) or 4 (rook case), indicating which neighbors to use to compute slope or aspect.
+# #' @param unit character. "degrees" or "radians" for the output of "slope" and "aspect"
+# #' 
+# #' @returns a gdalcubes data cube
+# #' 
+# #' @noRd
 
-#' Terrain characteristics
-#' 
-#' Compute terrain characteristics from digital elevation model data cube.
-#' 
-#' Currently, only "slope" and "aspect" are implemented, and only projected DEM layers with equal resolution in x and y are supported.
-#' Only 8 ngb case implemented. Aspect is provided in the range [-pi,pi], rather than the conventional [0,2*pi].
-#' 
-#' @importFrom gdalcubes dimensions window_space rename_bands apply_pixel
-#' 
-#' @param cube data cube. Digital Elevation Model
-#' @param v character vector. Terrain parameters to be calculated
-#' @param neighbors integer. Either 8 (queen case) or 4 (rook case), indicating which neighbors to use to compute slope or aspect. 
-#' @param unit character. "degrees" or "radians" for the output of "slope" and "aspect"
-#' 
-#' @returns a gdalcubes data cube
-#' 
-#' @noRd
-#' 
-terrain.cube <- function(cube, v=c("slope"), neighbors=8, unit="degrees"){
-  
-  stopifnot(is.cube(cube))
-  stopifnot(neighbors==8 | neighbors==4)
-  
-  #Kernels in x and y dimension
-  dx <- gdalcubes::dimensions(cube)$x$pixel_size
-  dy <- gdalcubes::dimensions(cube)$y$pixel_size
-  if (neighbors==8){
-    x_kernel <- matrix(data=c(1, 0, -1,
-                              2, 0, -2,
-                              1, 0, -1)/(8*dx),
-                       nrow=3, ncol=3, byrow=TRUE)
-    y_kernel <- matrix(data=c(1, 2, 1,
-                              0, 0, 0,
-                              -1,-2,-1)/(8*dy),
-                       nrow=3, ncol=3, byrow=TRUE)
-  } else if (neighbors==4){
-    x_kernel <- matrix(data=c(1, 0, -1)/(2*dx),
-                       nrow=1, ncol=3, byrow=TRUE)
-    y_kernel <- matrix(data=c(1, 0, -1)/(2*dy),
-                       nrow=3, ncol=1, byrow=TRUE)
-  } else{
-    stop('"neighbors" must be either 8 or 4')
-  }
-
-  #Slopes in x and y
-  dz_dx <- gdalcubes::window_space(cube, kernel=x_kernel) 
-  dz_dy <- gdalcubes::window_space(cube, kernel=y_kernel)
-  slopes <- gdalcubes::join_bands(list(dz_dx, dz_dy), cube_names = c("X1", "X2"))
-  #Assign correct names to bands
-  rename_args <- list("dz_dx", "dz_dy"); names(rename_args) <- names(slopes); rename_args$cube <- slopes
-  slopes <- do.call(gdalcubes::rename_bands, rename_args)
-  
-  out.list <- list()
-  if("slope" %in% v){
-    slope <- gdalcubes::apply_pixel(slopes, expr="atan(sqrt(dz_dx^2 + dz_dy^2))", names="slope")
-    if(unit=="degrees") slope <- gdalcubes::apply_pixel(slope, expr="slope*180/pi", names="slope")
-    out.list$slope <- slope
-  }                               
-  if("aspect" %in% v){
-    aspect <- gdalcubes::apply_pixel(slopes, expr="atan2(dz_dy, -dz_dx)", names="aspect")
-    if(unit=="degrees") aspect <- gdalcubes::apply_pixel(aspect, expr="aspect*180/pi", names="aspect")
-    out.list$aspect <- aspect
-  }                                
-  
-  #Merge different outputs in single data cube
-  if(length(out.list)>1){
-    out.cube <- gdalcubes::join_bands(out.list, cube_names=names(out.list))
-    rename_args <- as.list(names(out.list)); names(rename_args) <- names(out.cube); rename_args$cube <- out.cube
-    out.cube <- do.call(gdalcubes::rename_bands, rename_args)
-  } else {
-    out.cube <- out.list[[1]]
-  }
-  
-  return(out.cube)
-}
-
+# terrain.cube <- function(cube, v=c("slope"), neighbors=8, unit="degrees"){
+#   
+#   stopifnot(is.cube(cube))
+#   stopifnot(neighbors==8 | neighbors==4)
+#   
+#   #Kernels in x and y dimension
+#   dx <- gdalcubes::dimensions(cube)$x$pixel_size
+#   dy <- gdalcubes::dimensions(cube)$y$pixel_size
+#   if (neighbors==8){
+#     x_kernel <- matrix(data=c(1, 0, -1,
+#                               2, 0, -2,
+#                               1, 0, -1)/(8*dx),
+#                        nrow=3, ncol=3, byrow=TRUE)
+#     y_kernel <- matrix(data=c(1, 2, 1,
+#                               0, 0, 0,
+#                               -1,-2,-1)/(8*dy),
+#                        nrow=3, ncol=3, byrow=TRUE)
+#   } else if (neighbors==4){
+#     x_kernel <- matrix(data=c(1, 0, -1)/(2*dx),
+#                        nrow=1, ncol=3, byrow=TRUE)
+#     y_kernel <- matrix(data=c(1, 0, -1)/(2*dy),
+#                        nrow=3, ncol=1, byrow=TRUE)
+#   } else{
+#     stop('"neighbors" must be either 8 or 4')
+#   }
+# 
+#   #Slopes in x and y
+#   dz_dx <- gdalcubes::window_space(cube, kernel=x_kernel) 
+#   dz_dy <- gdalcubes::window_space(cube, kernel=y_kernel)
+#   slopes <- gdalcubes::join_bands(list(dz_dx, dz_dy), cube_names = c("X1", "X2"))
+#   #Assign correct names to bands
+#   rename_args <- list("dz_dx", "dz_dy"); names(rename_args) <- names(slopes); rename_args$cube <- slopes
+#   slopes <- do.call(gdalcubes::rename_bands, rename_args)
+#   
+#   out.list <- list()
+#   if("slope" %in% v){
+#     slope <- gdalcubes::apply_pixel(slopes, expr="atan(sqrt(dz_dx^2 + dz_dy^2))", names="slope")
+#     if(unit=="degrees") slope <- gdalcubes::apply_pixel(slope, expr="slope*180/pi", names="slope")
+#     out.list$slope <- slope
+#   }                               
+#   if("aspect" %in% v){
+#     aspect <- gdalcubes::apply_pixel(slopes, expr="atan2(dz_dy, -dz_dx)", names="aspect")
+#     if(unit=="degrees") aspect <- gdalcubes::apply_pixel(aspect, expr="aspect*180/pi", names="aspect")
+#     out.list$aspect <- aspect
+#   }                                
+#   
+#   #Merge different outputs in single data cube
+#   if(length(out.list)>1){
+#     out.cube <- gdalcubes::join_bands(out.list, cube_names=names(out.list))
+#     rename_args <- as.list(names(out.list)); names(rename_args) <- names(out.cube); rename_args$cube <- out.cube
+#     out.cube <- do.call(gdalcubes::rename_bands, rename_args)
+#   } else {
+#     out.cube <- out.list[[1]]
+#   }
+#   
+#   return(out.cube)
+# }
+# 
 
 
 

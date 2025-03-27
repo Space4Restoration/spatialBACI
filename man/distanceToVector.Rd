@@ -14,11 +14,11 @@ distanceToVector(x, y, ...)
 \item{...}{Additional arguments to terra::distance}
 }
 \value{
-SpatRaster or numerical vector
+SpatRaster or SpatVector
 }
 \description{
 Calculates (minimum) geographic distance in meters from the cells of a reference SpatRaster or the feature in reference SpatVector to the features in the target SpatVector
 }
 \details{
-Basically rast::distance but with reprojection CRS if needed, and in case of SpatVector-SpatVector returning the minimum distance rather than a matrix. Perhaps also allow different types of vector formats (e.g. sf)?
+Basically rast::distance but with reprojection CRS if needed, and in case of SpatVector-SpatVector returning the minimum distance rather than a matrix.
 }

@@ -25,3 +25,11 @@ is.SpatRaster <- function(obj){
   return(FALSE)
 }
 
+is.SpatVector <- function(obj){
+  if("SpatVector" %in% class(obj)){
+    return(TRUE)
+  }
+  return(FALSE)
+}
+
+

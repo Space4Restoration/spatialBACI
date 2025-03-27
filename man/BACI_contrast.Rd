@@ -4,15 +4,28 @@
 \alias{BACI_contrast}
 \title{Before-After-Control-Impact contrast}
 \usage{
-BACI_contrast(data, SpatRef = NULL)
+BACI_contrast(
+  ci_matches,
+  before,
+  after,
+  effect,
+  crs.matches = NULL,
+  rast.out = NULL
+)
 }
 \arguments{
-\item{data}{data.table}
+\item{ci_matches}{description}
 
-\item{SpatRef}{SpatRaster}
+\item{before}{description}
+
+\item{after}{description}
+
+\item{effect}{description}
+
+\item{spatref}{Spatial reference in case crs ci_matches does not correspond to crs raster layers. Not yet implemented.}
 }
 \value{
-data.table
+list (See Details)
 }
 \description{
 Calculate the Control-Impact contrast and p-value

@@ -2,7 +2,7 @@
 % Please edit documentation in R/as.R
 \name{as.SpatRaster}
 \alias{as.SpatRaster}
-\title{Coerce to SpatRaster}
+\title{Coerce data cube to SpatRaster}
 \usage{
 as.SpatRaster(x)
 }

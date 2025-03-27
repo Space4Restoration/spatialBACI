@@ -4,16 +4,20 @@
 \alias{collate_matching_layers}
 \title{Collate matching layers}
 \usage{
-collate_matching_layers(x, ...)
+collate_matching_layers(x, vars_list)
 }
 \arguments{
-\item{x}{spatRaster providing spatial reference}
+\item{x}{SpatRaster providing spatial reference}
 
 \item{...}{Matching layers. See Details.}
+}
+\value{
+description
 }
 \description{
 Process different matching layers in compatible format
 }
 \details{
-All matching layers should be provided as additional arguments (\code{...}). Matching layers can be provided as spatRaster, data cube, or a character (which will be interpreted as a readable file name).
+All matching layers should be provided as additional arguments (\code{...}). Matching layers can be provided as spatRaster, data cube, or a character (which will be interpreted as a readable file name). 
+Alternatively, \code{...} can be a list of matching layers (SpatRaster, data cube or character)
 }

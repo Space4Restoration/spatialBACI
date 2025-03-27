@@ -3,6 +3,8 @@
 #' 
 #' Define a spatial reference spatRaster object based on a polygon of pair of coordinates, and additional spatial arguments.
 #' 
+#' Deprecated: replaced by create_control_candidates for creating spatial reference and identifying control/impact pixels
+#' 
 #' @export ref_rast
 #' 
 #' @import methods

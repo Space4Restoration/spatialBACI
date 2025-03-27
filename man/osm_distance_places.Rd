@@ -22,7 +22,10 @@ osm_distance_places(
 
 \item{name}{Character of place name}
 
-\item{osm_bbox}{Bounding box for OSM feature retrieval, as numeric vector or character string of administrative name (see osmdata:getbb)}
+\item{osm_bbox}{Bounding box for OSM feature retrieval, as numeric vector or character string of administrative name (see \code{osmdata::getbb})}
+}
+\value{
+SpatRaster or SpatVector
 }
 \description{
 Calculated shortest geographic distance to OpenStreetMap place features

@@ -1,17 +1,15 @@
 #' Given a spatial object, calculate the UTM zone of the centroid
 #'
-#' For a line or polygon, the UTM zone of the centroid is given, after 
-#' reprojecting the object into WGS-84.
+#' For a line or polygon, the UTM zone of the centroid is given, after reprojecting the object into WGS-84.
 #'
 #' @export utm_zone
+#' 
 #' @import methods
-#' @param x a longitude (with western hemisphere longitudes negative), a 
-#' \code{Spatial} object, or a \code{SpatVector} object
-#' @param y a latitude (with southern hemisphere latitudes negative), or 
-#' missing (if x is a \code{Spatial} or \code{SpatVector} object)
-#' @param proj4string if FALSE (default) return the UTM zone as a string (for 
-#' example "34S" for UTM Zone 34 South). If TRUE, return a proj4string using 
-#' the EPSG code as an initialization string.
+#' 
+#' @param x a longitude (with western hemisphere longitudes negative), a \code{Spatial} object, or a \code{SpatVector} object
+#' @param y a latitude (with southern hemisphere latitudes negative), or missing (if x is a \code{Spatial} or \code{SpatVector} object)
+#' @param proj4string if FALSE (default) return the UTM zone as a string (for example "34S" for UTM Zone 34 South).
+#' If TRUE, return a proj4string using the EPSG code as an initialization string.
 #' @returns character
 #' @examples
 #' utm_zone(45, 10)
@@ -94,7 +92,7 @@ setMethod("utm_zone", signature("numeric", "numeric"),
 setMethod("utm_zone", signature(x='SpatVector', y='missing'),
           function(x, proj4string) {
             x <- project(x, "epsg:4326")
-            centroid <- geom(centroids (x))
+            centroid <- geom(centroids(aggregate(x)))
             return(utm_zone_calc(centroid[3], centroid[4], proj4string))
           }
 )

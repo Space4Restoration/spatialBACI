@@ -13,11 +13,14 @@ osm_distance_roads(x, values = "track+", timeout = 25, osm_bbox = NULL, ...)
 
 \item{timeout}{Numeric (seconds)}
 
-\item{osm_bbox}{Bounding box for OSM feature retrieval, as numeric vector or character string of administrative name (see osmdata:getbb)}
+\item{osm_bbox}{Bounding box for OSM feature retrieval, as numeric vector or character string of administrative name (see \code{osmdata::getbb})}
+}
+\value{
+SpatRaster or SpatVector
 }
 \description{
 Calculated shortest geographic distance to OpenStreetMap road features
 }
 \details{
-#' When a bounding box is not provided in the osm_bbox argument, the maximum required bounding box will be identified through an iterative search. This may be a more efficient option than providing an overly wide bounding box.
+When a bounding box is not provided in the osm_bbox argument, the maximum required bounding box will be identified through an iterative search. This may be a more efficient option than providing an overly wide bounding box.
 }

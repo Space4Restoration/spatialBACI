@@ -20,21 +20,23 @@
 #' @param na.rm description
 #' @param ... description
 #' 
-#' @returns a SpatRaster object
+#' @returns SpatRaster or SpatVector
 #' 
 #' @references Karger, D.N., Conrad, O., Böhner, J., Kawohl, T., Kreft, H., Soria-Auza, R.W., Zimmermann, N.E., Linder, P., Kessler, M. (2017): 
 #' Climatologies at high resolution for the Earth land surface areas. Scientific Data. 4 170122. https://doi.org/10.1038/sdata.2017.122
 #' 
-setGeneric("chelsa", function(x, product="climatologies", period="1981-2010", data="bio", layers=paste0("bio",c(1:19)), version="2.1", ...){
+setGeneric("chelsa", function(x, product="climatologies", period="1981-2010", data="bio", layers=paste0("bio",c(1:19)), version="V2.1", ...){
   standardGeneric("chelsa")
 })
+
+
 
 chelsa2rast <- function(product="climatologies", period="1981-2010", data="bio", layers=paste0("bio",c(1:19)), version="2.1"){
 
   chelsa_version_dir <- paste0("chelsa_V",substr(version, 1,1))
   chelsa_version_lyr <- paste0("V.",version,".tif")
-  chelsa_data_dir <- paste("https://os.zhdk.cloud.switch.ch/envicloud/chelsa",
-                           chelsa_version_dir,
+  chelsa_data_dir <- paste("https://os.zhdk.cloud.switch.ch/chelsav2",
+                           #chelsa_version_dir,
                            "GLOBAL",
                            product,
                            period,
@@ -72,7 +74,7 @@ setMethod("chelsa", signature="SpatVector",
           function(x, product="climatologies", period="1981-2010", data="bio", layers=paste0("bio",c(1:19)), version="2.1",
                    fun=mean, bind=TRUE, na.rm=TRUE, ...){
             chelsa_rast <- chelsa2rast(product=product, period=period, data=data, layers=layers, version=version)
-            chelsa_x <- terra::extract(chelsa_rast, terra::project(x, chelsa_rast), fun=fun, bind=bind, na.rm=ra.rm, ...)
+            chelsa_x <- terra::extract(chelsa_rast, terra::project(x, chelsa_rast), fun=fun, bind=bind, na.rm=na.rm, ...)
             return(chelsa_x)
           }
 )

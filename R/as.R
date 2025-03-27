@@ -3,7 +3,7 @@
 
 
 
-#' Coerce to SpatRaster
+#' Coerce data cube to SpatRaster
 #' 
 #' Writes a data cube as a temporal file and reads that as SpatRaster object
 #' 

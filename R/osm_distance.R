@@ -18,7 +18,7 @@ osm_distance <- function(x, what, ...){
 #' 
 #' Calculated shortest geographic distance to OpenStreetMap road features 
 #' 
-#' #' When a bounding box is not provided in the osm_bbox argument, the maximum required bounding box will be identified through an iterative search. This may be a more efficient option than providing an overly wide bounding box.
+#' When a bounding box is not provided in the osm_bbox argument, the maximum required bounding box will be identified through an iterative search. This may be a more efficient option than providing an overly wide bounding box.
 #' 
 #' @export
 #' @importFrom terra ext project extend vect as.points names 
@@ -27,7 +27,9 @@ osm_distance <- function(x, what, ...){
 #' @param x SpatRaster or SpatVector for which distances are calculated 
 #' @param values Character vector of road categories to be included (see https://wiki.openstreetmap.org/wiki/Key:highway) or a single road category with suffix "+" to include all categories including and above the selected category. Set to NULL to include all values. 
 #' @param timeout Numeric (seconds)
-#' @param osm_bbox Bounding box for OSM feature retrieval, as numeric vector or character string of administrative name (see osmdata:getbb)
+#' @param osm_bbox Bounding box for OSM feature retrieval, as numeric vector or character string of administrative name (see \code{osmdata::getbb})
+#' 
+#' @returns SpatRaster or SpatVector
 #' 
 osm_distance_roads <- function(x, values="track+", timeout=25, osm_bbox=NULL,...){
 
@@ -92,7 +94,9 @@ osm_distance_roads <- function(x, values="track+", timeout=25, osm_bbox=NULL,...
 #' @param values Character vector of place categories to be included (see https://wiki.openstreetmap.org/wiki/Key:place) or a single place category with suffix "+" to include all categories including and above the selected category. Set to NULL to include all values. 
 #' @param timeout Numeric (seconds)
 #' @param name Character of place name
-#' @param osm_bbox Bounding box for OSM feature retrieval, as numeric vector or character string of administrative name (see osmdata:getbb)
+#' @param osm_bbox Bounding box for OSM feature retrieval, as numeric vector or character string of administrative name (see \code{osmdata::getbb})
+#' 
+#' @returns SpatRaster or SpatVector
 #' 
 osm_distance_places <- function(x, values="hamlet+", timeout=25, name=NULL, osm_bbox=NULL, ...){
   #add generic option to filter by all available fields
@@ -113,6 +117,7 @@ osm_distance_places <- function(x, values="hamlet+", timeout=25, name=NULL, osm_
   }
 
   #If bbox is not specified in arguments, iteratively extend bbox until maximum required bbox is found
+  #TODO?: move this part of bounding box search to new function that can be used for "roads" and "places"
   if(is.null(osm_bbox)){
     #Initial bbox from x
     ext_x <- ext(x)
@@ -132,9 +137,7 @@ osm_distance_places <- function(x, values="hamlet+", timeout=25, name=NULL, osm_
     dmax <- max(distanceToVector(as.points(ext(x), crs=crs(x)), bbox_data_vect))
     ext_x <- extend(ext(x), dmax)
     osm_bbox <- as.bbox(project(ext_x, x, "epsg:4326"))
-  } else {
-    #nothing to do here i guess
-  }
+  } 
 
   #Final query
   bbox_data <- do_osm_query()
@@ -145,3 +148,5 @@ osm_distance_places <- function(x, values="hamlet+", timeout=25, name=NULL, osm_
   names(x_dist) <- "dist_places"
   return(x_dist)
 }
+
+

@@ -15,22 +15,18 @@ utm_zone(x, y, proj4string = FALSE)
 \S4method{utm_zone}{SpatVector,missing}(x, proj4string)
 }
 \arguments{
-\item{x}{a longitude (with western hemisphere longitudes negative), a 
-\code{Spatial} object, or a \code{SpatVector} object}
+\item{x}{a longitude (with western hemisphere longitudes negative), a \code{Spatial} object, or a \code{SpatVector} object}
 
-\item{y}{a latitude (with southern hemisphere latitudes negative), or 
-missing (if x is a \code{Spatial} or \code{SpatVector} object)}
+\item{y}{a latitude (with southern hemisphere latitudes negative), or missing (if x is a \code{Spatial} or \code{SpatVector} object)}
 
-\item{proj4string}{if FALSE (default) return the UTM zone as a string (for 
-example "34S" for UTM Zone 34 South). If TRUE, return a proj4string using 
-the EPSG code as an initialization string.}
+\item{proj4string}{if FALSE (default) return the UTM zone as a string (for example "34S" for UTM Zone 34 South).
+If TRUE, return a proj4string using the EPSG code as an initialization string.}
 }
 \value{
 character
 }
 \description{
-For a line or polygon, the UTM zone of the centroid is given, after 
-reprojecting the object into WGS-84.
+For a line or polygon, the UTM zone of the centroid is given, after reprojecting the object into WGS-84.
 }
 \examples{
 utm_zone(45, 10)

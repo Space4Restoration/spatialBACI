@@ -24,9 +24,13 @@ dem(x, ...)
 \item{unit}{character. "degrees" or "radians" for the output of "slope" and "aspect"}
 
 \item{transformAspect}{logical. Should aspect be transformed to "northness" and "eastness"}
+
+\item{fun}{function to summarize the extracted data by line or polygon geometry}
+
+\item{method}{method for extracting values with points ("simple" or "bilinear"), see \code{terra::extract}}
 }
 \value{
-a data cube or SpatRaster object (see Details)
+a data cube, SpatRaster or SpatVector object (see Details)
 }
 \description{
 Read Digital Elevation Model and calculate derivatives.

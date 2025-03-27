@@ -35,6 +35,9 @@ SpatRaster
 \description{
 Define a spatial reference spatRaster object based on a polygon of pair of coordinates, and additional spatial arguments.
 }
+\details{
+Deprecated: replaced by create_control_candidates for creating spatial reference and identifying control/impact pixels
+}
 \examples{
 ref_rast(30, 45, resolution=10, buffer=200, round_coords=-1)
 }

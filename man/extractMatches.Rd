@@ -2,7 +2,7 @@
 % Please edit documentation in R/extractMatches.R
 \name{extractMatches}
 \alias{extractMatches}
-\title{Extract data for matches}
+\title{Extract data from raster for matches}
 \usage{
 extractMatches(matches, effect, before, after, band = NULL)
 }
@@ -18,5 +18,5 @@ extractMatches(matches, effect, before, after, band = NULL)
 \item{band}{character. If before/after contain more than one band, this parameter can be used to select the band to be extracted}
 }
 \description{
-Extract the "before" and "after", or "effect", values for the matching pairs
+Extract the "before" and "after", or "effect", values from a SpatRaster or data cube for the provided matching pairs
 }

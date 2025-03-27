@@ -16,7 +16,6 @@ dem2cube(
   collection,
   assets,
   authOpt = list(),
-  filename = NULL,
   ...
 )
 }
@@ -42,8 +41,6 @@ dem2cube(
 \item{assets}{character. STAC asset name}
 
 \item{authOpt}{STAC authentication options (endpoint-dependent)}
-
-\item{filename}{character vector of input filenames}
 
 \item{...}{additional arguments (not used)}
 }

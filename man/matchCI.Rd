@@ -6,25 +6,31 @@
 \usage{
 matchCI(
   cands,
-  matchlyrs,
+  matchVars,
+  ratio = 1,
+  replace = FALSE,
+  method = "nearest",
+  distance = "glm",
+  link = "logit",
   eval = FALSE,
-  cols = c("subclass", "x", "y", "treatment"),
+  asmd_warn = NULL,
+  asmd_error = NULL,
   ...
 )
 }
 \arguments{
-\item{cands}{Control-Impact candidates - SpatRaster - 0=control, 1=impact, NA=exclude}
-
-\item{matchlyrs}{multilayer SpatRaster (same geometry as CI_cand) of matching variables}
+\item{cands}{spatRaster or spatVector object. See Details.}
 
 \item{eval}{should matching be evaluated, return NULL if matching is rejected}
 
-\item{cols}{columns to be returned in the data table}
-
 \item{...}{additional inputs to \code{matchit} function}
+
+\item{matchlyrs}{multilayer SpatRaster (same geometry as CI_cand) of matching variables}
+
+\item{cols}{columns to be returned in the data table}
 }
 \value{
-data table with matched control-impact units
+data table with matched control-impact units. Column names are "ID", "treatment", and "subclass".
 }
 \description{
 Match control units to impact units
@@ -32,4 +38,8 @@ Match control units to impact units
 \details{
 This function uses the provided matching layers to match the provided candidate and impact units 
 using the MatchIt package and the matching options provided therein.
+
+If cands is a spatRaster, impact pixels should be labelled 1, candidate control pixels labelled 0, and pixels to be excluded labelled NA.
+In that case, matching variables in \code{matchvars} are to be provided as a single (multilayer) terra spatRaster object, gdalcubes data cube object, character pathname (which will be assumed to refer to a raster imagee), or as a list of these classes.
+If cands is a spatVector, attributes should include "ID", "treatment" (1 for impact sites and 0 for candidate control sites). All remaining columns will be interpreted as
 }

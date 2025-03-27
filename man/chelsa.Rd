@@ -10,7 +10,7 @@ chelsa(
   period = "1981-2010",
   data = "bio",
   layers = paste0("bio", c(1:19)),
-  version = "2.1",
+  version = "V2.1",
   ...
 )
 }
@@ -38,7 +38,7 @@ chelsa(
 \item{na.rm}{description}
 }
 \value{
-a SpatRaster object
+SpatRaster or SpatVector
 }
 \description{
 Read CHELSA climatologies as SpatRaster
