@@ -31,7 +31,7 @@ osm_distance <- function(x, what, ...){
 #' 
 #' @returns SpatRaster or SpatVector
 #' 
-osm_distance_roads <- function(x, values="track+", timeout=25, osm_bbox=NULL,...){
+osm_distance_roads <- function(x, values="residential+", timeout=25, osm_bbox=NULL,...){
 
   #specifiy values
   road_values <- c("motorway","trunk","primary", "secondary", "tertiary", "unclassified", "residential", 
@@ -63,10 +63,15 @@ osm_distance_roads <- function(x, values="track+", timeout=25, osm_bbox=NULL,...
       bbox_data <- do_osm_query()
       bbox_has_data <- !is.null(bbox_data$osm_lines)
     }
-    #Calculate distance by how much initial bbox must be extended to ensure all relevant features are included in distance calculation
-    bbox_data_vect <- vect(bbox_data$osm_lines)
-    dmax <- max(distanceToVector(as.points(ext(x), crs=crs(x)), bbox_data_vect))
-    ext_x <- extend(ext(x), dmax)
+    
+    # #Calculate distance by how much initial bbox must be extended to ensure all relevant features are included in distance calculation
+    #Switch this out for now as distance always returns m/km, which is problematic of bbox is lat/lon. Could be solved by first transforming bbox to utm, then switching back
+    # bbox_data_vect <- vect(bbox_data$osm_lines)
+    # dmax <- max(distanceToVector(as.points(ext(x), crs=crs(x)), bbox_data_vect))
+    # ext_x <- extend(ext(x), dmax)
+    # osm_bbox <- as.bbox(project(ext_x, x, "epsg:4326"))
+    
+    ext_x <- extend(ext_x, 0.5*max(ext_x$xmax-ext_x$xmin, ext_x$ymax-ext_x$ymin))
     osm_bbox <- as.bbox(project(ext_x, x, "epsg:4326"))
   }
 
@@ -75,8 +80,17 @@ osm_distance_roads <- function(x, values="track+", timeout=25, osm_bbox=NULL,...
   
   #Calculate distances
   bbox_data_vect <- vect(bbox_data$osm_lines) 
-  x_dist <- distanceToVector(x, bbox_data_vect)
-  names(x_dist) <- "dist_roads"
+  
+  if(is.SpatRaster(x)){
+    x_dist <- distanceToVector(x, bbox_data_vect)
+    names(x_dist) <- "dist_roads"
+  } else if (is.SpatVector(x)){
+    x_dist <- distanceToVector(centroids(x), bbox_data_vect)
+    names(x_dist) <- "dist_roads"
+    x_dist <- cbind(x, x_dist)
+  } else {
+    stop("SpatRaster or SpatVector expected")
+  }
   return(x_dist)
 }
 
@@ -144,9 +158,18 @@ osm_distance_places <- function(x, values="hamlet+", timeout=25, name=NULL, osm_
   
   #Calculate distances
   bbox_data_vect <- vect(bbox_data$osm_points) 
-  x_dist <- distanceToVector(x, bbox_data_vect)
-  names(x_dist) <- "dist_places"
+  if(is.SpatRaster(x)){
+    x_dist <- distanceToVector(x, bbox_data_vect)
+    names(x_dist) <- "dist_places"
+  } else if (is.SpatVector(x)){
+    x_dist <- distanceToVector(centroids(x), bbox_data_vect)
+    names(x_dist) <- "dist_places"
+    x_dist <- cbind(x, x_dist)
+  } else {
+    stop("SpatRaster or SpatVector expected")
+  }
   return(x_dist)
+  
 }
 
 

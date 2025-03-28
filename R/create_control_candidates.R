@@ -20,7 +20,6 @@
 #' 
 #' @returns a spatRaster in which impact pixels have value 1, candidate control pixels value 0, and all other pixels value NA
 #'
-
 create_control_candidates <- function(impact,
                                       resolution,
                                       crs,

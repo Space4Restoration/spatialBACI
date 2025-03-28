@@ -18,7 +18,7 @@ eo_VI_yearly.stac(
 )
 }
 \arguments{
-\item{x}{description}
+\item{x}{SpatRaster}
 
 \item{VI}{Vegetation Index (see details)}
 

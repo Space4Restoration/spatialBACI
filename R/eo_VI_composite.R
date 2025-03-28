@@ -11,7 +11,7 @@
 #' 
 #' @returns SpatRaster
 #' 
-#' @param x description
+#' @param x SpatRaster
 #' @param VI Vegetation Index (see details)
 #' @param endpoint description
 #' @param collection description#' 

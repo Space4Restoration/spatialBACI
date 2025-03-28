@@ -9,7 +9,7 @@
 #' 
 #' @export
 #' 
-#' @importFrom data.table as.data.table is.data.table
+#' @importFrom data.table data.table as.data.table is.data.table
 #' @import terra
 #' 
 #' @param ci_matches description
@@ -25,7 +25,7 @@
 #' @references del Río-Mena, T., Willemen, L., Vrieling, A., Snoeys, A., Nelson, A., 2021. Long-term assessment of ecosystem services at ecological restoration sites using Landsat time series. PLOS ONE 16, e0243020.
 #' 
 
-BACI_contrast <- function(ci_matches, before, after, effect, crs.matches=NULL, rast.out=NULL){
+BACI_contrast <- function(ci_matches, before, after, effect, spatref.matches=NULL, rast.out=NULL){
   
   
   if((missing(before) | missing(after)) & missing(effect)) stop('Arguments "before" and "after", or argument "effect" must be provided.')
@@ -78,17 +78,84 @@ BACI_contrast <- function(ci_matches, before, after, effect, crs.matches=NULL, r
   } else if ("ID" %in% names(ci_matches)){
     #vector input
     
+    if(!missing(effect)){
+      if(is.SpatRaster(effect) | is.cube(effect)){
+        tmp <- extractGeneric(effect, spatref.matches[spatref.matches$ID %in% ci_matches$ID])
+        data_effect <- cbind(data.table(ID=spatref.matches[spatref.matches$ID %in% ci_matches$ID]$ID), tmp[,names(tmp)!="ID"])
+      }
+
+    } else {
+      
+      if(is.SpatRaster(before) | is.cube(before)){
+        tmp <- extractGeneric(before, spatref.matches[spatref.matches$ID %in% ci_matches$ID])
+        data_before <- cbind(data.table(ID=spatref.matches[spatref.matches$ID %in% ci_matches$ID]$ID), tmp[,names(tmp)!="ID"])
+      } else {
+        data_before <- before
+      }
+      
+      if(is.SpatRaster(after) | is.cube(after)){
+        tmp <- extractGeneric(after, spatref.matches[spatref.matches$ID %in% ci_matches$ID])
+        data_after <- cbind(data.table(ID=spatref.matches[spatref.matches$ID %in% ci_matches$ID]$ID), tmp[,names(tmp)!="ID"])
+      } else {
+        data_after <- after
+      }
+      
+      effect_names_before <- names(data_before)[! names(data_before) %in% c("ID", "treatment", "subclass")]
+      effect_names_after <- names(data_after)[! names(data_after) %in% c("ID", "treatment", "subclass")]
+      if(all.equal(effect_names_before, effect_names_after)) {
+        effect_names <- effect_names_before
+      } else {
+        stop("Names in before and after do not match")
+      }
+      
+      if(!is.data.table(data_before)) data_before <- as.data.table(data_before)
+      if(!is.data.table(data_after)) data_after <- as.data.table(data_after)
+      
+      data_effect <- merge(data_before, data_after, by="ID")
+      data_effect <- data.table(subset(data_effect, select="ID"),
+                                subset(data_effect, select=paste0(effect_names,".y")) - subset(data_effect, select=paste0(effect_names,".x")))
+      names(data_effect) <- c("ID", effect_names)
+      data_effect <- merge(ci_matches, data_effect, by="ID") |>  subset(select= c("subclass", "treatment", effect_names))
+      
+    }
     
-    return(NULL)
+    contrast_p.data <- calc_contrast_p(data_effect)
+    contrast_p.data <- merge(unique(subset(ci_matches, subset= treatment==1, select=c(ID, subclass))),
+                             contrast_p.data, by="subclass")
+    
+    out <- list()
+    out$data <- contrast_p.data
+    
+    if(!is.null(spatref.matches)){
+      contrast_p.vect <- merge(spatref.matches, contrast_p.data, by="ID")
+      out$spat <- contrast_p.vect
+    }
+    
+    return(out)
+
   }
   
-  
+  stop()
   
   return(NULL)
 } 
 
 
-
+#' Calculate contrast and p value
+#' 
+#' Calculate the (BA)CI contrast and p-value for matched control-impact units
+#' 
+#' Parameter \code{data} must be a data.table (or data.frame) with columns indicating the subclass and treatment, the remaining columns will be assumed to be the effects for which contrast and p-value must be calculated
+#' 
+#' @export
+#'
+#' @importFrom data.table as.data.table is.data.table
+#' 
+#' @param data data.table or data.frame. See details.
+#' @param colname.subclass character. Name of column indicating subclass
+#' @param colname.treatment character. Name of column indicating treatment
+#'  
+#' 
 
 
 calc_contrast_p <- function(data, colname.subclass="subclass", colname.treatment="treatment"){

@@ -9,7 +9,7 @@ BACI_contrast(
   before,
   after,
   effect,
-  crs.matches = NULL,
+  spatref.matches = NULL,
   rast.out = NULL
 )
 }

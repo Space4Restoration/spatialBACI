@@ -103,9 +103,7 @@ sel_band.SpatRaster <- function(x, ...){
 
 
 
-
-
-
+##To be updated
 
 #' Extract from raster
 #' 
@@ -160,4 +158,41 @@ extractFromRaster <- function(r, xy, crs_xy){
 }
   
   
+#' Extract from generic raster
+#' 
+#' Generic function to extract from SpatRaster or data cube object
+#' 
+#' @export
+#' 
+#' @importFrom terra extract project
+#' @importFrom gdalcubes extract_geom
+#' @importFrom sf st_as_sf
+#' 
+#' @param x SpatRaster or data cube
+#' @param y SpatVector or sf. Additionally, if x is SpatRaster, see possibilities in \code{terra::extract}
+#' @param fun function to summarize by line or polygon geometry
+#' @param ... Additional arguments passed to \code{terra::extract} or \code{gdalcubes::extract_geom}
+#' 
+#' @returns data.frame, matrix or SpatVector (see \code{terra::extract} or \code{gdalcubes::extract_geom})
+#' 
+extractGeneric <- function(x, y, fun=mean, method="simple", reduce_time=TRUE, na.rm=TRUE, ...){
   
+
+  if(is.SpatRaster(x)){
+    
+    if(is.sf(y)) y <- terra::vect(y)
+    if(is.SpatVector(y)) if(crs(x) != crs(y)) y <- terra::project(y,x)
+    out <- terra::extract(x, y, fun=fun, method=method, na.rm=na.rm, ...)
+    
+  } else if (is.cube(r)){
+    
+    if(is.SpatVector(y)) y <- sf::st_as_sf(y)
+    out <- gdalcubes::extract_geom(x, y, FUN=fun, na.rm=na.rm, reduce_time=reduce_time, ...)
+
+  } else {
+    stop("x must be SpatRaster of data cube object")
+  }
+  
+  return(out)
+  
+}  

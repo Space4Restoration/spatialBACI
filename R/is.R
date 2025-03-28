@@ -2,6 +2,15 @@
 ## ******
 
 
+is.sf <- function(obj) {
+  if(!("sf" %in% class(obj))) {
+    return(FALSE)
+  }
+  return(TRUE)
+}
+
+
+
 is.cube <- function(obj) {
   if(!("cube" %in% class(obj))) {
     return(FALSE)
