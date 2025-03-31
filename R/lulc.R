@@ -44,6 +44,12 @@ setMethod("lulc", signature="SpatRaster",
             
             extent <- terra::ext(x)
             srs <- terra::crs(x)
+            dx <- res(x)[1]
+            dy <-res(x)[2]
+            xmin <- extent[1]
+            xmax <- extent[2]
+            ymin <- extent[3]
+            ymax <- extent[4]
             
             ##  STAC ItemCollection
             searchArgs <- list()
@@ -58,8 +64,10 @@ setMethod("lulc", signature="SpatRaster",
             imgCollection <- gdalcubes::stac_image_collection(s=items$features, asset_names=assets)
             
             # Creating cube view
-            cv <- gdalcubes::cube_view(extent=list(t0=substr(gdalcubes::extent(imgCollection)$t0,1,10), t1=substr(gdalcubes::extent(imgCollection)$t1,1,10),
-                                                   left= xmin, right= xmax, bottom=ymin, top=ymax),
+            cv <- gdalcubes::cube_view(extent=list(t0=substr(gdalcubes::extent(imgCollection)$t0,1,10), 
+                                                   t1=substr(gdalcubes::extent(imgCollection)$t1,1,10),
+                                                   left= xmin, right= xmax, 
+                                                   bottom=ymin, top=ymax),
                                        srs=srs,
                                        dx=dx, dy=dy, dt="P1D",
                                        aggregation="first", resampling="near")
@@ -72,7 +80,7 @@ setMethod("lulc", signature="SpatRaster",
             levels(r) <- cls
             
             #fix color table?
-            ct <- items$features[[1]]$assets[[asset]]$href |> rast() |> coltab()
+            ct <- items$features[[1]]$assets[[assets]]$href |> rast() |> coltab()
             coltab(r) <- ct
             
             return(r)

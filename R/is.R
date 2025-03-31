@@ -9,8 +9,6 @@ is.sf <- function(obj) {
   return(TRUE)
 }
 
-
-
 is.cube <- function(obj) {
   if(!("cube" %in% class(obj))) {
     return(FALSE)
@@ -25,7 +23,6 @@ is.spatRaster <- function(obj){
   }
   return(FALSE)
 }
-
 
 is.SpatRaster <- function(obj){
   if("SpatRaster" %in% class(obj)){
