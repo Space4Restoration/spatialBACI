@@ -4,8 +4,8 @@ Jasper Van doninck, Trinidad del Río-Mena, Wieteke Willemen, Wietske
 Bijker
 
 - [1 The Baviaanskloof dataset](#1-the-baviaanskloof-dataset)
-- [2 Spatial reference and the candidate control
-  pixels](#2-spatial-reference-and-the-candidate-control-pixels)
+- [2 Spatial unit of analysis and candidate control
+  units](#2-spatial-unit-of-analysis-and-candidate-control-units)
 - [3 Evaluation metric](#3-evaluation-metric)
 - [4 Control-Impact Matching](#4-control-impact-matching)
 - [5 Before-After-Control-Impact
@@ -34,72 +34,79 @@ data(baviaanskloof)
 baviaanskloof <- unwrap(baviaanskloof)
 
 year <- 2012
-selected_sites <- baviaanskloof[baviaanskloof$Planting_date==year & baviaanskloof$Lifestock_exclusion==0]
+impact_sites <- baviaanskloof[baviaanskloof$Planting_date==year & baviaanskloof$Lifestock_exclusion==0]
 other_sites <- baviaanskloof[baviaanskloof$Planting_date!=year | baviaanskloof$Lifestock_exclusion==1]
+
 plot(baviaanskloof, "Planting_date")
-lines(selected_sites, lwd=2)
+lines(impact_sites, lwd=2)
 ```
 
 ![](BACI_Baviaanskloof_files/figure-gfm/unnamed-chunk-1-1.png)<!-- -->
 
-# 2 Spatial reference and the candidate control pixels
+# 2 Spatial unit of analysis and candidate control units
 
-The `EnvImpactEval` package requires the user to define the spatial
-parameters at which the analysis will be performed. This reference will
-define the spatial units of the analysis and the neighbourhood around
-the impact units in which we want to search for control units. For now,
-only a raster (pixel)-based framework is implemented, a vector-based
-framework is planned for a future release.
+The `EnvImpactEval` package requires the user to define the spatial unit
+at which the analysis will be performed. The options for this are the
+pixel unit (using raster-based analysis) or the polygon/point unit
+(using vector-based analysis). The latter can be useful when working
+with extensive networks of fixed monitoring sites from which the control
+sites can be expected. One of the advantages of the pixel unit is that
+it is not required that candidate control sites are predefined. Another
+advantage is that, depending on the size of impact sites and spatial
+resolution of the used remotely sensed datasets, information on impact
+within an impact site can be assessed. For this example we will use
+pixels as the spatial unit of analysis and reporting.
 
-Using the `ref_rast` function, the user can easily define this spatial
-reference raster based on the input data of the intervention to be
-evaluated (in our example the Baviaanskloof revegetation polygons for
-the year 2012). The spatial resolution of the reference raster will
-typically be linked to the spatial resolution of the (earth observation)
-datasets used in the analysis and we here set this to 120 meters. In
-order to limit data download and processing time we restrict the search
-area for potential control units to a bounding box with a buffer of 5 km
-around the sites reforested in 2012, but the user can choose to set this
-neighbourhood in function of their knowledge of their study sites. The
-user can also specify the Coordinate Reference System (crs) of the
-reference raster. In our example we don’t provide the crs parameter, in
-which case the UTM zone of the Baviaanskloof reference dataset will be
-used.
-
-``` r
-refRas <- ref_rast(selected_sites, resolution=120, buffer=5000, round_coords=-2)
-```
-
-The `matchCandidates` function is then used to further specify the
-impact units (pixels) and candidate control units that will be used in
-the BACI analysis. In order to avoid undesired effects of spatial
-misregistration or adjacency effects (the area just outside a
-restoration or conservation intervention site may be subject to positive
-or negative effects from the intervention), the user can exclude pixels
-in a buffer within or around the impact sites. In the case of an outside
-buffer this is in our example done with the argument
-`excludeBufferOut=240m`. We obviously also exclude the areas restored in
-the other years as control pixels with the `excludeOther` argument.
-
-``` r
-matchingCands <- matchCandidates(selected_sites, refRas, excludeBufferOut=150, excludeOther = other_sites)
-```
-
-We can now plot a map showing the impact pixels (in green), the
-potential control pixels (in grey), and the excluded pixels (in white).
-Notice that the map shows UTM coordinates (as this was by default for
-the `crs` argument in `ref_rast` function), rather than the geographic
-coordinates of the Baviaanskloof reference dataset. In general, the
-`EnvImpactEval` package will automatically check the crs of used spatial
-datasets and reproject when required.
+When using a raster-based analysis, the first choice the user will have
+to make is the spatial resolution of the pixel units. We here choose a
+spatial resolution of 60m, since this is a resolution to which several
+Earth Observation datasets (e.g., Landsat, Sentinel-2) can be
+aggregated. The next step is to identify the area from which the control
+pixels for the Before-After-Control-Impact an be selected. The
+`EnvImpactEval` package provides several options for this. The first
+option is by providing a spatial window around the impact units, the
+second is providing a polygon identifying the area from which to select
+the control pixels. The package also provides options to exclude areas
+from use as control in the BACI analysis. This exclusion can be based on
+user-provided polygons, or buffer area around the impact sites (e.g., to
+eliminate the effect of misregistration of impact sites or of positive
+or negative adjacency effects). All these options to include or exclude
+candidate control units can be combined based on the user’s terrain
+knowledge and data availability in the `create_control_candidates`
+function. In this example, we set a window of 5 km around the sites
+reforested in 2012 (with the `control_from_buffer` argument) and exclude
+areas restored in the other years as control pixels (with the
+`control_exclude` argument). Finally, we use the argument
+`exclude_impact_buffer` to exclude pixels in a buffer of 240 m around
+the impact sites for selection as control units. The
+`create_control_candidates` function also allows us the specify the
+Coordinate Reference System (trough the `crs` argument) of the reference
+raster at which the analysis will be done. This can be useful if, e.g.,
+the user wants to use a national reference system. In our example we
+don’t provide the crs parameter, in which case the UTM zone of centroid
+of the impact sites will be used.
 
 ``` r
+matchingCands <- create_control_candidates(impact_sites,
+                                           resolution=60,
+                                           control_from_buffer=5000,
+                                           control_from_include=NULL,
+                                           control_exclude=other_sites,
+                                           exclude_impact_buffer=+240,
+                                           round_coords=2)
+
 plot(matchingCands)
-selected_sites_proj <- project(selected_sites, refRas)
-lines(selected_sites_proj)
+lines(project(impact_sites, matchingCands))
 ```
 
-![](BACI_Baviaanskloof_files/figure-gfm/unnamed-chunk-4-1.png)<!-- -->
+![](BACI_Baviaanskloof_files/figure-gfm/unnamed-chunk-2-1.png)<!-- -->
+
+The resulting plot shows the impact units/pixels (1), the candidate
+control units/pixels (0), and the pixels excluded from analysis in
+white. Notice that the plot shows UTM coordinates, rather than the
+geographic coordinates of the Baviaanskloof reference dataset. In
+general, the `EnvImpactEval` package will automatically check the crs of
+used spatial datasets and reproject when required.
 
 # 3 Evaluation metric
 
@@ -120,63 +127,66 @@ stac_collection <- as.collection("Landsat", stac_endpoint)
 
 The timeframes over which conservation or restoration impacts are
 assessed will depend on the application and study site. Assuming we want
-to evaluate the impact of the Baviaanskloof revegetation from the
-10-years periods before and after the intervention year, we can first
-generate yearly NDVI time series.
+to evaluate the impact of the Baviaanskloof revegetation from the 5-year
+periods before and the 10-year after the intervention year, we can first
+generate yearly NDVI time series for all impact and candidate control
+pixels:
 
 ``` r
-vi_before <- eo_VI_yearly.stac(refRas, "NDVI",
+vi_before <- eo_VI_yearly.stac(matchingCands, "NDVI",
                                endpoint=stac_endpoint, collection=stac_collection,
-                               years=seq(year-10, year-1, 1),
+                               years=seq(year-5, year-1, 1),
                                months = 3:5,
                                maxCloud=60)
-vi_before <- as.SpatRaster(vi_before)
-```
-
-``` r
-vi_after <- eo_VI_yearly.stac(refRas, "NDVI",
+vi_after <- eo_VI_yearly.stac(matchingCands, "NDVI",
                               endpoint=stac_endpoint, collection=stac_collection,
                               years=seq(year+1, year+10, 1),
                               months = 3:5,
                               maxCloud=60)
-vi_after <- as.SpatRaster(vi_after)
 ```
 
 In the above code, we specified that we want to make a pixel-based NDVI
 composite image for each year, using for each pixel and each year the
 median value from the images acquired in the months March until May that
-have a cloud cover below 60%.
-
-The function `eo_VI_yearly.stac` above generates proxy data cubes, which
-don’t contain any data but describe the dimension of the object. Data
-retrieval and calculations are only performed when the data values
-contained in these objects are needed. Working with data cubes has the
-advantage that unnecessary calculations are avoided for bands, time
-steps and/or coordinates that are not used in later steps. Currently,
-however, we are occasionally encountering issues when reading the EO
-data from cloud catalogs as data cubes. We hope to identify and fix
-these issues in an update of the `EnvImpactEval` package. For now we
-choose to transform the data cubes to SpatRaster object and plot the
-data at this step in the workflow, which will access the actual image
-data and indicate whether errors / incompleteness are encountered. If
-so, these previous two steps can be re-run.
+have a cloud cover below 60%. The function `eo_VI_yearly.stac` above
+generates proxy data cubes, which don’t contain any data but describe
+the dimension of the object. Data retrieval and calculations are only
+performed when the data values contained in these objects are needed.
+Working with data cubes has the advantage that unnecessary calculations
+are avoided for bands, time steps and/or coordinates that are not used
+in later steps. This can be extremely useful when dealing with large
+areas from which only limited data has to be extracted, e.g., sparse
+monitoring location distributed over a continental-scale area. In such a
+case you do not want to process data wall-to-wall over the continental
+scale, but only over these sparse locations. In our Baviaanskloof
+example, however, we only cover a geographically small area with a
+relatively dense cover of impact and candidate control units. In such
+case it can be useful to transform the data cubes to `SpatRaster`
+objects (from `terra` package). Doing this downloads and process all
+data and reads the resulting composite images into memory (or writes
+them to temporal files).
 
 ``` r
-plot(vi_before, main=paste0("NDVI - ",seq(year-10, year-1, 1)))
+vi_before <- as.SpatRaster(vi_before)
+vi_after <- as.SpatRaster(vi_after)
+plot(vi_before, main=paste0("NDVI - ",seq(year-5, year-1, 1)))
 ```
 
-![](BACI_Baviaanskloof_files/figure-gfm/unnamed-chunk-8-1.png)<!-- -->
+![](BACI_Baviaanskloof_files/figure-gfm/unnamed-chunk-5-1.png)<!-- -->
 
 ``` r
 plot(vi_after, main=paste0("NDVI - ",seq(year+1, year+10, 1)))
 ```
 
-![](BACI_Baviaanskloof_files/figure-gfm/unnamed-chunk-8-2.png)<!-- -->
+![](BACI_Baviaanskloof_files/figure-gfm/unnamed-chunk-5-2.png)<!-- -->
 
-We then calculate simple time series metrics from these two 10-year time
-series: the average value and trend (change in NDVI/year) over the time
-series. More advanced time series analysis methods will be added in a
-later version of the `EnvImpactEval` package.
+To transform these time series into simple metrics that can be used in a
+BACI analysis, we here calculate average value and trend (change in
+NDVI/year) over the time series before and after intervention. This
+basic time series analysis is included in the `EnvImpactEval` package,
+but user can easily implement their own analyses, as long as these
+return raster layers of the evaluation variable of interest before and
+after intervention.
 
 ``` r
 avgtrend_before <- calc_ts_metrics(vi_before)
@@ -202,7 +212,7 @@ variation will be small and mostly induced by local topography.
 Topographic slope and aspect may also determine whether or not a site is
 selected for revegetation or determine the success of the revegetation
 intervention. This terrain data can be extracted from the NASA Digital
-Elevation Model (DEM) based on SRTM data using the `nasadem` function.
+Elevation Model (DEM) based on SRTM data using the `dem` function.
 Unless specified otherwise, the DEM will be obtained from Microsoft’s
 Planetary Computer. The user can also specify the terrain derivatives to
 be calculated (by default the slope and the aspect), and whether the
@@ -210,8 +220,11 @@ aspect should be transformed to “northness” and “eastness” by applying
 the cosine and sine function on it (default) or not.
 
 ``` r
-dem <- dem(refRas)
+dem_matching <- dem(matchingCands)
+plot(dem_matching)
 ```
+
+![](BACI_Baviaanskloof_files/figure-gfm/unnamed-chunk-7-1.png)<!-- -->
 
 We also included land cover as a matching covariate. This will ensure
 that control pixel are selected from the same landcover type
@@ -224,12 +237,17 @@ terrain revegetated with spekboom will still be classified as
 problem for other situations.
 
 ``` r
-landcover <- lulc(refRas, year=year)
+landcover_matching <- lulc(matchingCands, year=year)
 ```
 
-    ## Warning in lulc2rast(extent, year, endpoint = endpoint, collection =
-    ## collection, : Land cover product io-lulc-9-class currently has data 2017-2022.
-    ## 2017 selected.
+    ## Warning in .local(x, year, endpoint, collection, assets, authOpt, ...): Land
+    ## cover product io-lulc-9-class currently has data 2017-2022. 2017 selected.
+
+``` r
+plot(landcover_matching)
+```
+
+![](BACI_Baviaanskloof_files/figure-gfm/unnamed-chunk-8-1.png)<!-- -->
 
 Distance to roads or settlements can explain the anthropogenic pressure
 on an area. The `EnvImpactEval` package therefore includes functions to
@@ -240,184 +258,207 @@ category “track” or higher as an environmental covariate in the matching
 analysis.
 
 ``` r
-roadsDist <- osm_distance_roads(refRas, values="track+")
+roadsDist_matching <- osm_distance_roads(matchingCands, values="track+")
+plot(roadsDist_matching)
 ```
 
-    ## |---------|---------|---------|---------|=========================================                                          
+![](BACI_Baviaanskloof_files/figure-gfm/unnamed-chunk-9-1.png)<!-- -->
 
-In addition to parameters described above, we also included as matching
-covariates the average and trend of the selected vegetation index in the
-10-year period before the restoration intervention. This way, control
-pixels will be selected that have undergone a similar temporal
-trajectory as the impact pixels in the years before intervention.
-
-``` r
-matchingLayers <- collate_matching_layers(refRas, dem, landcover, roadsDist, avgtrend_before)
-plot(matchingLayers)
-```
-
-![](BACI_Baviaanskloof_files/figure-gfm/unnamed-chunk-13-1.png)<!-- -->
-
-We then perform the control-impact matching using propensity score
-matching (default method), and select 10 control pixels for each impact
-pixel with replacement (a control pixel can be paired with several
-impact pixels). This step can be performed interactively by setting the
-parameter `eval=TRUE`, which will display matching results and plots
-after which the matching can be accepted or rejected.
+We then perform the control-impact matching with the `matchCI` function
+using propensity score matching (default method), and select 10 control
+pixels for each impact pixel (argument `ratio`) with replacement
+(argument `replace`), meaning that a control pixel can be paired with
+several impact pixels. This step can be performed interactively by
+setting the parameter `eval=TRUE`, which will display matching results
+and plots after which the matching can be accepted or rejected. As
+matching layer, we select the layers described above (DEM, land cover
+and distance to tracks), together with the average and trend of the
+selected vegetation index in the 5-year period before the restoration
+intervention. This way, control pixels will be selected that have
+undergone a similar temporal trajectory as the impact pixels in the
+years before intervention. All selected matching layers provided to the
+`matchVars` argument can be easily combined using a `list()` command.
 
 ``` r
-matches <- matchCI(matchingCands, matchingLayers, eval=TRUE, ratio=10, replace=TRUE)
+CI_matches <- matchCI(cands=matchingCands, 
+                      matchVars=list(dem_matching, 
+                                     landcover_matching,
+                                     roadsDist_matching,
+                                     avgtrend_before), 
+                      ratio=10, replace=TRUE, eval=TRUE)
 ```
 
     ## A `matchit` object
     ##  - method: 10:1 nearest neighbor matching with replacement
-    ##  - distance: Propensity score             - estimated with logistic regression
-    ##  - number of obs.: 11782 (original), 1711 (matched)
+    ##  - distance: Propensity score
+    ##              - estimated with logistic regression
+    ##  - number of obs.: 41533 (original), 5226 (matched)
     ##  - target estimand: ATT
     ##  - covariates: elevation, slope, northness, eastness, landcover, dist_roads, average, trend
     ## Press <Enter> to continue.
     ## 
     ## Call:
-    ## matchit(formula = frm, data = dt, replace = TRUE, ratio = 10)
+    ## MatchIt::matchit(formula = frm, data = dt, method = method, distance = distance, 
+    ##     link = link, replace = replace, ratio = ratio)
     ## 
     ## Summary of Balance for All Data:
     ##                      Means Treated Means Control Std. Mean Diff. Var. Ratio
-    ## distance                    0.0930        0.0184          0.9867     3.7898
-    ## elevation                 546.9395      701.6508         -2.3898     0.1115
-    ## slope                       0.1637        0.2153         -0.7789     0.2091
-    ## northness                   0.0563        0.0736         -0.0256     0.9388
-    ## eastness                    0.5233        0.1264          0.7629     0.5484
-    ## landcoverWater              0.0000        0.0002         -0.0133          .
-    ## landcoverTrees              0.0000        0.0179         -0.1365          .
-    ## landcoverCrops              0.0000        0.0232         -0.1557          .
-    ## landcoverBuilt area         0.0000        0.0007         -0.0266          .
-    ## landcoverBare ground        0.0000        0.0137         -0.1190          .
-    ## landcoverRangeland          1.0000        0.9443          0.2453          .
-    ## dist_roads                526.1387      999.0099         -1.3502     0.1085
-    ## average                     0.1240        0.1388         -1.3754     0.0985
-    ## trend                       0.0000        0.0000          1.2626     0.1495
+    ## distance                    0.0561        0.0149          1.0211     2.0603
+    ## elevation                 546.2999      703.4295         -2.3675     0.1285
+    ## slope                       0.2301        0.2721         -0.4061     0.3091
+    ## northness                   0.0969        0.0510          0.0644     0.9952
+    ## eastness                    0.4167        0.0799          0.6056     0.6449
+    ## landcoverWater              0.0000        0.0001         -0.0086          .
+    ## landcoverTrees              0.0000        0.0193         -0.1413          .
+    ## landcoverCrops              0.0000        0.0232         -0.1552          .
+    ## landcoverBuilt area         0.0000        0.0007         -0.0259          .
+    ## landcoverBare ground        0.0000        0.0127         -0.1145          .
+    ## landcoverRangeland          1.0000        0.9441          0.2453          .
+    ## dist_roads                529.3399      880.9122         -1.0889     0.1317
+    ## average                     0.1261        0.1387         -0.9725     0.1308
+    ## trend                      -0.0000       -0.0000         -0.3697     0.3158
     ##                      eCDF Mean eCDF Max
-    ## distance                0.3854   0.6120
-    ## elevation               0.2395   0.5523
-    ## slope                   0.1301   0.2774
-    ## northness               0.0366   0.0884
-    ## eastness                0.1608   0.2797
-    ## landcoverWater          0.0002   0.0002
-    ## landcoverTrees          0.0179   0.0179
+    ## distance                0.3687   0.5680
+    ## elevation               0.2543   0.5803
+    ## slope                   0.0927   0.1958
+    ## northness               0.0246   0.0619
+    ## eastness                0.1393   0.2423
+    ## landcoverWater          0.0001   0.0001
+    ## landcoverTrees          0.0193   0.0193
     ## landcoverCrops          0.0232   0.0232
     ## landcoverBuilt area     0.0007   0.0007
-    ## landcoverBare ground    0.0137   0.0137
-    ## landcoverRangeland      0.0557   0.0557
-    ## dist_roads              0.0882   0.2645
-    ## average                 0.1624   0.3548
-    ## trend                   0.2043   0.3691
+    ## landcoverBare ground    0.0127   0.0127
+    ## landcoverRangeland      0.0559   0.0559
+    ## dist_roads              0.0901   0.2457
+    ## average                 0.1296   0.2582
+    ## trend                   0.1410   0.2609
     ## 
     ## Summary of Balance for Matched Data:
     ##                      Means Treated Means Control Std. Mean Diff. Var. Ratio
-    ## distance                    0.0930        0.0929          0.0012     1.0070
-    ## elevation                 546.9395      545.3125          0.0251     0.2409
-    ## slope                       0.1637        0.1614          0.0340     0.1799
-    ## northness                   0.0563        0.0799         -0.0350     1.0548
-    ## eastness                    0.5233        0.5371         -0.0265     0.9875
+    ## distance                    0.0561        0.0561         -0.0000     1.0011
+    ## elevation                 546.2999      535.5230          0.1624     0.2728
+    ## slope                       0.2301        0.2359         -0.0559     0.2184
+    ## northness                   0.0969        0.1058         -0.0125     1.0266
+    ## eastness                    0.4167        0.4115          0.0095     0.9546
     ## landcoverWater              0.0000        0.0000          0.0000          .
     ## landcoverTrees              0.0000        0.0000          0.0000          .
     ## landcoverCrops              0.0000        0.0000          0.0000          .
     ## landcoverBuilt area         0.0000        0.0000          0.0000          .
     ## landcoverBare ground        0.0000        0.0000          0.0000          .
     ## landcoverRangeland          1.0000        1.0000          0.0000          .
-    ## dist_roads                526.1387      523.2731          0.0082     0.2928
-    ## average                     0.1240        0.1256         -0.1515     0.1680
-    ## trend                       0.0000        0.0000         -0.0855     0.3253
+    ## dist_roads                529.3399      501.3413          0.0867     0.2993
+    ## average                     0.1261        0.1293         -0.2513     0.1527
+    ## trend                      -0.0000       -0.0000          0.1087     0.5013
     ##                      eCDF Mean eCDF Max Std. Pair Dist.
-    ## distance                0.0002   0.0115          0.0105
-    ## elevation               0.0944   0.2632          1.4032
-    ## slope                   0.1489   0.3359          2.0251
-    ## northness               0.0430   0.0962          1.1732
-    ## eastness                0.0192   0.0624          0.9040
+    ## distance                0.0001   0.0040          0.0020
+    ## elevation               0.0911   0.2550          1.3318
+    ## slope                   0.1552   0.2975          1.8682
+    ## northness               0.0174   0.0401          1.1650
+    ## eastness                0.0104   0.0321          0.9679
     ## landcoverWater          0.0000   0.0000          0.0000
     ## landcoverTrees          0.0000   0.0000          0.0000
     ## landcoverCrops          0.0000   0.0000          0.0000
     ## landcoverBuilt area     0.0000   0.0000          0.0000
     ## landcoverBare ground    0.0000   0.0000          0.0000
     ## landcoverRangeland      0.0000   0.0000          0.0000
-    ## dist_roads              0.0816   0.2141          1.4075
-    ## average                 0.1094   0.2466          2.0022
-    ## trend                   0.0716   0.1509          1.5410
+    ## dist_roads              0.1022   0.2252          1.3774
+    ## average                 0.1164   0.2287          2.0783
+    ## trend                   0.0260   0.0598          1.2324
     ## 
     ## Sample Sizes:
     ##                Control Treated
-    ## All           11548.       234
-    ## Matched (ESS)   961.98     234
-    ## Matched        1477.       234
-    ## Unmatched     10071.         0
+    ## All           40889.       644
+    ## Matched (ESS)  3412.34     644
+    ## Matched        4582.       644
+    ## Unmatched     36307.         0
     ## Discarded         0.         0
     ## 
     ## Press <Enter> to continue.
 
-![](BACI_Baviaanskloof_files/figure-gfm/unnamed-chunk-14-1.png)<!-- -->
+![](BACI_Baviaanskloof_files/figure-gfm/unnamed-chunk-10-1.png)<!-- -->
 
     ## Press <Enter> to continue.
 
-![](BACI_Baviaanskloof_files/figure-gfm/unnamed-chunk-14-2.png)<!-- -->
+![](BACI_Baviaanskloof_files/figure-gfm/unnamed-chunk-10-2.png)<!-- -->
 
     ## Accept matching (Y/N)?
 
 From the output of the matching analysis, we can see that the Absolute
-Standardized Mean Difference for all covariates is below (or marginally
-above) the threshold of 0.1. We therefore accept this matching and use
-it as an input to the BACI evaluation.
+Standardized Mean Difference (ASMD) after matching is below the
+threshold of 0.1 for the propensity score distance and most individual
+matching variables, but above this threshold for a few individual
+variables. Based on these outputs we can accept the matching (which we
+will do here) or reject the matching and attempt matching with different
+matching parameters. The user also has the option to set the `asmd_warn`
+and/or `asmd_error` parameters to return a warning or error message,
+respectively if ASMD is above defined thresholds.
 
 # 5 Before-After-Control-Impact evaluation
 
-To tun the BACI analysis, we first need to extract the values of the
-evaluation metrics (in this case the average over the 10-year time
-series before and after intervention) for the control-impact pairs
-obtained in the matching. When running the BACI analysis, we specify a
-spatial reference to which the pixel-based results will be written.
+To run the BACI analysis, we need to provide the matched control-impact
+pairs (argument `CI_matches`) and the raster datasets of the `before`
+and `after` period to the `BACI_contrast` function. We can also specify
+a spatial reference raster to which the pixel-based results will be
+written in the `rast.out` argument. The BACI analysis will be performed
+for all layers in the `before` and `after` layers, which in our example
+are both the average and trend over the time series.
 
 ``` r
-baci_input <- extractMatches(matches, before=avgtrend_before, after=avgtrend_after, band="average")
-baci_results <- BACI_contrast(baci_input, SpatRef=crop(refRas, selected_sites_proj))
+baci_results <- BACI_contrast(CI_matches, before=avgtrend_before, after=avgtrend_after, rast.out=avgtrend_before)
 ```
 
 The results of the BACI analysis can be viewed by printing the
 data.table associated to the output object. The data.table shows, for
-each impact unit, the BACI contrast and p-values. BACI contrast values
-smaller than zero indicate a positive effect of the revegetation
-intervention.
+each impact unit and each evaluation variable, the BACI contrast and
+p-values. BACI contrast values smaller than zero indicate a positive
+effect of the revegetation intervention.
 
 ``` r
 baci_results$data
 ```
 
     ## Key: <subclass>
-    ##      subclass       x        y      contrast      p_value
-    ##        <fctr>   <num>    <num>         <num>        <num>
-    ##   1:        1 2473220 -3922900  0.0037478785 2.752083e-01
-    ##   2:        2 2473340 -3922900 -0.0025130055 2.752068e-01
-    ##   3:        3 2473100 -3923020  0.0082877362 2.868638e-02
-    ##   4:        4 2473220 -3923020  0.0029630961 4.190995e-01
-    ##   5:        5 2473340 -3923020  0.0008993401 7.587022e-01
-    ##  ---                                                     
-    ## 230:      230 2474420 -3925300 -0.0127505002 1.241851e-03
-    ## 231:      231 2474180 -3925420  0.0005551150 8.230524e-01
-    ## 232:      232 2474300 -3925420 -0.0089247435 2.323604e-06
-    ## 233:      233 2474180 -3925540 -0.0066545618 5.353127e-02
-    ## 234:      234 2474180 -3925660 -0.0065308489 6.425568e-02
+    ##      subclass        x       y contrast.average p_value.average contrast.trend
+    ##        <fctr>    <num>   <num>            <num>           <num>          <num>
+    ##   1:        1 229386.6 6279807    -0.0003746176     0.895031108   1.392449e-05
+    ##   2:        2 229446.6 6279807    -0.0054747330     0.382346104   1.688120e-05
+    ##   3:        3 229326.6 6279747     0.0078372022     0.201407228   8.659828e-06
+    ##   4:        4 229386.6 6279747    -0.0027284429     0.446653584   1.699763e-05
+    ##   5:        5 229446.6 6279747     0.0013735059     0.667809116   1.690212e-05
+    ##  ---                                                                          
+    ## 640:      640 229746.6 6277647     0.0046694804     0.288592095   1.407298e-05
+    ## 641:      641 229806.6 6277647    -0.0096939892     0.092589067  -1.062089e-05
+    ## 642:      642 230886.6 6277647    -0.0046333133     0.341301624   1.744167e-05
+    ## 643:      643 229626.6 6277587     0.0077999164     0.059704736   1.796409e-05
+    ## 644:      644 229686.6 6277587     0.0196893863     0.001993363   2.236806e-07
+    ##      p_value.trend
+    ##              <num>
+    ##   1:  4.685798e-02
+    ##   2:  4.948313e-04
+    ##   3:  1.362737e-01
+    ##   4:  5.336991e-06
+    ##   5:  8.506292e-04
+    ##  ---              
+    ## 640:  9.864862e-03
+    ## 641:  2.144863e-02
+    ## 642:  7.827747e-04
+    ## 643:  6.673863e-02
+    ## 644:  9.391747e-01
 
 The BACI results can also be plotted on a map, here with non-significant
 BACI contrast masked out. If desired, the pixel-based results can now be
 aggregated to different spatial levels, e.g., the revegetation site.
 
 ``` r
-plot(baci_results$spat["contrast"], 
-     range=baci_results$spat["contrast"] |> minmax() |> abs() |> max() |> rep(2)*c(-1,1), 
+plot(baci_results$spat["contrast.average"] |> trim(), 
+     range=baci_results$spat["contrast.average"] |> minmax() |> abs() |> max() |> rep(2)*c(-1,1), 
      col=hcl.colors(50, palette = "RdYlBu", rev = TRUE))
-plot(as.numeric(baci_results$spat["p_value"]<0.05), 
-     col=data.frame(value=c(0,1), color=c("grey95", NA)), 
+maskImg <- classify(baci_results$spat["p_value.average"], rcl=  matrix(ncol=3, data= c(0,0.05, NA, 0.05,1,1), byrow = TRUE))
+plot(maskImg, 
+     col=c('grey90'),
      add=TRUE, 
      legend=FALSE)
-lines(selected_sites_proj)
+lines(project(impact_sites, baci_results$spat))
 ```
 
-![](BACI_Baviaanskloof_files/figure-gfm/unnamed-chunk-17-1.png)<!-- -->
+![](BACI_Baviaanskloof_files/figure-gfm/unnamed-chunk-13-1.png)<!-- -->

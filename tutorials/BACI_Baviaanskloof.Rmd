@@ -22,35 +22,34 @@ data(baviaanskloof)
 baviaanskloof <- unwrap(baviaanskloof)
 
 year <- 2012
-selected_sites <- baviaanskloof[baviaanskloof$Planting_date==year & baviaanskloof$Lifestock_exclusion==0]
+impact_sites <- baviaanskloof[baviaanskloof$Planting_date==year & baviaanskloof$Lifestock_exclusion==0]
 other_sites <- baviaanskloof[baviaanskloof$Planting_date!=year | baviaanskloof$Lifestock_exclusion==1]
+
 plot(baviaanskloof, "Planting_date")
-lines(selected_sites, lwd=2)
+lines(impact_sites, lwd=2)
 ```
 
-# Spatial reference and the candidate control pixels
+# Spatial unit of analysis and candidate control units
 
-The `EnvImpactEval` package requires the user to define the spatial parameters at which the analysis will be performed. This reference will define the spatial units of the analysis and the neighbourhood around the impact units in which we want to search for control units. For now, only a raster (pixel)-based framework is implemented, a vector-based framework is planned for a future release.
+The `EnvImpactEval` package requires the user to define the spatial unit at which the analysis will be performed. The options for this are the pixel unit (using raster-based analysis) or the polygon/point unit (using vector-based analysis). The latter can be useful when working with extensive networks of fixed monitoring sites from which the control sites can be expected. One of the advantages of the pixel unit is that it is not required that candidate control sites are predefined. Another advantage is that, depending on the size of impact sites and spatial resolution of the used remotely sensed datasets, information on impact within an impact site can be assessed. For this example we will use pixels as the spatial unit of analysis and reporting.
 
-Using the `ref_rast` function, the user can easily define this spatial reference raster based on the input data of the intervention to be evaluated (in our example the Baviaanskloof revegetation polygons for the year 2012). The spatial resolution of the reference raster will typically be linked to the spatial resolution of the (earth observation) datasets used in the analysis and we here set this to 120 meters. In order to limit data download and processing time we restrict the search area for potential control units to a bounding box with a buffer of 5 km around the sites reforested in 2012, but the user can choose to set this neighbourhood in function of their knowledge of their study sites. The user can also specify the Coordinate Reference System (crs) of the reference raster. In our example we don't provide the crs parameter, in which case the UTM zone of the Baviaanskloof reference dataset will be used.
 
-```{r}
-refRas <- ref_rast(selected_sites, resolution=120, buffer=5000, round_coords=-2)
-```
-
-The `matchCandidates` function is then used to further specify the impact units (pixels) and candidate control units that will be used in the BACI analysis. In order to avoid undesired effects of spatial misregistration or adjacency effects (the area just outside a restoration or conservation intervention site may be subject to positive or negative effects from the intervention), the user can exclude pixels in a buffer within or around the impact sites. In the case of an outside buffer this is in our example done with the argument `excludeBufferOut=240m`. We obviously also exclude the areas restored in the other years as control pixels with the `excludeOther` argument.
+When using a raster-based analysis, the first choice the user will have to make is the spatial resolution of the pixel units. We here choose a spatial resolution of 60m, since this is a resolution to which several Earth Observation datasets (e.g., Landsat, Sentinel-2) can be aggregated. The next step is to identify the area from which the control pixels for the Before-After-Control-Impact an be selected. The `EnvImpactEval` package provides several options for this. The first option is by providing a spatial window around the impact units, the second is providing a polygon identifying the area from which to select the control pixels. The package also provides options to exclude areas from use as control in the BACI analysis. This exclusion can be based on user-provided polygons, or buffer area around the impact sites (e.g., to eliminate the effect of misregistration of impact sites or of positive or negative adjacency effects). All these options to include or exclude candidate control units can be combined based on the user's terrain knowledge and data availability in the `create_control_candidates` function. In this example, we set a window of 5 km around the sites reforested in 2012 (with the `control_from_buffer` argument) and exclude areas restored in the other years as control pixels (with the `control_exclude` argument). Finally, we use the argument `exclude_impact_buffer` to exclude pixels in a buffer of 240 m around the impact sites for selection as control units. The `create_control_candidates` function also allows us the specify the Coordinate Reference System (trough the `crs` argument) of the reference raster at which the analysis will be done. This can be useful if, e.g.,  the user wants to use a national reference system. In our example we don't provide the crs parameter, in which case the UTM zone of centroid of the impact sites will be used.
 
 ```{r}
-matchingCands <- matchCandidates(selected_sites, refRas, excludeBufferOut=150, excludeOther = other_sites)
-```
+matchingCands <- create_control_candidates(impact_sites,
+                                           resolution=60,
+                                           control_from_buffer=5000,
+                                           control_from_include=NULL,
+                                           control_exclude=other_sites,
+                                           exclude_impact_buffer=+240,
+                                           round_coords=2)
 
-We can now plot a map showing the impact pixels (in green), the potential control pixels (in grey), and the excluded pixels (in white). Notice that the map shows UTM coordinates (as this was by default for the `crs` argument in `ref_rast` function), rather than the geographic coordinates of the Baviaanskloof reference dataset. In general, the `EnvImpactEval` package will automatically check the crs of used spatial datasets and reproject when required.
-
-```{r}
 plot(matchingCands)
-selected_sites_proj <- project(selected_sites, refRas)
-lines(selected_sites_proj)
+lines(project(impact_sites, matchingCands))
 ```
+
+The resulting plot shows the impact units/pixels (1), the candidate control units/pixels (0), and the pixels excluded from analysis in white. Notice that the plot shows UTM coordinates, rather than the geographic coordinates of the Baviaanskloof reference dataset. In general, the `EnvImpactEval` package will automatically check the crs of used spatial datasets and reproject when required.
 
 # Evaluation metric
 
@@ -61,36 +60,31 @@ stac_endpoint <- as.endpoint("PlanetaryComputer")
 stac_collection <- as.collection("Landsat", stac_endpoint)
 ```
 
-The timeframes over which conservation or restoration impacts are assessed will depend on the application and study site. Assuming we want to evaluate the impact of the Baviaanskloof revegetation from the 10-years periods before and after the intervention year, we can first generate yearly NDVI time series.
+The timeframes over which conservation or restoration impacts are assessed will depend on the application and study site. Assuming we want to evaluate the impact of the Baviaanskloof revegetation from the 5-year periods before and the 10-year after the intervention year, we can first generate yearly NDVI time series for all impact and candidate control pixels:
 
 ```{r, warning=FALSE}
-vi_before <- eo_VI_yearly.stac(refRas, "NDVI",
+vi_before <- eo_VI_yearly.stac(matchingCands, "NDVI",
                                endpoint=stac_endpoint, collection=stac_collection,
-                               years=seq(year-10, year-1, 1),
+                               years=seq(year-5, year-1, 1),
                                months = 3:5,
                                maxCloud=60)
-vi_before <- as.SpatRaster(vi_before)
-```
-
-```{r, warning=FALSE}
-vi_after <- eo_VI_yearly.stac(refRas, "NDVI",
+vi_after <- eo_VI_yearly.stac(matchingCands, "NDVI",
                               endpoint=stac_endpoint, collection=stac_collection,
                               years=seq(year+1, year+10, 1),
                               months = 3:5,
                               maxCloud=60)
-vi_after <- as.SpatRaster(vi_after)
 ```
 
-In the above code, we specified that we want to make a pixel-based NDVI composite image for each year, using for each pixel and each year the median value from the images acquired in the months March until May that have a cloud cover below 60%.
-
-The function `eo_VI_yearly.stac` above generates proxy data cubes, which don't contain any data but describe the dimension of the object. Data retrieval and calculations are only performed when the data values contained in these objects are needed. Working with data cubes has the advantage that unnecessary calculations are avoided for bands, time steps and/or coordinates that are not used in later steps. Currently, however, we are occasionally encountering issues when reading the EO data from cloud catalogs as data cubes. We hope to identify and fix these issues in an update of the `EnvImpactEval` package. For now we choose to transform the data cubes to SpatRaster object and plot the data at this step in the workflow, which will access the actual image data and indicate whether errors / incompleteness are encountered. If so, these previous two steps can be re-run. 
+In the above code, we specified that we want to make a pixel-based NDVI composite image for each year, using for each pixel and each year the median value from the images acquired in the months March until May that have a cloud cover below 60%. The function `eo_VI_yearly.stac` above generates proxy data cubes, which don't contain any data but describe the dimension of the object. Data retrieval and calculations are only performed when the data values contained in these objects are needed. Working with data cubes has the advantage that unnecessary calculations are avoided for bands, time steps and/or coordinates that are not used in later steps. This can be extremely useful when dealing with large areas from which only limited data has to be extracted, e.g., sparse monitoring location distributed over a continental-scale area. In such a case you do not want to process data wall-to-wall over the continental scale, but only over these sparse locations. In our Baviaanskloof example, however, we only cover a geographically small area with a relatively dense cover of impact and candidate control units. In such case it can be useful to transform the data cubes to `SpatRaster` objects (from `terra` package). Doing this downloads and process all data and reads the resulting composite images into memory (or writes them to temporal files).
 
 ```{r, warning=FALSE}
-plot(vi_before, main=paste0("NDVI - ",seq(year-10, year-1, 1)))
+vi_before <- as.SpatRaster(vi_before)
+vi_after <- as.SpatRaster(vi_after)
+plot(vi_before, main=paste0("NDVI - ",seq(year-5, year-1, 1)))
 plot(vi_after, main=paste0("NDVI - ",seq(year+1, year+10, 1)))
 ```
 
-We then calculate simple time series metrics from these two 10-year time series: the average value and trend (change in NDVI/year) over the time series. More advanced time series analysis methods will be added in a later version of the `EnvImpactEval` package.
+To transform these time series into simple metrics that can be used in a BACI analysis, we here calculate average value and trend (change in NDVI/year) over the time series before and after intervention. This basic time series analysis is included in the `EnvImpactEval` package, but user can easily implement their own analyses, as long as these return raster layers of the evaluation variable of interest before and after intervention.
 
 ```{r}
 avgtrend_before <- calc_ts_metrics(vi_before)
@@ -101,49 +95,53 @@ avgtrend_after <- calc_ts_metrics(vi_after)
 
 In impact assessment using control-impact (of before-after-control-impact) schemes, it is crucial that the control units are carefully selected so that their characteristics only differ from those of the impact group by the received "treatment" (in our case a restoration intervention). This is in the `EnvImpactEval` package done by specifying a set of covariates to be used in the matching analysis. Ideally, users should include “all covariates likely to impact both the selection to the treatment and the outcome of interest” ([Schleicher et al.](https://onlinelibrary.wiley.com/doi/abs/10.1111/cobi.13448)).
 
-For the Baviaanskloof example, we use a limited number of matching covariates. Because we restricted the search window for control units to a relatively small area around the impact sites, we assume that climatic variation will be small and mostly induced by local topography. Topographic slope and aspect may also determine whether or not a site is selected for revegetation or determine the success of the revegetation intervention. This terrain data can be extracted from the NASA Digital Elevation Model (DEM) based on SRTM data using the `nasadem` function. Unless specified otherwise, the DEM will be obtained from Microsoft's Planetary Computer. The user can also specify the terrain derivatives to be calculated (by default the slope and the aspect), and whether the aspect should be transformed to "northness" and "eastness" by applying the cosine and sine function on it (default) or not.
+For the Baviaanskloof example, we use a limited number of matching covariates. Because we restricted the search window for control units to a relatively small area around the impact sites, we assume that climatic variation will be small and mostly induced by local topography. Topographic slope and aspect may also determine whether or not a site is selected for revegetation or determine the success of the revegetation intervention. This terrain data can be extracted from the NASA Digital Elevation Model (DEM) based on SRTM data using the `dem` function. Unless specified otherwise, the DEM will be obtained from Microsoft's Planetary Computer. The user can also specify the terrain derivatives to be calculated (by default the slope and the aspect), and whether the aspect should be transformed to "northness" and "eastness" by applying the cosine and sine function on it (default) or not.
 
 ```{r}
-dem <- dem(refRas)
+dem_matching <- dem(matchingCands)
+plot(dem_matching)
 ```
 
 We also included land cover as a matching covariate. This will ensure that control pixel are selected from the same landcover type (i.e. "rangeland"). Note that in the current implementation the 9-class land use land cover layer from Impact Observatory is used. This product is first generated for the year 2017, so we assume no change in land cover change between the intervention year (2012) and 2017. Given that terrain revegetated with spekboom will still be classified as "rangeland" this is not an issue in this example, but it may be a problem for other situations.
 
 ```{r}
-landcover <- lulc(refRas, year=year)
+landcover_matching <- lulc(matchingCands, year=year)
+plot(landcover_matching)
 ```
 
 Distance to roads or settlements can explain the anthropogenic pressure on an area. The `EnvImpactEval` package therefore includes functions to calculate the distance to the nearest road (`osm_distance_roads`) or nearest settlement (`osm_distance_places`) based on OpenStreetMap data. For this example, we include the distance to the nearest road of OSM category "track" or higher as an environmental covariate in the matching analysis.
 
 ```{r}
-roadsDist <- osm_distance_roads(refRas, values="track+")
+roadsDist_matching <- osm_distance_roads(matchingCands, values="track+")
+plot(roadsDist_matching)
 ```
 
-In addition to parameters described above, we also included as matching covariates the average and trend of the selected vegetation index in the 10-year period before the restoration intervention. This way, control pixels will be selected that have undergone a similar temporal trajectory as the impact pixels in the years before intervention.
+
+
+We then perform the control-impact matching with the `matchCI` function using propensity score matching (default method), and select 10 control pixels for each impact pixel (argument `ratio`) with replacement (argument `replace`), meaning that a control pixel can be paired with several impact pixels. This step can be performed interactively by setting the parameter `eval=TRUE`, which will display matching results and plots after which the matching can be accepted or rejected. 
+As matching layer, we select the layers described above (DEM, land cover and distance to tracks), together with the average and trend of the selected vegetation index in the 5-year period before the restoration intervention. This way, control pixels will be selected that have undergone a similar temporal trajectory as the impact pixels in the years before intervention. All selected matching layers provided to the `matchVars` argument can be easily combined using a `list()` command.
 
 ```{r}
-matchingLayers <- collate_matching_layers(refRas, dem, landcover, roadsDist, avgtrend_before)
-plot(matchingLayers)
+CI_matches <- matchCI(cands=matchingCands, 
+                      matchVars=list(dem_matching, 
+                                     landcover_matching,
+                                     roadsDist_matching,
+                                     avgtrend_before), 
+                      ratio=10, replace=TRUE, eval=TRUE)
+
 ```
 
-We then perform the control-impact matching using propensity score matching (default method), and select 10 control pixels for each impact pixel with replacement (a control pixel can be paired with several impact pixels). This step can be performed interactively by setting the parameter `eval=TRUE`, which will display matching results and plots after which the matching can be accepted or rejected.
-
-```{r}
-matches <- matchCI(matchingCands, matchingLayers, eval=TRUE, ratio=10, replace=TRUE)
-```
-
-From the output of the matching analysis, we can see that the Absolute Standardized Mean Difference for all covariates is below (or marginally above) the threshold of 0.1. We therefore accept this matching and use it as an input to the BACI evaluation.
+From the output of the matching analysis, we can see that the Absolute Standardized Mean Difference (ASMD) after matching is below the threshold of 0.1 for the propensity score distance and most individual matching variables, but above this threshold for a few individual variables. Based on these outputs we can accept the matching (which we will do here) or reject the matching and attempt matching with different matching parameters. The user also has the option to set the `asmd_warn` and/or `asmd_error` parameters to return a warning or error message, respectively if ASMD is above defined thresholds.
 
 # Before-After-Control-Impact evaluation
 
-To tun the BACI analysis, we first need to extract the values of the evaluation metrics (in this case the average over the 10-year time series before and after intervention) for the control-impact pairs obtained in the matching. When running the BACI analysis, we specify a spatial reference to which the pixel-based results will be written.
+To run the BACI analysis, we need to provide the matched control-impact pairs (argument `CI_matches`) and the raster datasets of the `before` and `after` period to the `BACI_contrast` function. We can also specify a spatial reference raster to which the pixel-based results will be written in the `rast.out` argument. The BACI analysis will be performed for all layers in the `before` and `after` layers, which in our example are both the average and trend over the time series.
 
 ```{r}
-baci_input <- extractMatches(matches, before=avgtrend_before, after=avgtrend_after, band="average")
-baci_results <- BACI_contrast(baci_input, SpatRef=crop(refRas, selected_sites_proj))
+baci_results <- BACI_contrast(CI_matches, before=avgtrend_before, after=avgtrend_after, rast.out=avgtrend_before)
 ```
 
-The results of the BACI analysis can be viewed by printing the data.table associated to the output object. The data.table shows, for each impact unit, the BACI contrast and p-values. BACI contrast values smaller than zero indicate a positive effect of the revegetation intervention.
+The results of the BACI analysis can be viewed by printing the data.table associated to the output object. The data.table shows, for each impact unit and each evaluation variable, the BACI contrast and p-values. BACI contrast values smaller than zero indicate a positive effect of the revegetation intervention.
 
 ```{r}
 baci_results$data
@@ -152,12 +150,13 @@ baci_results$data
 The BACI results can also be plotted on a map, here with non-significant BACI contrast masked out. If desired, the pixel-based results can now be aggregated to different spatial levels, e.g., the revegetation site.
 
 ```{r}
-plot(baci_results$spat["contrast"], 
-     range=baci_results$spat["contrast"] |> minmax() |> abs() |> max() |> rep(2)*c(-1,1), 
+plot(baci_results$spat["contrast.average"] |> trim(), 
+     range=baci_results$spat["contrast.average"] |> minmax() |> abs() |> max() |> rep(2)*c(-1,1), 
      col=hcl.colors(50, palette = "RdYlBu", rev = TRUE))
-plot(as.numeric(baci_results$spat["p_value"]<0.05), 
-     col=data.frame(value=c(0,1), color=c("grey95", NA)), 
+maskImg <- classify(baci_results$spat["p_value.average"], rcl=  matrix(ncol=3, data= c(0,0.05, NA, 0.05,1,1), byrow = TRUE))
+plot(maskImg, 
+     col=c('grey90'),
      add=TRUE, 
      legend=FALSE)
-lines(selected_sites_proj)
+lines(project(impact_sites, baci_results$spat))
 ```
