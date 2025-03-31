@@ -127,15 +127,15 @@ stac_collection <- as.collection("Landsat", stac_endpoint)
 
 The timeframes over which conservation or restoration impacts are
 assessed will depend on the application and study site. Assuming we want
-to evaluate the impact of the Baviaanskloof revegetation from the 5-year
-periods before and the 10-year after the intervention year, we can first
-generate yearly NDVI time series for all impact and candidate control
-pixels:
+to evaluate the impact of the Baviaanskloof revegetation from the
+10-year periods before and the 10-year after the intervention year, we
+can first generate yearly NDVI time series for all impact and candidate
+control pixels:
 
 ``` r
 vi_before <- eo_VI_yearly.stac(matchingCands, "NDVI",
                                endpoint=stac_endpoint, collection=stac_collection,
-                               years=seq(year-5, year-1, 1),
+                               years=seq(year-10, year-1, 1),
                                months = 3:5,
                                maxCloud=60)
 vi_after <- eo_VI_yearly.stac(matchingCands, "NDVI",
@@ -169,7 +169,7 @@ them to temporal files).
 ``` r
 vi_before <- as.SpatRaster(vi_before)
 vi_after <- as.SpatRaster(vi_after)
-plot(vi_before, main=paste0("NDVI - ",seq(year-5, year-1, 1)))
+plot(vi_before, main=paste0("NDVI - ",seq(year-10, year-1, 1)))
 ```
 
 ![](BACI_Baviaanskloof_files/figure-gfm/unnamed-chunk-5-1.png)<!-- -->
@@ -288,11 +288,13 @@ CI_matches <- matchCI(cands=matchingCands,
                       ratio=10, replace=TRUE, eval=TRUE)
 ```
 
+    ## Warning: glm.fit: fitted probabilities numerically 0 or 1 occurred
+
     ## A `matchit` object
     ##  - method: 10:1 nearest neighbor matching with replacement
     ##  - distance: Propensity score
     ##              - estimated with logistic regression
-    ##  - number of obs.: 41533 (original), 5226 (matched)
+    ##  - number of obs.: 41533 (original), 5148 (matched)
     ##  - target estimand: ATT
     ##  - covariates: elevation, slope, northness, eastness, landcover, dist_roads, average, trend
     ## Press <Enter> to continue.
@@ -303,7 +305,7 @@ CI_matches <- matchCI(cands=matchingCands,
     ## 
     ## Summary of Balance for All Data:
     ##                      Means Treated Means Control Std. Mean Diff. Var. Ratio
-    ## distance                    0.0561        0.0149          1.0211     2.0603
+    ## distance                    0.0649        0.0147          1.0216     2.6773
     ## elevation                 546.2999      703.4295         -2.3675     0.1285
     ## slope                       0.2301        0.2721         -0.4061     0.3091
     ## northness                   0.0969        0.0510          0.0644     0.9952
@@ -315,10 +317,10 @@ CI_matches <- matchCI(cands=matchingCands,
     ## landcoverBare ground        0.0000        0.0127         -0.1145          .
     ## landcoverRangeland          1.0000        0.9441          0.2453          .
     ## dist_roads                529.3399      880.9122         -1.0889     0.1317
-    ## average                     0.1261        0.1387         -0.9725     0.1308
-    ## trend                      -0.0000       -0.0000         -0.3697     0.3158
+    ## average                     0.1232        0.1376         -1.1515     0.1047
+    ## trend                       0.0000        0.0000          1.1162     0.1369
     ##                      eCDF Mean eCDF Max
-    ## distance                0.3687   0.5680
+    ## distance                0.3802   0.5933
     ## elevation               0.2543   0.5803
     ## slope                   0.0927   0.1958
     ## northness               0.0246   0.0619
@@ -330,47 +332,47 @@ CI_matches <- matchCI(cands=matchingCands,
     ## landcoverBare ground    0.0127   0.0127
     ## landcoverRangeland      0.0559   0.0559
     ## dist_roads              0.0901   0.2457
-    ## average                 0.1296   0.2582
-    ## trend                   0.1410   0.2609
+    ## average                 0.1478   0.2970
+    ## trend                   0.1841   0.3341
     ## 
     ## Summary of Balance for Matched Data:
     ##                      Means Treated Means Control Std. Mean Diff. Var. Ratio
-    ## distance                    0.0561        0.0561         -0.0000     1.0011
-    ## elevation                 546.2999      535.5230          0.1624     0.2728
-    ## slope                       0.2301        0.2359         -0.0559     0.2184
-    ## northness                   0.0969        0.1058         -0.0125     1.0266
-    ## eastness                    0.4167        0.4115          0.0095     0.9546
+    ## distance                    0.0649        0.0649         -0.0000     1.0011
+    ## elevation                 546.2999      540.5753          0.0863     0.2844
+    ## slope                       0.2301        0.2374         -0.0708     0.2286
+    ## northness                   0.0969        0.1043         -0.0105     0.9844
+    ## eastness                    0.4167        0.3959          0.0375     0.9799
     ## landcoverWater              0.0000        0.0000          0.0000          .
     ## landcoverTrees              0.0000        0.0000          0.0000          .
     ## landcoverCrops              0.0000        0.0000          0.0000          .
     ## landcoverBuilt area         0.0000        0.0000          0.0000          .
     ## landcoverBare ground        0.0000        0.0000          0.0000          .
     ## landcoverRangeland          1.0000        1.0000          0.0000          .
-    ## dist_roads                529.3399      501.3413          0.0867     0.2993
-    ## average                     0.1261        0.1293         -0.2513     0.1527
-    ## trend                      -0.0000       -0.0000          0.1087     0.5013
+    ## dist_roads                529.3399      511.9099          0.0540     0.2852
+    ## average                     0.1232        0.1242         -0.0803     0.1568
+    ## trend                       0.0000        0.0000         -0.0100     0.2848
     ##                      eCDF Mean eCDF Max Std. Pair Dist.
-    ## distance                0.0001   0.0040          0.0020
-    ## elevation               0.0911   0.2550          1.3318
-    ## slope                   0.1552   0.2975          1.8682
-    ## northness               0.0174   0.0401          1.1650
-    ## eastness                0.0104   0.0321          0.9679
+    ## distance                0.0001   0.0047          0.0023
+    ## elevation               0.0840   0.2427          1.3153
+    ## slope                   0.1478   0.2896          1.8831
+    ## northness               0.0217   0.0511          1.1591
+    ## eastness                0.0133   0.0413          0.9589
     ## landcoverWater          0.0000   0.0000          0.0000
     ## landcoverTrees          0.0000   0.0000          0.0000
     ## landcoverCrops          0.0000   0.0000          0.0000
     ## landcoverBuilt area     0.0000   0.0000          0.0000
     ## landcoverBare ground    0.0000   0.0000          0.0000
     ## landcoverRangeland      0.0000   0.0000          0.0000
-    ## dist_roads              0.1022   0.2252          1.3774
-    ## average                 0.1164   0.2287          2.0783
-    ## trend                   0.0260   0.0598          1.2324
+    ## dist_roads              0.1068   0.2266          1.4566
+    ## average                 0.1134   0.2070          2.0886
+    ## trend                   0.0765   0.1311          1.6095
     ## 
     ## Sample Sizes:
     ##                Control Treated
     ## All           40889.       644
-    ## Matched (ESS)  3412.34     644
-    ## Matched        4582.       644
-    ## Unmatched     36307.         0
+    ## Matched (ESS)  3453.26     644
+    ## Matched        4504.       644
+    ## Unmatched     36385.         0
     ## Discarded         0.         0
     ## 
     ## Press <Enter> to continue.
@@ -420,30 +422,30 @@ baci_results$data
     ## Key: <subclass>
     ##      subclass        x       y contrast.average p_value.average contrast.trend
     ##        <fctr>    <num>   <num>            <num>           <num>          <num>
-    ##   1:        1 229386.6 6279807    -0.0003746176     0.895031108   1.392449e-05
-    ##   2:        2 229446.6 6279807    -0.0054747330     0.382346104   1.688120e-05
-    ##   3:        3 229326.6 6279747     0.0078372022     0.201407228   8.659828e-06
-    ##   4:        4 229386.6 6279747    -0.0027284429     0.446653584   1.699763e-05
-    ##   5:        5 229446.6 6279747     0.0013735059     0.667809116   1.690212e-05
+    ##   1:        1 229386.6 6279807    -0.0025944542     0.444675364  -4.961662e-06
+    ##   2:        2 229446.6 6279807    -0.0004412495     0.935136932  -8.293725e-06
+    ##   3:        3 229326.6 6279747    -0.0026046820     0.255522704  -7.789410e-06
+    ##   4:        4 229386.6 6279747    -0.0097179188     0.008781027  -1.175984e-05
+    ##   5:        5 229446.6 6279747    -0.0033991392     0.115909852  -5.728579e-06
     ##  ---                                                                          
-    ## 640:      640 229746.6 6277647     0.0046694804     0.288592095   1.407298e-05
-    ## 641:      641 229806.6 6277647    -0.0096939892     0.092589067  -1.062089e-05
-    ## 642:      642 230886.6 6277647    -0.0046333133     0.341301624   1.744167e-05
-    ## 643:      643 229626.6 6277587     0.0077999164     0.059704736   1.796409e-05
-    ## 644:      644 229686.6 6277587     0.0196893863     0.001993363   2.236806e-07
+    ## 640:      640 229746.6 6277647     0.0008127052     0.872870580   4.435551e-07
+    ## 641:      641 229806.6 6277647    -0.0050947099     0.440182694  -4.999272e-06
+    ## 642:      642 230886.6 6277647    -0.0031109004     0.324973616   9.513768e-06
+    ## 643:      643 229626.6 6277587     0.0019291454     0.570836707   2.530207e-07
+    ## 644:      644 229686.6 6277587    -0.0020829824     0.616266919   1.555600e-06
     ##      p_value.trend
     ##              <num>
-    ##   1:  4.685798e-02
-    ##   2:  4.948313e-04
-    ##   3:  1.362737e-01
-    ##   4:  5.336991e-06
-    ##   5:  8.506292e-04
+    ##   1:  6.864969e-03
+    ##   2:  1.402709e-03
+    ##   3:  3.601756e-03
+    ##   4:  9.342926e-04
+    ##   5:  5.202500e-03
     ##  ---              
-    ## 640:  9.864862e-03
-    ## 641:  2.144863e-02
-    ## 642:  7.827747e-04
-    ## 643:  6.673863e-02
-    ## 644:  9.391747e-01
+    ## 640:  8.384708e-01
+    ## 641:  7.343904e-02
+    ## 642:  8.019416e-05
+    ## 643:  8.862165e-01
+    ## 644:  4.443752e-01
 
 The BACI results can also be plotted on a map, here with non-significant
 BACI contrast masked out. If desired, the pixel-based results can now be
