@@ -119,11 +119,11 @@ setMethod("dem", signature="SpatVector",
             dem_out <- do.call(get_dem, dem_args)
             
             if(is.SpatRaster(dem_out)){
-              out <- terra::extract(dem_out, x, fun=fun, na.rm=na.rm)
+              out <- terra::extract(dem_out, x, fun=fun, method=method, na.rm=na.rm)
               out <- merge(x,out)
             } else {
               x_sf <- sf::st_as_sf(x)
-              out <- gdalcubes::extract_geom(dem_out, x_sf, FUN=fun, method=method, na.rm=na.rm, reduce_time=TRUE, merge=TRUE) |>
+              out <- gdalcubes::extract_geom(dem_out, x_sf, FUN=fun, na.rm=na.rm, reduce_time=TRUE, merge=TRUE) |>
                 vect()
             }
             return(out)
