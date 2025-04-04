@@ -7,6 +7,8 @@
 matchCI(
   cands,
   matchVars,
+  colname.id = "ID",
+  colname.treatment = "treatment",
   ratio = 1,
   replace = FALSE,
   method = "nearest",
@@ -21,13 +23,25 @@ matchCI(
 \arguments{
 \item{cands}{spatRaster or spatVector object. See Details.}
 
-\item{eval}{should matching be evaluated, return NULL if matching is rejected}
+\item{matchVars}{list of matching variables. See Details.}
+
+\item{ratio}{control/impact ratio. See \code{matchit} function}
+
+\item{replace}{See \code{matchit} function}
+
+\item{method}{See \code{matchit} function}
+
+\item{distance}{See \code{matchit} function}
+
+\item{link}{See \code{matchit} function}
+
+\item{eval}{logical. Should matching be evaluated? Function will return NULL if matching is rejected}
+
+\item{asmd_warn}{numeric. Function will output a warning message if Absolute Standardized Mean Difference is above this value}
+
+\item{asmd_error}{numeric. Function will output an error if Absolute Standardized Mean Difference is above this value}
 
 \item{...}{additional inputs to \code{matchit} function}
-
-\item{matchlyrs}{multilayer SpatRaster (same geometry as CI_cand) of matching variables}
-
-\item{cols}{columns to be returned in the data table}
 }
 \value{
 data table with matched control-impact units. Column names are "ID", "treatment", and "subclass".
@@ -41,5 +55,5 @@ using the MatchIt package and the matching options provided therein.
 
 If cands is a spatRaster, impact pixels should be labelled 1, candidate control pixels labelled 0, and pixels to be excluded labelled NA.
 In that case, matching variables in \code{matchvars} are to be provided as a single (multilayer) terra spatRaster object, gdalcubes data cube object, character pathname (which will be assumed to refer to a raster imagee), or as a list of these classes.
-If cands is a spatVector, attributes should include "ID", "treatment" (1 for impact sites and 0 for candidate control sites). All remaining columns will be interpreted as
+If cands is a spatVector, attributes should include "ID", "treatment" (1 for impact sites and 0 for candidate control sites). All remaining columns will be interpreted as matching variables
 }

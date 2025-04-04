@@ -70,13 +70,10 @@ osm_distance_roads <- function(x, values="residential+", timeout=25, osm_bbox=NU
     # dmax <- max(distanceToVector(as.points(ext(x), crs=crs(x)), bbox_data_vect))
     # ext_x <- extend(ext(x), dmax)
     # osm_bbox <- as.bbox(project(ext_x, x, "epsg:4326"))
-    
-    ext_x <- extend(ext_x, 0.5*max(ext_x$xmax-ext_x$xmin, ext_x$ymax-ext_x$ymin))
-    osm_bbox <- as.bbox(project(ext_x, x, "epsg:4326"))
   }
 
   #Final query
-  bbox_data <- do_osm_query()
+  #bbox_data <- do_osm_query()
   
   #Calculate distances
   bbox_data_vect <- vect(bbox_data$osm_lines) 
@@ -147,14 +144,15 @@ osm_distance_places <- function(x, values="hamlet+", timeout=25, name=NULL, osm_
       bbox_has_data <- !is.null(bbox_data$osm_points)
     }
     #Calculate distance by how much initial bbox must be extended to ensure all relevant features are included in distance calculation
-    bbox_data_vect <- vect(bbox_data$osm_points)
-    dmax <- max(distanceToVector(as.points(ext(x), crs=crs(x)), bbox_data_vect))
-    ext_x <- extend(ext(x), dmax)
-    osm_bbox <- as.bbox(project(ext_x, x, "epsg:4326"))
+    # bbox_data_vect <- vect(bbox_data$osm_points)
+    # dmax <- max(distanceToVector(as.points(ext(x), crs=crs(x)), bbox_data_vect))
+    # ext_x <- extend(ext(x), dmax)
+    # osm_bbox <- as.bbox(project(ext_x, x, "epsg:4326"))
+    
   } 
 
   #Final query
-  bbox_data <- do_osm_query()
+  #bbox_data <- do_osm_query()
   
   #Calculate distances
   bbox_data_vect <- vect(bbox_data$osm_points) 
@@ -171,5 +169,3 @@ osm_distance_places <- function(x, values="hamlet+", timeout=25, name=NULL, osm_
   return(x_dist)
   
 }
-
-

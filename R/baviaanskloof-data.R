@@ -7,8 +7,7 @@
 #' @docType data
 #' @usage data(baviaanskloof)
 #' 
-#' @importFrom terra unwrap
-#' @importFrom terra plot
+#' @importFrom terra unwrap plot
 #' @format A SpatVector object
 #' 
 #' @keywords datasets

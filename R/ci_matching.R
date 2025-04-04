@@ -7,7 +7,7 @@
 #' 
 #' If cands is a spatRaster, impact pixels should be labelled 1, candidate control pixels labelled 0, and pixels to be excluded labelled NA.
 #' In that case, matching variables in \code{matchvars} are to be provided as a single (multilayer) terra spatRaster object, gdalcubes data cube object, character pathname (which will be assumed to refer to a raster imagee), or as a list of these classes.
-#' If cands is a spatVector, attributes should include "ID", "treatment" (1 for impact sites and 0 for candidate control sites). All remaining columns will be interpreted as 
+#' If cands is a spatVector, attributes should include "ID", "treatment" (1 for impact sites and 0 for candidate control sites). All remaining columns will be interpreted as matching variables
 #' 
 #' @export matchCI
 #' 
@@ -16,14 +16,20 @@
 #' @import terra
 #' 
 #' @param cands spatRaster or spatVector object. See Details.
-#' @param matchlyrs multilayer SpatRaster (same geometry as CI_cand) of matching variables
-#' @param eval should matching be evaluated, return NULL if matching is rejected
-#' @param cols columns to be returned in the data table
+#' @param matchVars list of matching variables. See Details.
+#' @param ratio control/impact ratio. See \code{matchit} function
+#' @param replace See \code{matchit} function
+#' @param method See \code{matchit} function
+#' @param distance See \code{matchit} function
+#' @param link See \code{matchit} function
+#' @param eval logical. Should matching be evaluated? Function will return NULL if matching is rejected
+#' @param asmd_warn numeric. Function will output a warning message if Absolute Standardized Mean Difference is above this value
+#' @param asmd_error numeric. Function will output an error if Absolute Standardized Mean Difference is above this value
 #' @param ... additional inputs to \code{matchit} function
 #' 
 #' @returns data table with matched control-impact units. Column names are "ID", "treatment", and "subclass". 
 #' 
-matchCI <- function(cands, matchVars, 
+matchCI <- function(cands, matchVars, colname.id="ID", colname.treatment="treatment",
                     ratio=1, replace=FALSE, method="nearest", distance="glm", link="logit", 
                     eval=FALSE, asmd_warn=NULL, asmd_error=NULL, ...){
 
@@ -43,26 +49,26 @@ matchCI <- function(cands, matchVars,
                 as.data.table(matchVars, na.rm=FALSE))
     dt <- na.omit(dt)
     
-    names_out <- c("cell", "x", "y", "subclass", "treatment")
+    names_out <- c("cell", "x", "y", "subclass", colname.treatment)
     
   } else if (is.SpatVector(cands)){ #Candidate controls from vector
    
     #Remove any columns in cands that are not "ID" or "treatment"
-    cands <- cands[c("ID", "treatment")]
+    cands <- cands[c(colname.id, colname.treatment)]
     
     #combine the matching layers
-    matchVars <- collate_matching_layers(cands, matchVars)
-    matchVars_names <- names(matchVars) |> setdiff(c("ID", "treatment"))
+    matchVars <- collate_matching_layers(cands, matchVars, colname.id=colname.id, colnames.ignore=colname.treatment)
+    matchVars_names <- names(matchVars) |> setdiff(c(colname.id, colname.treatment))
     
     dt <- as.data.table(matchVars)
-    names_out <- c("ID", "subclass", "treatment")
+    names_out <- c("ID", "subclass", colname.treatment)
     
   } else {
-    stop("SpatRaster of SpatVector expected")
+    stop("cands of class SpatRaster of SpatVector expected")
   }
   
   #Define matching formula
-  frm <- as.formula(paste0("treatment ~ ", paste0(matchVars_names, collapse=" + ")))
+  frm <- as.formula(paste0(colname.treatment," ~ ", paste0(matchVars_names, collapse=" + ")))
   
   #Run MatchIt
   m.out <- MatchIt::matchit(formula=frm, data=dt, 
@@ -105,20 +111,22 @@ matchCI <- function(cands, matchVars,
 #' 
 #' Process different matching layers in compatible format
 #' 
-#' All matching layers should be provided as additional arguments (\code{...}). Matching layers can be provided as spatRaster, data cube, or a character (which will be interpreted as a readable file name). 
-#' Alternatively, \code{...} can be a list of matching layers (SpatRaster, data cube or character)
+#' If x is a SpatRaster, vars_list should have as list elements SpatRaster, data cube objects. 
+#' If x is a SpatVector, vars_list should have as list elements SpatVector, data.frame, or data.table objects.
 #' 
-#' @importFrom terra compareGeom rast project
+#' @importFrom terra compareGeom rast project relate
+#' @importFrom data.table is.data.table as.data.table
 #' 
 #' @export
 #' 
-#' @param x SpatRaster providing spatial reference
-#' @param ... Matching layers. See Details.
-#' 
+#' @param x SpatRaster or SpatVector
+#' @param vars_list List if matching variables. See Details.
+#' @param colname.id if x is a SpatVector, the column name identifying the ID allowing merging of different datasets
+#' @param colnames.ignore if x is a SpatVector, vector of column names in vars_list to ignore
 #' 
 #' @returns description
 #' 
-collate_matching_layers <- function(x, vars_list){
+collate_matching_layers <- function(x, vars_list, colname.id="ID", colnames.ignore=NULL){
   
   if(!is.list(vars_list)) vars_list <- list(vars_list)
   
@@ -157,12 +165,30 @@ collate_matching_layers <- function(x, vars_list){
     x_out <- x
     for (i in 1:length(vars_list)){
       inLyr <- vars_list[[i]]
-      if(!is.SpatVector(inLyr)) stop("Matching variable should be a SpatRaster layer")
-      if("ID" %in% names(inLyr)){
-        x_out <- merge(x_out, inLyr)
+      if(is.SpatVector(inLyr)){
+        if(!is.null(colnames.ignore)){
+          lyr_select <- which((!(names(inLyr) %in% colnames.ignore)))
+          inLyr <- inLyr[,lyr_select]
+        }
+        
+        if(colname.id %in% names(inLyr)){
+          x_out <- merge(x_out, as.data.table(inLyr), by=colname.id)
+        } else {
+          pairs <- relate(x_out, inLyr, "equals", pairs=TRUE)
+          x_out <-  cbind(x_out[pairs[,1]], inLyr[pairs[,2]])
+        }  
+      } else if (is.data.frame(inLyr) | is.data.table(inLyr)){
+        if(!is.data.table(inLyr)) inLyr <- as.data.table(inLyr)
+        if(!is.null(colnames.ignore)){
+          lyr_select <- which((!(names(inLyr) %in% colnames.ignore)))
+          inLyr <- subset(inLyr, select= lyr_select)
+        } 
+        x_out <- merge(x_out, inLyr, by=colname.id)
+        
       } else {
-        x_out <- cbind(x_out,inLyr)
+        stop("Matching variable should be a SpatVector, data.frame, or data.table")
       }
+      
     }
     
     out <- x_out

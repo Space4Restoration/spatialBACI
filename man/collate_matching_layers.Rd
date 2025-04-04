@@ -4,12 +4,21 @@
 \alias{collate_matching_layers}
 \title{Collate matching layers}
 \usage{
-collate_matching_layers(x, vars_list)
+collate_matching_layers(
+  x,
+  vars_list,
+  colname.id = "ID",
+  colnames.ignore = NULL
+)
 }
 \arguments{
-\item{x}{SpatRaster providing spatial reference}
+\item{x}{SpatRaster or SpatVector}
 
-\item{...}{Matching layers. See Details.}
+\item{vars_list}{List if matching variables. See Details.}
+
+\item{colname.id}{if x is a SpatVector, the column name identifying the ID allowing merging of different datasets}
+
+\item{colnames.ignore}{if x is a SpatVector, vector of column names in vars_list to ignore}
 }
 \value{
 description
@@ -18,6 +27,6 @@ description
 Process different matching layers in compatible format
 }
 \details{
-All matching layers should be provided as additional arguments (\code{...}). Matching layers can be provided as spatRaster, data cube, or a character (which will be interpreted as a readable file name). 
-Alternatively, \code{...} can be a list of matching layers (SpatRaster, data cube or character)
+If x is a SpatRaster, vars_list should have as list elements SpatRaster, data cube objects. 
+If x is a SpatVector, vars_list should have as list elements SpatVector, data.frame, or data.table objects.
 }
