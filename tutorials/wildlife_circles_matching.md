@@ -3,6 +3,8 @@ Wildlife circles matching
 Jasper Van doninck
 
 - [1 Wildlife circles dataset](#1-wildlife-circles-dataset)
+- [2 Matching covariates](#2-matching-covariates)
+- [3 Control-impact matching](#3-control-impact-matching)
 
 # 1 Wildlife circles dataset
 
@@ -61,7 +63,7 @@ outside protected areas using six matching covariates:
 We will here show how to perform such analysis using the `EnvImpactEval`
 package and other common R packages.
 
-## 1.1 Matching covariates
+# 2 Matching covariates
 
 Extracting **longitude** and **latitude** of the centroids of polygons
 in a SpatVector object, as is the case here, is rather straightforward
@@ -146,7 +148,7 @@ forestFrac <- extractGeneric(file.path(data_dir, "clc2012_fi20m.tif"),
                              names.out="forestCover")
 ```
 
-## 1.2 Control-impact matching
+# 3 Control-impact matching
 
 To match one wildlife circle outside protected area to each site within
 a protected area without replacement using the matching covariates

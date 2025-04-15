@@ -37,7 +37,7 @@ In [Terraube et al., 2020](https://www.nature.com/articles/s41467-020-16792-7), 
 
 We will here show how to perform such analysis using the `EnvImpactEval` package and other common R packages.
 
-## Matching covariates
+# Matching covariates
 
 Extracting **longitude** and **latitude** of the centroids of polygons in a SpatVector object, as is the case here, is rather straightforward using functions of the `terra` package, on which the `EnvImpactEval` package builds. The following returns a data frame with for each wildlife circle the original "ID" and "PA" columns, and additionally columns "x" and "y" indicating the longitude and latitude of the centroid of the wildlife circle.
 
@@ -87,7 +87,7 @@ forestFrac <- extractGeneric(file.path(data_dir, "clc2012_fi20m.tif"),
 ```
 
 
-## Control-impact matching
+# Control-impact matching
 
 To match one wildlife circle outside protected area to each site within a protected area without replacement using the matching covariates defined above, we simply combine the matching covariates in a `list` element. By setting the `asmd_warn` argument, we will generate a warning message if the ASMD value after matching exceeds this threshold. 
 
