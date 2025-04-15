@@ -8,9 +8,9 @@ Depends:
     R (>= 4.3.0),
     terra,
     rstac,
-    methods,
-    data.table
+    methods
 Imports:
+    data.table,
     MatchIt,
     sf
 Description: EO-based Tools to Evaluate the Impact of Conservation or Restoration Actions on Ecosystems, based on counterfactual matching analysis. 
