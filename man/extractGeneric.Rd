@@ -10,7 +10,7 @@ extractGeneric(
   fun = mean,
   method = "simple",
   reduce_time = TRUE,
-  na.rm = TRUE,
+  names.out = NULL,
   ...
 )
 }
@@ -21,7 +21,15 @@ extractGeneric(
 
 \item{fun}{function to summarize by line or polygon geometry}
 
+\item{method}{method for extracting values with points}
+
+\item{reduce_time}{see \code{gdalcubes::extract_geom}}
+
+\item{names.out}{not implemented}
+
 \item{...}{Additional arguments passed to \code{terra::extract} or \code{gdalcubes::extract_geom}}
+
+\item{na.rm}{additional argument to \code{fun}}
 }
 \value{
 data.frame, matrix or SpatVector (see \code{terra::extract} or \code{gdalcubes::extract_geom})

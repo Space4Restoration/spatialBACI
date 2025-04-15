@@ -171,28 +171,43 @@ extractFromRaster <- function(r, xy, crs_xy){
 #' @param x SpatRaster or data cube
 #' @param y SpatVector or sf. Additionally, if x is SpatRaster, see possibilities in \code{terra::extract}
 #' @param fun function to summarize by line or polygon geometry
+#' @param method method for extracting values with points
+#' @param reduce_time see \code{gdalcubes::extract_geom}
+#' @param na.rm additional argument to \code{fun}
+#' @param names.out not implemented
 #' @param ... Additional arguments passed to \code{terra::extract} or \code{gdalcubes::extract_geom}
 #' 
 #' @returns data.frame, matrix or SpatVector (see \code{terra::extract} or \code{gdalcubes::extract_geom})
 #' 
-extractGeneric <- function(x, y, fun=mean, method="simple", reduce_time=TRUE, na.rm=TRUE, ...){
+extractGeneric <- function(x, y, fun=mean, method="simple", reduce_time=TRUE, names.out=NULL, ...){
   
-
+  if(is.character(x)){
+    x <- rast(x)
+  }
+  
   if(is.SpatRaster(x)){
     
     if(is.sf(y)) y <- terra::vect(y)
     if(is.SpatVector(y)) if(crs(x) != crs(y)) y <- terra::project(y,x)
-    out <- terra::extract(x, y, fun=fun, method=method, na.rm=na.rm, ...)
+    
+    out <- terra::extract(x, y, 
+                          fun=fun, 
+                          method=method, 
+                          ...)
     
   } else if (is.cube(r)){
     
     if(is.SpatVector(y)) y <- sf::st_as_sf(y)
-    out <- gdalcubes::extract_geom(x, y, FUN=fun, na.rm=na.rm, reduce_time=reduce_time, ...)
+    out <- gdalcubes::extract_geom(x, y, FUN=fun, reduce_time=reduce_time, ...)
 
   } else {
     stop("x must be SpatRaster of data cube object")
   }
   
+  if(!is.null(names.out)){
+    nnames <- length(names.out)
+    names(out)[(length(names(out))-nnames+1):length(names(out))] <- names.out
+  } 
   return(out)
   
 }  
