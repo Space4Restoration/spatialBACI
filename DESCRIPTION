@@ -1,7 +1,7 @@
 Package: EnvImpactEval
 Type: Package
 Title: Tools for Ecosystem Conservation and Restoration Impact Assessment 
-Version: 0.0.1
+Version: 0.1.0
 Author: Jasper Van doninck
 Maintainer: Jasper Van doninck <j.vandoninck@utwente.nl>
 Depends:
