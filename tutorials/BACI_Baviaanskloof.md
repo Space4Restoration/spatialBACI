@@ -29,7 +29,7 @@ select the sites revegetated in 2012 that were not subject to lifestock
 grazing exclusion.
 
 ``` r
-library(EnvImpactEval)
+library(spatialBACI)
 data(baviaanskloof)
 baviaanskloof <- unwrap(baviaanskloof)
 
