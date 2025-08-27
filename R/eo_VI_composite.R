@@ -1,8 +1,10 @@
 
 #' Vegetation Index composites
 #' 
+#' @description
 #' Create yearly composite image time series of a selected vegetation index
 #' 
+#' @details
 #' Limited functionalities for now, see \code{calc_VI.cube} for implemented vegetation indices:
 #' 
 #' @export
@@ -14,7 +16,7 @@
 #' @param x SpatRaster
 #' @param VI Vegetation Index (see details)
 #' @param endpoint description
-#' @param collection description#' 
+#' @param collection description 
 #' @param years numeric vector of years for which composite image must be created
 #' @param months numeric vector of months for which composite image must be created for each years
 #' @param maxCloud numeric, maximum cloud cover percentage

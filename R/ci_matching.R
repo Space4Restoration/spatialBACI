@@ -1,13 +1,32 @@
 #' Control-impact matching
 #' 
-#' Match control units to impact units
+#' @description
+#' Match control units to impact/treatment vector or raster units.
 #' 
 #' This function uses the provided matching layers to match the provided candidate and impact units 
-#' using the MatchIt package and the matching options provided therein.
+#' using the \code{MatchIt} package and the matching options provided therein.
 #' 
-#' If cands is a spatRaster, impact pixels should be labelled 1, candidate control pixels labelled 0, and pixels to be excluded labelled NA.
-#' In that case, matching variables in \code{matchvars} are to be provided as a single (multilayer) terra spatRaster object, gdalcubes data cube object, character pathname (which will be assumed to refer to a raster imagee), or as a list of these classes.
-#' If cands is a spatVector, attributes should include "ID", "treatment" (1 for impact sites and 0 for candidate control sites). All remaining columns will be interpreted as matching variables
+#' @details
+#' If \code{cands} is a SpatRaster, impact pixels should be labelled 1, candidate control pixels labelled 0, and pixels to be excluded labelled NA.
+#' 
+#' If \code{cands} is a SpatRaster, matching covariates provided as list elements in \code{matchvars} should be (a combination of) SpatRaster, 
+#' gdalcubes data cube, 
+#' or character (which will be assumed to refer to a filename and read using the default settings of \code{\link[terra]{rast}}).
+#' Matching covariate layers should have band names, which should not be duplicated.
+#' 
+#' If \code{cands} is a SpatVector, attributes should include an ID column with name specified by the argument \code{colname.id} (defaults to "ID"), 
+#' and a treatment column with name specified by the argument \code{colname.treatment} (defaults to "treatment") and with value 1 for impact/treatment units and value 0 for candidate control units.
+#' All remaining columns in \code{cands} will be interpreted as matching variables.
+#' 
+#' if \code{cands} is a SpatVector, matching covariates provided as list elements in \code{matchvars} should be (a combination of) SpatVector objects with identical geometry as \code{cands},
+#' or data.table/data.frame object with an ID column with name corresponding to the \code{colname.id} argument. 
+#' All columns in \code{matchVars} except those specified \code{colname.id} and \code{colname.treatment} will be interpreted as matching variables.
+#' 
+#' The function returns an object of class data.table, unless matching is rejected in the interactive evaluation in which case the function returns NULL.
+#' Column names of the returned data.table object are "subclass", and the treatment column name defined by \code{colname.treatment}. 
+#' If \code{cands} is a SpatRaster, additional returned column names are "cell" (indicating the cell number of pixels in \code{cands}), and "x" and "y" (relative to the crs of \code{cands}).
+#' If \code{cands} is a SpatVector, an additional column identifies the vector ID specified in \code{colname.id}.
+#' 
 #' 
 #' @export matchCI
 #' 
@@ -15,36 +34,38 @@
 #' @import MatchIt
 #' @import terra
 #' 
-#' @param cands spatRaster or spatVector object. See Details.
+#' @param cands SpatRaster or SpatVector object. See Details.
 #' @param matchVars list of matching variables. See Details.
-#' @param ratio control/impact ratio. See \code{matchit} function
-#' @param replace See \code{matchit} function
-#' @param method See \code{matchit} function
-#' @param distance See \code{matchit} function
-#' @param link See \code{matchit} function
-#' @param eval logical. Should matching be evaluated? Function will return NULL if matching is rejected
-#' @param asmd_warn numeric. Function will output a warning message if Absolute Standardized Mean Difference is above this value
-#' @param asmd_error numeric. Function will output an error if Absolute Standardized Mean Difference is above this value
-#' @param ... additional inputs to \code{matchit} function
+#' @param eval logical. Should matching summary be shown for interactive evaluation? Function will return NULL if matching is rejected.
+#' @param asmd_warn numeric. Function will output a warning message if Absolute Standardized Mean Difference is above this value.
+#' @param asmd_error numeric. Function will output an error if Absolute Standardized Mean Difference is above this value.
+#' @param ... additional inputs to \link[MatchIt]{matchit}, e.g., \code{ratio}, \code{replace}, \code{method}, \code{distance}, or \code{link}.
 #' 
-#' @returns data table with matched control-impact units. Column names are "ID", "treatment", and "subclass". 
+#' @returns data table with matched control-impact units.  
 #' 
 matchCI <- function(cands, matchVars, colname.id="ID", colname.treatment="treatment",
-                    ratio=1, replace=FALSE, method="nearest", distance="glm", link="logit", 
                     eval=FALSE, asmd_warn=NULL, asmd_error=NULL, ...){
 
   #TODO?
   # subset of potential control (/impact) pixels before matching for large areas?
   # check if matchlyrs has names, add default names (e.g. 1:n) if not
   
-  if(is.SpatRaster(cands)){ #Candidate controls from raster
+  if(is.SpatRaster(cands)){ 
+    ##  Candidate controls from raster
     
     matchVars <- collate_matching_layers(cands, matchVars)
-    
+    #Check that layers of matching variables have (unique) names, fix if not. 
+    if(any(nchar(names(matchVars))==0)) stop("Missing name(s) in matchVars")
+    if(any(duplicated(names(matchVars)))) stop("Duplicated band names in matchVars")
+
     #Prepare data.table for matching
-    names(cands) <- "treatment"
+    if(nlyr(cands)>1){
+      warning("nlyr(cands)>1, only first layer will be used")
+      cands <- subset(cands,subset=1)
+    }
+    names(cands) <- colname.treatment
     matchVars_names <- names(matchVars)
-    #TODO: Check that layers of matching variables have (unique) names, fix if not. 
+    
     dt <- cbind(as.data.table(cands, na.rm=FALSE, cells=TRUE, xy=TRUE),
                 as.data.table(matchVars, na.rm=FALSE))
     dt <- na.omit(dt)
@@ -61,7 +82,7 @@ matchCI <- function(cands, matchVars, colname.id="ID", colname.treatment="treatm
     matchVars_names <- names(matchVars) |> setdiff(c(colname.id, colname.treatment))
     
     dt <- as.data.table(matchVars)
-    names_out <- c("ID", "subclass", colname.treatment)
+    names_out <- c(colname.id, "subclass", colname.treatment)
     
   } else {
     stop("cands of class SpatRaster of SpatVector expected")
@@ -72,7 +93,6 @@ matchCI <- function(cands, matchVars, colname.id="ID", colname.treatment="treatm
   
   #Run MatchIt
   m.out <- MatchIt::matchit(formula=frm, data=dt, 
-                            ratio=ratio, replace=replace, method=method, distance=distance, link=link, 
                             ...)
   
   #Interactive evaluation of matching
@@ -109,15 +129,15 @@ matchCI <- function(cands, matchVars, colname.id="ID", colname.treatment="treatm
 
 #' Collate matching layers
 #' 
+#' @description
 #' Process different matching layers in compatible format
 #' 
+#' @details
 #' If x is a SpatRaster, vars_list should have as list elements SpatRaster, data cube objects. 
 #' If x is a SpatVector, vars_list should have as list elements SpatVector, data.frame, or data.table objects.
 #' 
 #' @importFrom terra compareGeom rast project relate
 #' @importFrom data.table is.data.table as.data.table
-#' 
-#' @export
 #' 
 #' @param x SpatRaster or SpatVector
 #' @param vars_list List if matching variables. See Details.
@@ -138,7 +158,7 @@ collate_matching_layers <- function(x, vars_list, colname.id="ID", colnames.igno
       inLyr <- vars_list[[i]]
       #If gdalcube -> transform to spatRaster
       if(is.cube(inLyr)){
-        inLyr <- gdalcube_as_terra(inLyr)
+        inLyr <- as.SpatRaster(inLyr)
       }
       #If character -> assume it is filename, read as spatRaster
       if(is.character(inLyr)){
@@ -199,52 +219,3 @@ collate_matching_layers <- function(x, vars_list, colname.id="ID", colnames.igno
 }
 
 
-#'   #' Matching candidates - DEPRECATED: replaced by create_control_candidates
-#'   #' 
-#'   #' Identifies control-impact candidates for matching.
-#'   #' 
-#'   #' This function creates a raster object in which candidate impact pixels are labeled as 1,
-#'   #' candidate control pixels labeled as 0, and excluded pixels as NA.
-#'   #' 
-#'   #' 
-#'   #' @export matchCandidates
-#'   #' @import terra
-#'   #' @param x SpatVector: polygon of "impact" area
-#'   #' @param y SpatRaster: reference geometry
-#'   #' @param excludeBufferIn Numeric: Buffer (in m) inside polygon to be excluded
-#'   #' @param excludeBufferOut Numeric: Buffer (in m) outside polygon to be excluded
-#'   #' @param excludeOther SpatVector: other areas to be excluded
-#'   #' 
-#'   #' @returns SpatRaster object with candidate impact, control and excluded pixels 
-#'   #' 
-#' matchCandidates <- function(x, y, 
-#'                             excludeBufferIn=0,
-#'                             excludeBufferOut=0,
-#'                             excludeOther=NULL){
-#'   #TODO:  
-#'   # For now only works with vector impact and raster reference, other tabular/vector/raster combinations still to be implemented
-#'   
-#'   #Project x to geometry of y
-#'   x <- project(x,y)
-#'   #Rasterize x
-#'   x_ras <- rasterize(x,y, background=0)
-#'   
-#'   #Define inner and outer buffers
-#'   if(excludeBufferIn>0 | excludeBufferOut>0){
-#'     buf_o <- buffer(x, width=excludeBufferOut) |> 
-#'       rasterize(y, background=0)
-#'     buf_i <- buffer(x, width=-excludeBufferIn) |> 
-#'       rasterize(y, background=0)
-#'     buf_c <- buf_o-buf_i
-#'     x_ras <- mask(x_ras, buf_c, maskvalues=1, updatevalue=NA)
-#'   }
-#'   #Exclude other areas
-#'   if(!is.null(excludeOther)){
-#'     exc <- project(excludeOther, y) |>
-#'       crop(y) |>
-#'       rasterize(y, background=0)
-#'     x_ras <- mask(x_ras, exc, maskvalues=1, updatevalue=NA)
-#'     
-#'   }
-#'   return(x_ras)
-#' }

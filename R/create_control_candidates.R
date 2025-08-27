@@ -1,24 +1,37 @@
 #' Create candidate control raster
 #' 
-#' Creates a spatRaster of impact and candidate control pixels 
-#'  
-#' Impact pixels are defined by providing a spatVector object. Candidate control pixels can be defined from a spatVector file, or using a buffer around the bounding box of the impact sites.
+#' @description
+#' Create a SpatRaster of impact/treatment and candidate control pixels.  
+#' 
+#' @details
+#' Impact pixels are defined by providing a SpatVector object. 
+#' 
+#' Pixels to include as candidate control units can be defined from a SpatVector file, using the \code{control_from_include} argument, or from bounding box around the impact spatVector object, using the \code{control_from_buffer} argument. 
+#' At least one of these arguments must be provided, if both are provided the \code{control_from_buffer} argument is ignored.
+#' 
+#' Pixels can be excluded as candidate control units by providing a SpatVector in the \code{control_exclude} argument. 
+#' Additionally, pixels at the borders of the impact polygon can be excluded as both impact and/or control with the \code{exclude_impact_buffer} argument, to account for adjacency effects. 
+#' A negative value of \code{exclude_impact_buffer} will eliminate pixels in the inner buffer around the polygon as impact units, 
+#' a positive value will eliminate pixels in the outer buffer as control units. 
+#' Providing a vector of length two can be used to exclude an inner and outer buffer.
 #'  
 #' @import terra
 #' 
 #' @export
 #' 
-#' @param impact spatVector. Vector representation (points or polygons) of the impact sites
-#' @param resolution numeric. Spatial resolution of the output spatRaster
+#' @param impact SpatVector. Vector representation (points or polygons) of the impact sites
+#' @param resolution numeric. Spatial resolution of the output SpatRaster, in units of \code{crs}
 #' @param crs Coordinate Reference System in PROJ.4, WKT or authority:code notation. Defaults to the UTM zone of center coordinates of \code{impact}
-#' @param control_from_buffer numeric vector of 1, 2, or 4 elements. Indicates by how much (in units of crs) the spatial extent of x/y should be enlarged on each side.
-#' @param control_from_include spatVector. Indicates area to include in candidate control selection (optional)
-#' @param control_exclude spatVector. Indicates area to exclude from candidate control selection
-#' @param round_coords logical or integer. Should the coordinates of the reference SpatRaster be rounded.
-#' If TRUE, coordinates are rounded to the nearest integer; if a positive numeric rounded to the corresponding decimal; 
-#' if a negative integer rounded to the corresponding power of 10 (e.g., \code{round_corrs=2} round to the nearest 100).
+#' @param control_from_buffer numeric vector of 1, 2, or 4 elements. Indicates by how much (in units of \code{crs}) the spatial extent around the impact sites should be enlarged on each side. 
+#' @param control_from_include SpatVector. Indicates area to include in candidate control selection
+#' @param control_exclude SpatVector. Indicates area to exclude from candidate control selection
+#' @param exclude_impact_buffer numeric vector of length 1 or 2. Indicates buffer around \code{impact}, in units of \code{crs}, to exclude as impact and/or control. See Details.
+#' @param round_coords logical or integer. Should the coordinates of the output SpatRaster be rounded.
+#' If TRUE, coordinates are rounded to the nearest integer; a positive numeric rounds to the corresponding decimal,
+#' a negative integer rounds to the corresponding power of 10 (e.g., \code{round_coords=-2} rounds to the nearest 100).
 #' 
-#' @returns a spatRaster in which impact pixels have value 1, candidate control pixels value 0, and all other pixels value NA
+#' @returns a SpatRaster in which impact pixels have value 1, candidate control pixels have value 0, 
+#' and pixels excluded as impact or control have value NA
 #'
 create_control_candidates <- function(impact,
                                       resolution,
@@ -79,13 +92,29 @@ create_control_candidates <- function(impact,
   
   #Exclude areas identified by exclude_impact_buffer
   if(!is.null(exclude_impact_buffer)){
-    if (exclude_impact_buffer >0){
-      buf <- terra::buffer(impact_projected, width=exclude_impact_buffer) |> 
-        erase(impact_projected)
-    } else {
-      buf <- erase(impact_projected, terra::buffer(impact_projected, width=exclude_impact_buffer))
+    
+    #Different functions required for inner and outer buffer
+    fun_buffer <- function(val){
+      if (val>0){
+        buf <- erase(terra::buffer(aggregate(snap(impact_projected, tolerance=resolution/2), dissolve=TRUE), width=val),
+                     snap(impact_projected, tolerance=resolution/2)) 
+      } else {
+        buf <- erase(snap(impact_projected, tolerance=resolution/2), 
+                     terra::buffer(aggregate(snap(impact_projected, tolerance=resolution/2), dissolve=TRUE), width=val))
+      }
+      return(buf)
     }
+    
+    if(length(exclude_impact_buffer)==1){
+      buf <- fun_buffer(exclude_impact_buffer)
+    } else {
+      buf1 <- fun_buffer(exclude_impact_buffer[1])
+      buf2 <- fun_buffer(exclude_impact_buffer[2])
+      buf <- aggregate(rbind(buf1, buf2), dissolve=TRUE)
+    }
+    
     rast_out <- mask(rast_out, buf, updatevalue=NA, inverse=TRUE)
+    
   }
 
   return(rast_out)
