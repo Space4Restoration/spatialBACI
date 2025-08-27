@@ -16,27 +16,40 @@ create_control_candidates(
 )
 }
 \arguments{
-\item{impact}{spatVector. Vector representation (points or polygons) of the impact sites}
+\item{impact}{SpatVector. Vector representation (points or polygons) of the impact sites}
 
-\item{resolution}{numeric. Spatial resolution of the output spatRaster}
+\item{resolution}{numeric. Spatial resolution of the output SpatRaster, in units of \code{crs}}
 
 \item{crs}{Coordinate Reference System in PROJ.4, WKT or authority:code notation. Defaults to the UTM zone of center coordinates of \code{impact}}
 
-\item{control_from_buffer}{numeric vector of 1, 2, or 4 elements. Indicates by how much (in units of crs) the spatial extent of x/y should be enlarged on each side.}
+\item{control_from_buffer}{numeric vector of 1, 2, or 4 elements. Indicates by how much (in units of \code{crs}) the spatial extent around the impact sites should be enlarged on each side.}
 
-\item{control_from_include}{spatVector. Indicates area to include in candidate control selection (optional)}
+\item{control_from_include}{SpatVector. Indicates area to include in candidate control selection}
 
-\item{control_exclude}{spatVector. Indicates area to exclude from candidate control selection}
+\item{control_exclude}{SpatVector. Indicates area to exclude from candidate control selection}
 
-\item{round_coords}{logical or integer. Should the coordinates of the reference SpatRaster be rounded.
-If TRUE, coordinates are rounded to the nearest integer; if a positive numeric rounded to the corresponding decimal; 
-if a negative integer rounded to the corresponding power of 10 (e.g., \code{round_corrs=2} round to the nearest 100).}
+\item{exclude_impact_buffer}{numeric vector of length 1 or 2. Indicates buffer around \code{impact}, in units of \code{crs}, to exclude as impact and/or control. See Details.}
+
+\item{round_coords}{logical or integer. Should the coordinates of the output SpatRaster be rounded.
+If TRUE, coordinates are rounded to the nearest integer; a positive numeric rounds to the corresponding decimal,
+a negative integer rounds to the corresponding power of 10 (e.g., \code{round_coords=-2} rounds to the nearest 100).}
 }
 \value{
-a spatRaster in which impact pixels have value 1, candidate control pixels value 0, and all other pixels value NA
+a SpatRaster in which impact pixels have value 1, candidate control pixels have value 0, 
+and pixels excluded as impact or control have value NA
 }
 \description{
-Creates a spatRaster of impact and candidate control pixels 
- 
-Impact pixels are defined by providing a spatVector object. Candidate control pixels can be defined from a spatVector file, or using a buffer around the bounding box of the impact sites.
+Create a SpatRaster of impact/treatment and candidate control pixels.
+}
+\details{
+Impact pixels are defined by providing a SpatVector object. 
+
+Pixels to include as candidate control units can be defined from a SpatVector file, using the \code{control_from_include} argument, or from bounding box around the impact spatVector object, using the \code{control_from_buffer} argument. 
+At least one of these arguments must be provided, if both are provided the \code{control_from_buffer} argument is ignored.
+
+Pixels can be excluded as candidate control units by providing a SpatVector in the \code{control_exclude} argument. 
+Additionally, pixels at the borders of the impact polygon can be excluded as both impact and/or control with the \code{exclude_impact_buffer} argument, to account for adjacency effects. 
+A negative value of \code{exclude_impact_buffer} will eliminate pixels in the inner buffer around the polygon as impact units, 
+a positive value will eliminate pixels in the outer buffer as control units. 
+Providing a vector of length two can be used to exclude an inner and outer buffer.
 }

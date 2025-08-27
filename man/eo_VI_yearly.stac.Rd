@@ -24,7 +24,7 @@ eo_VI_yearly.stac(
 
 \item{endpoint}{description}
 
-\item{collection}{description#'}
+\item{collection}{description}
 
 \item{years}{numeric vector of years for which composite image must be created}
 
