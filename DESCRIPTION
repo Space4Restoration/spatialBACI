@@ -12,7 +12,10 @@ Depends:
 Imports:
     data.table,
     MatchIt,
-    sf
+    sf,
+    gdalcubes,
+    osmdata,
+    lubridate
 Description: EO-based Tools to Evaluate the Impact of Conservation or Restoration Actions on Ecosystems, based on counterfactual matching analysis. 
 License: GPL (>= 3)
 Encoding: UTF-8
