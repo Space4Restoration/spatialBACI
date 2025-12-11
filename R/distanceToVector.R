@@ -22,7 +22,7 @@ setGeneric("distanceToVector", function(x, y, ...){
 setMethod("distanceToVector", signature("SpatRaster", "SpatVector"),
           function(x, y, ...){
             if(crs(x) != crs(y)) y <- project(y,x)
-            d <- distance(x, y, ...)
+            d <- distance(x, y, rasterize=TRUE, ...)
             return(d)
 })
 

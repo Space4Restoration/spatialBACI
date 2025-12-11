@@ -70,14 +70,12 @@ osm_distance_roads <- function(x, values="residential+", timeout=25, osm_bbox=NU
     # dmax <- max(distanceToVector(as.points(ext(x), crs=crs(x)), bbox_data_vect))
     # ext_x <- extend(ext(x), dmax)
     # osm_bbox <- as.bbox(project(ext_x, x, "epsg:4326"))
+
   } else {
-    
-    #Final query
+    #Use provided osm_bbox
     bbox_data <- do_osm_query()
-    
   }
 
-  
   #Calculate distances
   bbox_data_vect <- vect(bbox_data$osm_lines) 
   

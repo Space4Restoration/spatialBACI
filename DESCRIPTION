@@ -1,7 +1,7 @@
 Package: spatialBACI
 Type: Package
 Title: Tools for Counterfactual Ecosystem Restoration and Conservation Impact Evaluation 
-Version: 0.2
+Version: 1.0
 Author: Jasper Van doninck
 Maintainer: Jasper Van doninck <j.vandoninck@utwente.nl>
 Depends:

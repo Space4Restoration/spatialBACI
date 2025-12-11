@@ -143,7 +143,7 @@ extractFromRaster <- function(r, xy, crs_xy){
 
   } else if (is.cube(r)){
     
-    if(!missing(crs_cy)){
+    if(!missing(crs_xy)){
       #...
     }
     
