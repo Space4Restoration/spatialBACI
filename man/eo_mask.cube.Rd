@@ -7,7 +7,7 @@
 eo_mask.cube(maskLyr, maskSnow = FALSE, maskWater = FALSE)
 }
 \arguments{
-\item{maskLyr}{description}
+\item{maskLyr}{character. Name of mask layer.}
 
 \item{maskSnow}{logical. Defines whether snow should be masked.}
 

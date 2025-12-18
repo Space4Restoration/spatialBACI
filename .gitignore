@@ -3,6 +3,5 @@ spatialBACI.Rproj
 .Rbuildignore
 .Rhistory
 deprecated/
-deprecated_scrap/
 create_baviaanskloof.R
 extra_ignore/

@@ -22,9 +22,9 @@ eo_VI_yearly.stac(
 
 \item{VI}{Vegetation Index (see details)}
 
-\item{endpoint}{description}
+\item{endpoint}{STAC endpoint}
 
-\item{collection}{description}
+\item{collection}{STAC collection}
 
 \item{years}{numeric vector of years for which composite image must be created}
 
@@ -32,7 +32,7 @@ eo_VI_yearly.stac(
 
 \item{maxCloud}{numeric, maximum cloud cover percentage}
 
-\item{maskOptions}{description}
+\item{maskOptions}{options defining (cloud) mask to be applied. See eo_mask.cube}
 }
 \value{
 SpatRaster

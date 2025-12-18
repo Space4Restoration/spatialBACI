@@ -14,7 +14,7 @@
 #' @importFrom gdalcubes image_mask
 #' 
 #' @param maskOptions named list. Masking options. See details.
-#' @param maskLyr description
+#' @param maskLyr character. Name of mask layer.
 #' @param maskSnow logical. Defines whether snow should be masked.
 #' @param maskWater logical. Defines whether water should be masked.
 #' 

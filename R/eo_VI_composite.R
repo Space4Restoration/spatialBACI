@@ -15,12 +15,12 @@
 #' 
 #' @param x SpatRaster
 #' @param VI Vegetation Index (see details)
-#' @param endpoint description
-#' @param collection description 
+#' @param endpoint STAC endpoint
+#' @param collection STAC collection 
 #' @param years numeric vector of years for which composite image must be created
 #' @param months numeric vector of months for which composite image must be created for each years
 #' @param maxCloud numeric, maximum cloud cover percentage
-#' @param maskOptions description
+#' @param maskOptions options defining (cloud) mask to be applied. See eo_mask.cube
 #' 
 eo_VI_yearly.stac <- function(x, VI,
                               endpoint, collection, stacOptions=list(limit=1000, authOpt=list()),
