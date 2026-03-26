@@ -7,6 +7,7 @@
 #' 
 #' @export
 #' @import rstac
+#' @importFrom httr GET content
 #' 
 #' @param x a STAC Feature or FeatureCollection
 #' @param endpoint a STAC endpoint

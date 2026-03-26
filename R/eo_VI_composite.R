@@ -17,6 +17,7 @@
 #' @param VI Vegetation Index (see details)
 #' @param endpoint STAC endpoint
 #' @param collection STAC collection 
+#' @param stacOptions list. Optional arguments to be passed to [eo_stac_search()], e.g. authentication options
 #' @param years numeric vector of years for which composite image must be created
 #' @param months numeric vector of months for which composite image must be created for each years
 #' @param maxCloud numeric, maximum cloud cover percentage

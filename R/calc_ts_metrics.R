@@ -12,7 +12,14 @@
 #' 
 #' 
 calc_ts_metrics <- function(x, ...) {
-  UseMethod("calc_ts_metrics")
+  if(is.SpatRaster(x)){
+    return(calc_ts_metrics.SpatRaster(x, ...))
+  } else if(is.cube(x)){
+    return(calc_ts_metrics.cube(x, ...))
+    
+  }
+  
+  
 }
 
 

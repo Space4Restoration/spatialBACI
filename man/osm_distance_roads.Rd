@@ -4,13 +4,7 @@
 \alias{osm_distance_roads}
 \title{OpenStreetMap distance to roads}
 \usage{
-osm_distance_roads(
-  x,
-  values = "residential+",
-  timeout = 25,
-  osm_bbox = NULL,
-  ...
-)
+osm_distance_roads(x, values = "residential+", timeout = 25, osm_bbox = NULL)
 }
 \arguments{
 \item{x}{SpatRaster or SpatVector for which distances are calculated}

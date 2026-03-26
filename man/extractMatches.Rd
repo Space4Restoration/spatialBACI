@@ -2,21 +2,24 @@
 % Please edit documentation in R/extractMatches.R
 \name{extractMatches}
 \alias{extractMatches}
-\title{Extract data from raster for matches}
+\title{Extract matches values from SpatRaster/data cube}
 \usage{
-extractMatches(matches, effect, before, after, band = NULL)
+extractMatches(r, obj, fun, method = "simple", ...)
 }
 \arguments{
-\item{matches}{output of \code{matchCI}}
+\item{r}{a SpatRaster or data.cube raster object.}
 
-\item{effect}{SpatRaster of effect values}
+\item{obj}{output of [matchCI()].}
 
-\item{before}{SpatRaster of before values}
+\item{fun}{function to summarize extracted data by line or polygon geometries. See [terra::extract()].}
 
-\item{after}{SpatRaster of after values}
+\item{method}{character. Method for extracting values for point geometries. See [terra::extract()].}
 
-\item{band}{character. If before/after contain more than one band, this parameter can be used to select the band to be extracted}
+\item{...}{additional arguments to `fun`.}
+}
+\value{
+data.table of extracted raster values for control-impact pairs.
 }
 \description{
-Extract the "before" and "after", or "effect", values from a SpatRaster or data cube for the provided matching pairs
+Helper function to extract matches from SpatRaster or data.cube object
 }

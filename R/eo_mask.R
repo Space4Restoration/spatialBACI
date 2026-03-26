@@ -13,7 +13,6 @@
 #' @export
 #' @importFrom gdalcubes image_mask
 #' 
-#' @param maskOptions named list. Masking options. See details.
 #' @param maskLyr character. Name of mask layer.
 #' @param maskSnow logical. Defines whether snow should be masked.
 #' @param maskWater logical. Defines whether water should be masked.
@@ -109,16 +108,14 @@ eo_mask.rast <- function(r,
 #' 
 #' Define the values of values to be masked from Landsat L2 products based on specified QA bits
 #' 
-#' @export
-#' 
-#' @param nbit description
-#' @param fill description
-#' @param dilCloud description
-#' @param cirrus description
-#' @param cloud description
-#' @param cloudShadow description
-#' @param snow description
-#' @param water description
+#' @param nBit integer. Number of bits from bitmask used, defaults to 8
+#' @param fill logical. Mask fill bit
+#' @param dilCloud logical. Mask dilated cloud bit
+#' @param cirrus logical. Mask cirrus bit
+#' @param cloud logical. Mask cloud bit
+#' @param cloudShadow logical. Mask cloud shadow bit
+#' @param snow logical. Mask snow bit
+#' @param water logical. Mask water bit
 #' 
 #' @returns integer vector
 #' 
@@ -156,8 +153,6 @@ bitmask_values <- function(nBit=8, fill=TRUE, dilCloud=TRUE, cirrus=TRUE, cloud=
 #' This function returns the metadata layer name from which a mask can be derived for a collection at a STAC endpoint
 #' 
 #' Currently only implemented for collections "landsat-c2-l2" and "sentinel-2-l2a" at Planetary Computer. Returns NULL for all other values. Additional endpoints/collections will be added. 
-#' 
-#' @export
 #' 
 #' @param endpoint STAC endpoint
 #' @param collection STAC collection

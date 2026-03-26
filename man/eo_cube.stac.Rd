@@ -28,7 +28,7 @@ eo_cube.stac(
 
 \item{collection}{character. STAC collection}
 
-\item{stacOptions}{list. Optional arguments to be passed to eo_stac_search, e.g. authentication options}
+\item{stacOptions}{list. Optional arguments to be passed to [eo_stac_search()], e.g. authentication options}
 
 \item{t0}{start date as numeric, character or Date}
 
@@ -42,13 +42,13 @@ eo_cube.stac(
 
 \item{maxCloud}{maximum cloud cover [0-100] of images to be included in data cube, only relevant for collections with "eo:cloud_cover" attributes}
 
-\item{maskOptions}{list specifying layer used to create mask and masking options (see eo_mask.cube)}
+\item{maskOptions}{list specifying layer used to create mask and masking options (see [eo_mask.cube()])}
 
-\item{resampling}{see gdalcubes::cube_view}
+\item{aggregation}{see [gdalcubes::cube_view()]}
+
+\item{resampling}{see [gdalcubes::cube_view()]}
 
 \item{harm_bandnames}{logical indicating whether endpoint/collection-specific band names should be changed to generic band names}
-
-\item{aggregations}{see gdalcubes::cube_view}
 }
 \value{
 proxy data cube object

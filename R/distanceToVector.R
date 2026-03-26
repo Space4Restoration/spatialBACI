@@ -1,12 +1,17 @@
 #' Geographic distance to feature of interest
 #'
+#' @description
 #' Calculates (minimum) geographic distance in meters from the cells of a reference SpatRaster or the feature in reference SpatVector to the features in the target SpatVector 
 #' 
+#' @details
 #' Basically rast::distance but with reprojection CRS if needed, and in case of SpatVector-SpatVector returning the minimum distance rather than a matrix.
 #' 
-#' @export
+#' Internal function
+#' 
+#' @noRd
+#' 
 #' @import methods
-#' @importFrom terra distance project crs
+#' @import terra
 #' 
 #' @param x SpatRaster or Spatvector for which distances must calculated
 #' @param y a terra::SpatVector or sf::sf vector layer (points, lines or polygons) to which distances must be calculated

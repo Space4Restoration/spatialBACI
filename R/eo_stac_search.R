@@ -7,10 +7,8 @@
 #' @import rstac
 #' @export
 #' 
-#' @param endpoint see rstac::search
-#' @param ... see rstac::search
-#' @param eocc maximum cloud cover (for "eo:cloud_cover" field)
-#' @param authOpt list specifying STAC authentication options (e.g. list(key="abc"))
+#' @param endpoint see [rstac::search()]
+#' @param ... see [eo_stac_search.PlanetaryComputer()]
 #' 
 #' @returns STACItemCollection
 #' 
@@ -19,7 +17,7 @@ eo_stac_search <- function(endpoint, ...){
   if(endpoint==as.endpoint("PlanetaryComputer")){
     return(eo_stac_search.PlanetaryComputer(...))
   } else {
-    stop("eo_stac_search only omplemented for Planetary Computer")
+    stop("eo_stac_search only implemented for Planetary Computer")
   }
 }
 
@@ -32,12 +30,13 @@ eo_stac_search <- function(endpoint, ...){
 #' @export
 #' 
 #' @param collection STAC collection
-#' @param ids description
-#' @param bbox description
-#' @param datetime description
-#' @param intersects description
-#' @param limit description
+#' @param ids see [rstac::search()]
+#' @param bbox see [rstac::search()]
+#' @param datetime see [rstac::search()]
+#' @param intersects see [rstac::search()]
+#' @param limit see [rstac::search()]
 #' @param eocc maximum cloud cover (for "eo:cloud_cover" field)
+#' @param sat.orbit.state character. optional argument for filtering "ascending" or "descending" states
 #' @param authOpt list specifying STAC authentication options (e.g. list(key="abc"))
 #' 
 #' @returns STACItemCollection
@@ -45,7 +44,7 @@ eo_stac_search <- function(endpoint, ...){
 #' 
 
 eo_stac_search.PlanetaryComputer <- function(collection=NULL, ids=NULL, bbox=NULL, datetime=NULL, intersects=NULL, limit=NULL,
-                                             eocc=NULL, sat.orbit.state=NULL, sat.orbit=NULL, authOpt=list()){
+                                             eocc=NULL, sat.orbit.state=NULL, authOpt=list()){
     
   endpoint <- as.endpoint("PlanetaryComputer")
   
@@ -74,15 +73,16 @@ eo_stac_search.PlanetaryComputer <- function(collection=NULL, ids=NULL, bbox=NUL
   #Authenticate 
   items <- stac_auth(items, endpoint = endpoint, authOpt=authOpt)
   
+  #REMOVED 
   #Optional: Filter on orbit. This can be used to eliminate angular effects.
-  if(length(items$features)>0){
-    if(!is.null(sat.orbit)){
-      if(sat.orbit=="majority"){ #find orbit with majority of observations
-        sat.orbit <- lapply(items$features, function(x) x$properties$`sat:relative_orbit`) %>% unlist() %>% table() %>% which.max() %>% names() %>% as.numeric()
-      }
-      items$features <- items$features[unlist(lapply(items$features, function(x) x$properties$`sat:relative_orbit`))==sat.orbit]
-    }
-  }
+  # if(length(items$features)>0){
+  #   if(!is.null(sat.orbit)){
+  #     if(sat.orbit=="majority"){ #find orbit with majority of observations
+  #       sat.orbit <- lapply(items$features, function(x) x$properties$`sat:relative_orbit`) %>% unlist() %>% table() %>% which.max() %>% names() %>% as.numeric()
+  #     }
+  #     items$features <- items$features[unlist(lapply(items$features, function(x) x$properties$`sat:relative_orbit`))==sat.orbit]
+  #   }
+  # }
   
   return(items)
 }

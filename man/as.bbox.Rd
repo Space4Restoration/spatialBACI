@@ -2,12 +2,32 @@
 % Please edit documentation in R/as.R
 \name{as.bbox}
 \alias{as.bbox}
+\alias{as.bbox,SpatRaster-method}
+\alias{as.bbox,SpatVector-method}
+\alias{as.bbox,SpatExtent-method}
+\alias{as.bbox,numeric-method}
 \title{As bounding box}
 \usage{
 as.bbox(x, ...)
+
+\S4method{as.bbox}{SpatRaster}(x, crs_to = crs("epsg:4326"))
+
+\S4method{as.bbox}{SpatVector}(x, crs_to = crs("epsg:4326"))
+
+\S4method{as.bbox}{SpatExtent}(x, crs_from = crs("epsg:4326"), crs_to = crs("epsg:4326"))
+
+\S4method{as.bbox}{numeric}(
+  x,
+  ...,
+  crs_from = crs("epsg:4326"),
+  crs_to = crs("epsg:4326"),
+  xy = TRUE
+)
 }
 \arguments{
-\item{x}{a SpatRaster, SpatVector or SpatExtent object}
+\item{x}{a SpatRaster, SpatVector, SpatExtent, or numeric}
+
+\item{...}{if x is a numeric, additional values for ymin, xmax, ymax}
 
 \item{crs_to}{character. Description of the Coordinate Reference System of the created bounding box, in PROJ.4, WKT or authority:code notation. Defaults to longitude/latitude.}
 

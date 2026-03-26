@@ -26,6 +26,8 @@ eo_VI_yearly.stac(
 
 \item{collection}{STAC collection}
 
+\item{stacOptions}{list. Optional arguments to be passed to [eo_stac_search()], e.g. authentication options}
+
 \item{years}{numeric vector of years for which composite image must be created}
 
 \item{months}{numeric vector of months for which composite image must be created for each years}

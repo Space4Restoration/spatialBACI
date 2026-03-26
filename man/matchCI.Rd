@@ -5,56 +5,35 @@
 \title{Control-impact matching}
 \usage{
 matchCI(
-  cands,
-  matchVars,
-  colname.id = "ID",
-  colname.treatment = "treatment",
-  eval = FALSE,
-  asmd_warn = NULL,
-  asmd_error = NULL,
+  matching_input,
+  colname.id,
+  colname.treatment,
+  colnames.ignore = NULL,
   ...
 )
 }
 \arguments{
-\item{cands}{SpatRaster or SpatVector object. See Details.}
+\item{matching_input}{SpatVector or data.table. Output of [collate_matching_layers()].}
 
-\item{matchVars}{list of matching variables. See Details.}
+\item{colname.id}{character. Name of the column containing the unique ID of the spatial unit of analysis. Defaults to "cell" if `matching_input` is a data.table (representing raster data).}
 
-\item{eval}{logical. Should matching summary be shown for interactive evaluation? Function will return NULL if matching is rejected.}
+\item{colname.treatment}{character. Name of the column containing the treatment variable. Defaults to "treatment" if `matching_input` is a data.table (representing raster data).}
 
-\item{asmd_warn}{numeric. Function will output a warning message if Absolute Standardized Mean Difference is above this value.}
+\item{colnames.ignore}{character vector. Name of columns (other than `colname.id` and `colname.treatment`) in `matching_input` to be ignored as matching covariates.}
 
-\item{asmd_error}{numeric. Function will output an error if Absolute Standardized Mean Difference is above this value.}
-
-\item{...}{additional inputs to \link[MatchIt]{matchit}, e.g., \code{ratio}, \code{replace}, \code{method}, \code{distance}, or \code{link}.}
+\item{...}{additional inputs to [MatchIt::matchit()], e.g., `ratio`, `replace`, `method`, `distance`, or `link`.}
 }
 \value{
-data table with matched control-impact units.
+named list with list elements `model`, `matches`, and `spat.ref`. See Details.
 }
 \description{
-Match control units to impact/treatment vector or raster units.
-
-This function uses the provided matching layers to match the provided candidate and impact units 
-using the \code{MatchIt} package and the matching options provided therein.
+Match control units to impact/treatment units for vector or raster data. Wrapper for the [MatchIt::matchit()] function and the matching options provided therein.
 }
 \details{
-If \code{cands} is a SpatRaster, impact pixels should be labelled 1, candidate control pixels labelled 0, and pixels to be excluded labelled NA.
+The function returns a names list.
 
-If \code{cands} is a SpatRaster, matching covariates provided as list elements in \code{matchvars} should be (a combination of) SpatRaster, 
-gdalcubes data cube, 
-or character (which will be assumed to refer to a filename and read using the default settings of \code{\link[terra]{rast}}).
-Matching covariate layers should have band names, which should not be duplicated.
-
-If \code{cands} is a SpatVector, attributes should include an ID column with name specified by the argument \code{colname.id} (defaults to "ID"), 
-and a treatment column with name specified by the argument \code{colname.treatment} (defaults to "treatment") and with value 1 for impact/treatment units and value 0 for candidate control units.
-All remaining columns in \code{cands} will be interpreted as matching variables.
-
-if \code{cands} is a SpatVector, matching covariates provided as list elements in \code{matchvars} should be (a combination of) SpatVector objects with identical geometry as \code{cands},
-or data.table/data.frame object with an ID column with name corresponding to the \code{colname.id} argument. 
-All columns in \code{matchVars} except those specified \code{colname.id} and \code{colname.treatment} will be interpreted as matching variables.
-
-The function returns an object of class data.table, unless matching is rejected in the interactive evaluation in which case the function returns NULL.
-Column names of the returned data.table object are "subclass", and the treatment column name defined by \code{colname.treatment}. 
-If \code{cands} is a SpatRaster, additional returned column names are "cell" (indicating the cell number of pixels in \code{cands}), and "x" and "y" (relative to the crs of \code{cands}).
-If \code{cands} is a SpatVector, an additional column identifies the vector ID specified in \code{colname.id}.
+The list element `model` is a `matchit` object returned by the [MatchIt::matchit()] function. This object can be used to assess the quality of the matching, e.g., through assessing the covariance balance in [evaluate_matching()].
+The list element `matches` is a data.table containing the matched control-impact pairs. 
+Column names of this data.table are those defined by the `colname.id`, `colname.treatment` parameters, and "subclass". 
+The list element `spat.ref` is copied from the same list element in `matching_input`.
 }

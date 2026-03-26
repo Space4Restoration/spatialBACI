@@ -51,10 +51,8 @@ as.SpatRaster <- function(x){
 #' @import terra
 #' 
 #' @export
-#' @param x a SpatRaster, SpatVector or SpatExtent object
-#' @param crs_to character. Description of the Coordinate Reference System of the created bounding box, in PROJ.4, WKT or authority:code notation. Defaults to longitude/latitude.
-#' @param crs_from If x has no CRS attached (i.e., if x is a SpatExtend or numeric), a character description of the Coordinate Reference System corresponding to the calues of x. Defaults to longitude/latitude.
-#' @param xy logical. If x is a numeric vector of length 4 (or 4 numeric values), set this parameter to TRUE if coordinates are in order (xmin, ymin, xmax, ymax) or FALSE if in order (xmin, xmax, ymin, ymax).
+#' @param x a SpatRaster, SpatVector, SpatExtent, or numeric
+#' @param ... if x is a numeric, additional values for ymin, xmax, ymax
 #' @returns numeric vector of length four
 #' 
 #' 
@@ -62,6 +60,10 @@ setGeneric("as.bbox", function(x, ...){
   standardGeneric("as.bbox")
 })
 
+
+#' @rdname as.bbox
+#' @param crs_to character. Description of the Coordinate Reference System of the created bounding box, in PROJ.4, WKT or authority:code notation. Defaults to longitude/latitude.
+#' @export
 setMethod("as.bbox", signature="SpatRaster",
           function(x, crs_to=crs("epsg:4326")){
             x <- project(ext(x), crs(x), crs_to) 
@@ -69,6 +71,10 @@ setMethod("as.bbox", signature="SpatRaster",
             return(bbox)
           }
 )
+
+#' @rdname as.bbox
+#' @param crs_to character. Description of the Coordinate Reference System of the created bounding box, in PROJ.4, WKT or authority:code notation. Defaults to longitude/latitude.
+#' @export
 
 setMethod("as.bbox", signature="SpatVector",
           function(x, crs_to=crs("epsg:4326")){
@@ -78,6 +84,12 @@ setMethod("as.bbox", signature="SpatVector",
           }
 )
 
+
+#' @rdname as.bbox
+#' @param crs_to character. Description of the Coordinate Reference System of the created bounding box, in PROJ.4, WKT or authority:code notation. Defaults to longitude/latitude.
+#' @param crs_from If x has no CRS attached (i.e., if x is a SpatExtend or numeric), a character description of the Coordinate Reference System corresponding to the calues of x. Defaults to longitude/latitude.
+#' @export
+
 setMethod("as.bbox", signature="SpatExtent",
           function(x, crs_from=crs("epsg:4326"), crs_to=crs("epsg:4326")){
             x <- project(x, crs_from, crs_to)
@@ -85,6 +97,14 @@ setMethod("as.bbox", signature="SpatExtent",
             return(bbox)
           }
 )
+
+
+#' @rdname as.bbox
+#' 
+#' @param crs_from If x has no CRS attached (i.e., if x is a SpatExtend or numeric), a character description of the Coordinate Reference System corresponding to the calues of x. Defaults to longitude/latitude.
+#' @param crs_to character. Description of the Coordinate Reference System of the created bounding box, in PROJ.4, WKT or authority:code notation. Defaults to longitude/latitude.
+#' @param xy logical. If x is a numeric vector of length 4 (or 4 numeric values), set this parameter to TRUE if coordinates are in order (xmin, ymin, xmax, ymax) or FALSE if in order (xmin, xmax, ymin, ymax).
+#' @export
 
 setMethod("as.bbox", signature="numeric",
           function(x, ..., crs_from=crs("epsg:4326"), crs_to=crs("epsg:4326"), xy=TRUE){
@@ -102,35 +122,45 @@ setMethod("as.bbox", signature="numeric",
           }
 )
 
-#' @noRd
-setMethod("as.bbox", signature="NULL",
-          function(x){
-            return(NULL)
-          }
-)
+#' #' @rdname as.bbox
+#' #' @export
+#' #' 
+#' setMethod("as.bbox", signature="NULL",
+#'           function(x){
+#'             return(NULL)
+#'           }
+#' )
 
 #' As datetime
 #' 
+#' @description
 #' Format a range of dates as STAC datetime format 
+#' 
+#' @details
+#' Internal function - to be updated if all methods are checked
 #' 
 #' If x is a single numeric or character formatted as YYYYMMDD, the output will be "YYYY-MM-DD", if x is a numeric or character vector of length 2, formatted as YYYYMMDD, output wil be "YYYY-MM-DD/YYYY-MM-DD"
 #' If x is a list the list elements should be named "years" (required), and "months" and "days" (optional). E.g., list(years=2011:2012, months=5:7) returns 2011-05-01/2012-07-31". List element named "days" will be ignored if "months" is not provided.
 #' 
-#' @export
 #' @param x a numeric, character or list (see Details)
+#' @param ... additional input for specific methods.
 #' @returns a character string in STAC datetime format
-#' 
+#' @noRd
 #' 
 setGeneric("as.datetime", function(x, ...){
   standardGeneric("as.datetime")
 })
 
+#' @noRd
+#' 
 setMethod("as.datetime", signature="NULL",
           function(x){
             return(NULL)
           }
 )
 
+#' @noRd
+#' 
 setMethod("as.datetime", signature="numeric",
           function(x, ...){
             dots <- as.vector(unlist(list(...)))
@@ -146,6 +176,8 @@ setMethod("as.datetime", signature="numeric",
           }
 )
 
+#' @noRd
+#' 
 setMethod("as.datetime", signature="list",
           function(x, ...){
             if(!"years" %in% names(x)) stop('as.datetime: list element "years" missing')
@@ -163,6 +195,8 @@ setMethod("as.datetime", signature="list",
           }
 )
 
+#' @noRd
+#' 
 setMethod("as.datetime", signature="character",
           function(x, ...){
             dots <- as.vector(unlist(list(...)))

@@ -1,18 +1,20 @@
 #' Extract Land Use / Land Cover data
-#' 
+#'
+#' @description
 #' Read a Land Use or Land Cover layer 
 #' 
+#' @details
 #' Designed to be flexible with regard to STAC endpoint and collection, but for now only tested for io-lulc-9-class on PlanetaryComputer 
-#' io-lulc-9-class is only generated for the period 2017-2022, for years outside this range a warning will be returned and the neares year returned
+#' io-lulc-9-class is only generated for the period 2017-2022, for years outside this range a warning will be returned and the nearest year will be selected.
 #' 
 #' @export
 #' @importFrom gdalcubes stac_image_collection cube_view raster_cube
 #' @import terra
 #' @import rstac
 #' 
-#' @param x a SpatRaster or SpatExtent object, defining the area for which the LULC should be extracted
-#' @param year description
-#' @param endpoint description, defaults to Microsoft Planetary Computer
+#' @param x a SpatRaster object, defining the area for which the LULC should be extracted
+#' @param year numeric defining year of LULC layer (see Details)
+#' @param endpoint STAC endpoint, defaults to Microsoft Planetary Computer
 #' @param collection STAC collection, defaults to "io-lulc-9-class"
 #' @param assets character defining STAC assets name, defaults to "data"
 #' @param authOpt list with STAC authentication options passed to stac_auth (e.g. \code{list(key="abc")}), endpoint-specific
@@ -22,9 +24,12 @@
 #' 
 setGeneric("lulc", function(x, year,
                             endpoint="https://planetarycomputer.microsoft.com/api/stac/v1",  collection="io-lulc-9-class", assets="data",
-                            authOpt=list(), ...){
+                            authOpt=list()){
   standardGeneric("lulc")
 })
+
+#' @rdname lulc
+#' @export
 
 setMethod("lulc", signature="SpatRaster",
           function(x, year,

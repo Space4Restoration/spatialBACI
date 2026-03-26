@@ -74,11 +74,13 @@ calc_VI.cube <- function(cube, VI,
 
 #' Required bands for selected index
 #' 
+#' @description
 #' Return (generic) band names required for calculating specified vegetation index
 #' 
+#' @details
+#' Internal function
 #' Possible values of \code{index} are "ndvi", "evi", "savi", "msavi", "ndmi", "nbr", "nbr2", "ndsi"
 #' 
-#' @export
 #' @param index character. Vegetation Index.
 #' @returns character vector
 #' 

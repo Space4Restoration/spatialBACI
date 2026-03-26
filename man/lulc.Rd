@@ -2,6 +2,7 @@
 % Please edit documentation in R/lulc.R
 \name{lulc}
 \alias{lulc}
+\alias{lulc,SpatRaster-method}
 \title{Extract Land Use / Land Cover data}
 \usage{
 lulc(
@@ -10,16 +11,24 @@ lulc(
   endpoint = "https://planetarycomputer.microsoft.com/api/stac/v1",
   collection = "io-lulc-9-class",
   assets = "data",
-  authOpt = list(),
-  ...
+  authOpt = list()
+)
+
+\S4method{lulc}{SpatRaster}(
+  x,
+  year,
+  endpoint = "https://planetarycomputer.microsoft.com/api/stac/v1",
+  collection = "io-lulc-9-class",
+  assets = "data",
+  authOpt = list()
 )
 }
 \arguments{
-\item{x}{a SpatRaster or SpatExtent object, defining the area for which the LULC should be extracted}
+\item{x}{a SpatRaster object, defining the area for which the LULC should be extracted}
 
-\item{year}{description}
+\item{year}{numeric defining year of LULC layer (see Details)}
 
-\item{endpoint}{description, defaults to Microsoft Planetary Computer}
+\item{endpoint}{STAC endpoint, defaults to Microsoft Planetary Computer}
 
 \item{collection}{STAC collection, defaults to "io-lulc-9-class"}
 
@@ -35,5 +44,5 @@ Read a Land Use or Land Cover layer
 }
 \details{
 Designed to be flexible with regard to STAC endpoint and collection, but for now only tested for io-lulc-9-class on PlanetaryComputer 
-io-lulc-9-class is only generated for the period 2017-2022, for years outside this range a warning will be returned and the neares year returned
+io-lulc-9-class is only generated for the period 2017-2022, for years outside this range a warning will be returned and the nearest year will be selected.
 }

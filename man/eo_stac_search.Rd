@@ -7,13 +7,9 @@
 eo_stac_search(endpoint, ...)
 }
 \arguments{
-\item{endpoint}{see rstac::search}
+\item{endpoint}{see [rstac::search()]}
 
-\item{...}{see rstac::search}
-
-\item{eocc}{maximum cloud cover (for "eo:cloud_cover" field)}
-
-\item{authOpt}{list specifying STAC authentication options (e.g. list(key="abc"))}
+\item{...}{see [eo_stac_search.PlanetaryComputer()]}
 }
 \value{
 STACItemCollection

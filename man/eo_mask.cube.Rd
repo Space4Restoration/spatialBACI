@@ -12,8 +12,6 @@ eo_mask.cube(maskLyr, maskSnow = FALSE, maskWater = FALSE)
 \item{maskSnow}{logical. Defines whether snow should be masked.}
 
 \item{maskWater}{logical. Defines whether water should be masked.}
-
-\item{maskOptions}{named list. Masking options. See details.}
 }
 \value{
 an object of class "image_mask"

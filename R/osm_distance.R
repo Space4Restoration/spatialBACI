@@ -21,7 +21,7 @@ osm_distance <- function(x, what, ...){
 #' When a bounding box is not provided in the osm_bbox argument, the maximum required bounding box will be identified through an iterative search. This may be a more efficient option than providing an overly wide bounding box.
 #' 
 #' @export
-#' @importFrom terra ext project extend vect as.points names 
+#' @import terra
 #' @importFrom osmdata opq add_osm_feature osmdata_sf
 #' 
 #' @param x SpatRaster or SpatVector for which distances are calculated 
@@ -31,7 +31,7 @@ osm_distance <- function(x, what, ...){
 #' 
 #' @returns SpatRaster or SpatVector
 #' 
-osm_distance_roads <- function(x, values="residential+", timeout=25, osm_bbox=NULL,...){
+osm_distance_roads <- function(x, values="residential+", timeout=25, osm_bbox=NULL){
 
   #specifiy values
   road_values <- c("motorway","trunk","primary", "secondary", "tertiary", "unclassified", "residential", 
@@ -99,7 +99,7 @@ osm_distance_roads <- function(x, values="residential+", timeout=25, osm_bbox=NU
 #' When a bounding box is not provided in the osm_bbox argument, the maximum required bounding box will be identified through an iterative search. This may be a more efficient option than providing an overly wide bounding box.
 #' 
 #' @export
-#' @importFrom terra ext project extend vect as.points names 
+#' @import terra 
 #' @importFrom osmdata opq add_osm_feature osmdata_sf
 #' 
 #' @param x SpatRaster or SpatVector for which distances are calculated 
@@ -110,7 +110,7 @@ osm_distance_roads <- function(x, values="residential+", timeout=25, osm_bbox=NU
 #' 
 #' @returns SpatRaster or SpatVector
 #' 
-osm_distance_places <- function(x, values="hamlet+", timeout=25, name=NULL, osm_bbox=NULL, ...){
+osm_distance_places <- function(x, values="hamlet+", timeout=25, name=NULL, osm_bbox=NULL){
   #add generic option to filter by all available fields
   
   #Specify values

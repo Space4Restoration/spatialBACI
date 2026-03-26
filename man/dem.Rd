@@ -2,18 +2,55 @@
 % Please edit documentation in R/dem.R
 \name{dem}
 \alias{dem}
+\alias{dem,SpatRaster-method}
+\alias{dem,SpatExtent-method}
+\alias{dem,SpatVector-method}
 \title{Extract Digital Elevation Model}
 \usage{
-dem(x, ...)
+dem(
+  x,
+  dem_source,
+  v = c("elevation", "slope", "aspect"),
+  neighbors = 8,
+  unit = "radians",
+  transformAspect = TRUE,
+  ...
+)
+
+\S4method{dem}{SpatRaster}(
+  x,
+  dem_source,
+  v = c("elevation", "slope", "aspect"),
+  neighbors = 8,
+  unit = "radians",
+  transformAspect = TRUE
+)
+
+\S4method{dem}{SpatExtent}(
+  x,
+  dx,
+  dy,
+  srs,
+  dem_source,
+  v = c("elevation", "slope", "aspect"),
+  neighbors = 8,
+  unit = "radians",
+  transformAspect = TRUE
+)
+
+\S4method{dem}{SpatVector}(
+  x,
+  dx,
+  dy,
+  dem_source,
+  v = c("elevation", "slope", "aspect"),
+  neighbors = 8,
+  unit = "radians",
+  transformAspect = TRUE
+)
 }
 \arguments{
 \item{x}{a SpatRaster, spatVector, or SpatExtent object, defining the area for which the DEM should be extracted}
-
-\item{dx}{numeric. output resolution in x dimension}
-
-\item{dy}{numeric. output resolution in y dimension}
-
-\item{srs}{character. output spatial reference system}
 
 \item{dem_source}{Source of the Digital Elevation Model, see Details}
 
@@ -21,13 +58,17 @@ dem(x, ...)
 
 \item{neighbors}{integer. Either 8 (queen case) or 4 (rook case), indicating which neighbors to use to compute slope or aspect.}
 
-\item{unit}{character. "degrees" or "radians" for the output of "slope" and "aspect"}
+\item{unit}{character. "degrees" or "radians" for the output of slope and aspect}
 
 \item{transformAspect}{logical. Should aspect be transformed to "northness" and "eastness"}
 
-\item{fun}{function to summarize the extracted data by line or polygon geometry}
+\item{...}{Additional arguments passed to the relevant method}
 
-\item{method}{method for extracting values with points ("simple" or "bilinear"), see \code{terra::extract}}
+\item{dx}{numeric. Output resolution in x dimension}
+
+\item{dy}{numeric. Output resolution in y dimension}
+
+\item{srs}{character. output spatial reference system}
 }
 \value{
 a data cube, SpatRaster or SpatVector object (see Details)

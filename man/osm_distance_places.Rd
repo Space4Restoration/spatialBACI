@@ -9,8 +9,7 @@ osm_distance_places(
   values = "hamlet+",
   timeout = 25,
   name = NULL,
-  osm_bbox = NULL,
-  ...
+  osm_bbox = NULL
 )
 }
 \arguments{

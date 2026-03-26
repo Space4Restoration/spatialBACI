@@ -1,7 +1,9 @@
-spatialBACI.Rproj
+*.Rproj
 .Rproj.user/
 .Rbuildignore
 .Rhistory
 deprecated/
-create_baviaanskloof.R
-extra_ignore/
+docs
+inst/doc
+pkg_tests.R
+pkg_dev.R

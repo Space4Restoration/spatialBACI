@@ -13,24 +13,25 @@ eo_stac_search.PlanetaryComputer(
   limit = NULL,
   eocc = NULL,
   sat.orbit.state = NULL,
-  sat.orbit = NULL,
   authOpt = list()
 )
 }
 \arguments{
 \item{collection}{STAC collection}
 
-\item{ids}{description}
+\item{ids}{see [rstac::search()]}
 
-\item{bbox}{description}
+\item{bbox}{see [rstac::search()]}
 
-\item{datetime}{description}
+\item{datetime}{see [rstac::search()]}
 
-\item{intersects}{description}
+\item{intersects}{see [rstac::search()]}
 
-\item{limit}{description}
+\item{limit}{see [rstac::search()]}
 
 \item{eocc}{maximum cloud cover (for "eo:cloud_cover" field)}
+
+\item{sat.orbit.state}{character. optional argument for filtering "ascending" or "descending" states}
 
 \item{authOpt}{list specifying STAC authentication options (e.g. list(key="abc"))}
 }

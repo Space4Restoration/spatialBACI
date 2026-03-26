@@ -16,21 +16,21 @@ bitmask_values(
 )
 }
 \arguments{
-\item{fill}{description}
+\item{nBit}{integer. Number of bits from bitmask used, defaults to 8}
 
-\item{dilCloud}{description}
+\item{fill}{logical. Mask fill bit}
 
-\item{cirrus}{description}
+\item{dilCloud}{logical. Mask dilated cloud bit}
 
-\item{cloud}{description}
+\item{cirrus}{logical. Mask cirrus bit}
 
-\item{cloudShadow}{description}
+\item{cloud}{logical. Mask cloud bit}
 
-\item{snow}{description}
+\item{cloudShadow}{logical. Mask cloud shadow bit}
 
-\item{water}{description}
+\item{snow}{logical. Mask snow bit}
 
-\item{nbit}{description}
+\item{water}{logical. Mask water bit}
 }
 \value{
 integer vector

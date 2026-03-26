@@ -24,27 +24,31 @@
 #' @md
 #' 
 #' @export
-#' @importFrom terra ext res crs
+#' 
+#' @import terra
 #' @importFrom sf st_as_sf
 #' 
 #' @param x a SpatRaster, spatVector, or SpatExtent object, defining the area for which the DEM should be extracted
-#' @param dx numeric. output resolution in x dimension
-#' @param dy numeric. output resolution in y dimension
-#' @param srs character. output spatial reference system
 #' @param dem_source Source of the Digital Elevation Model, see Details
 #' @param v character vector. Terrain parameters to be calculated
-#' @param neighbors integer. Either 8 (queen case) or 4 (rook case), indicating which neighbors to use to compute slope or aspect. 
-#' @param unit character. "degrees" or "radians" for the output of "slope" and "aspect"
+#' @param neighbors integer. Either 8 (queen case) or 4 (rook case), indicating which neighbors to use to compute slope or aspect.
+#' @param unit character. "degrees" or "radians" for the output of slope and aspect
 #' @param transformAspect logical. Should aspect be transformed to "northness" and "eastness" 
-#' @param fun function to summarize the extracted data by line or polygon geometry
-#' @param method method for extracting values with points ("simple" or "bilinear"), see \code{terra::extract}
+#' @param ... Additional arguments passed to the relevant method
 #' 
 #' @returns a data cube, SpatRaster or SpatVector object (see Details)
 #' 
-setGeneric("dem", function(x, ...){
+setGeneric("dem", function(x, dem_source,
+                           v=c("elevation", "slope", "aspect"), neighbors=8, unit="radians", transformAspect=TRUE,
+                           ...){
   standardGeneric("dem")
 })
 
+
+#' @rdname dem
+#' 
+#' @export
+#' 
 setMethod("dem", signature="SpatRaster",
           function(x, 
                    dem_source,
@@ -69,6 +73,14 @@ setMethod("dem", signature="SpatRaster",
             return(out)
 })
 
+#' @rdname dem
+#'
+#' @param dx numeric. Output resolution in x dimension
+#' @param dy numeric. Output resolution in y dimension
+#' @param srs character. output spatial reference system
+#' 
+#' @export
+#' 
 setMethod("dem", signature="SpatExtent",
           function(x,
                    dx, dy, srs,
@@ -93,13 +105,19 @@ setMethod("dem", signature="SpatExtent",
             return(out)
 })
 
-
+#' @rdname dem
+#'
+#' @param dx numeric. Output resolution in x dimension
+#' @param dy numeric. Output resolution in y dimension
+#' @param srs character. output spatial reference system
+#' 
+#' @export
+#' 
 setMethod("dem", signature="SpatVector",
           function(x, 
                    dx, dy,
                    dem_source,
-                   v=c("elevation", "slope", "aspect"), neighbors=8, unit="radians", transformAspect=TRUE,
-                   fun=mean, method="simple", na.rm=TRUE){
+                   v=c("elevation", "slope", "aspect"), neighbors=8, unit="radians", transformAspect=TRUE){
             
             dem_args <- list()
             extent <- terra::ext(x)
@@ -116,24 +134,15 @@ setMethod("dem", signature="SpatVector",
             if(!missing(dy)) dem_args$dy <- dy
             if(!missing(dem_source)) dem_args$dem_source <- dem_source
             
-            dem_out <- do.call(get_dem, dem_args)
+            out <- do.call(get_dem, dem_args)
             
-            if(is.SpatRaster(dem_out)){
-              out <- terra::extract(dem_out, x, fun=fun, method=method, na.rm=na.rm)
-              out <- merge(x,out)
-            } else {
-              x_sf <- sf::st_as_sf(x)
-              out <- gdalcubes::extract_geom(dem_out, x_sf, FUN=fun, na.rm=na.rm, reduce_time=TRUE, merge=TRUE) |>
-                vect()
-            }
             return(out)
           })
 
 
 #' Wrapper function for DEM and terrain derivatives calculation
 #'
-#' @importFrom terra rast ext res crs is.lonlat terrain
-#'
+#' @import terra
 #' @noRd
 #' 
 get_dem <- function(xmin, xmax, ymin, ymax,
@@ -206,7 +215,6 @@ get_dem <- function(xmin, xmax, ymin, ymax,
 #' Read DEM as data cube
 #' 
 #' Read a DEM from a STAC collection or from file as a gdalcubes data cube
-#' 
 #' 
 #' @export
 #' 
@@ -349,35 +357,3 @@ dem2cube <- function(xmin, xmax, ymin, ymax,
 # }
 # 
 
-
-
-
-###Old version functions. Deprecated? 
-
-# 
-# #deprecated
-# dem2rast <- function(extent, 
-#                      endpoint="https://planetarycomputer.microsoft.com/api/stac/v1", collection="nasadem", assets="elevation",
-#                      authOpt=list()){
-#   
-#   items <- stac(endpoint) |>
-#     stac_search(collections=collection, bbox=extent[c(1,3,2,4)]) |>
-#     get_request()
-#   items <- do.call(stac_auth, c(list(x=items, endpoint=endpoint), authOpt))
-#   
-#   #Changed this from ==1 to >1, think this was a bug, check if correct
-#   if(length(items$features)>1) dem <- assets2vrt(items, assets) else dem <- assets2rast(items$features[[1]], assets)
-#   names(dem) <- assets
-#   
-#   dem <- terra::crop(dem, extent)
-#   return(dem)
-# }
-# 
-# #Deprecated
-# transform_aspect.SpatRaster <- function(r, unit="degrees"){
-#   if(unit=="degrees") d2r <- pi/180 else d2r <- 1
-#   asp <- rast(list(cos_aspect=cos(d2r*r["aspect"]),
-#                    sin_aspect=sin(d2r*r["aspect"])))
-#   r <- rast(list(subset(r, "aspect", negate=TRUE), asp))
-#   return(r)
-# }

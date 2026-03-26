@@ -4,7 +4,12 @@
 \alias{calc_ts_metrics.SpatRaster}
 \title{Calculate time series metrics from a SpatRaster}
 \usage{
-\method{calc_ts_metrics}{SpatRaster}(rastTimeSeries, average = 1, trend = 1, immediate = 0)
+calc_ts_metrics.SpatRaster(
+  rastTimeSeries,
+  average = 1,
+  trend = 1,
+  immediate = 0
+)
 }
 \arguments{
 \item{rastTimeSeries}{SpatRaster. Each layer represents a time step, provided in "time" field}

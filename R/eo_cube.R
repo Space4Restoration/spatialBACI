@@ -11,16 +11,16 @@
 #' @param x spatRaster. Defines spatial reference of the output data cube
 #' @param endpoint character. STAC endpoint
 #' @param collection character. STAC collection
-#' @param stacOptions list. Optional arguments to be passed to eo_stac_search, e.g. authentication options
+#' @param stacOptions list. Optional arguments to be passed to [eo_stac_search()], e.g. authentication options
 #' @param t0 start date as numeric, character or Date
 #' @param t1 end date as numeric, character or Date
 #' @param dt size of pixels in time-direction, expressed as ISO8601 period string
 #' @param asset_names character vector of asset (band) names to be used, or NULL for all asset names with "eo:bands" attributes
 #' @param joint_assets logical indicating if only the assets (bands) present in all features should be used, if argument asset_names is NULL
-#' @param aggregations see gdalcubes::cube_view
-#' @param resampling see gdalcubes::cube_view
+#' @param aggregation see [gdalcubes::cube_view()]
+#' @param resampling see [gdalcubes::cube_view()]
 #' @param maxCloud maximum cloud cover [0-100] of images to be included in data cube, only relevant for collections with "eo:cloud_cover" attributes 
-#' @param maskOptions list specifying layer used to create mask and masking options (see eo_mask.cube)
+#' @param maskOptions list specifying layer used to create mask and masking options (see [eo_mask.cube()])
 #' @param harm_bandnames logical indicating whether endpoint/collection-specific band names should be changed to generic band names
 #' 
 #' @returns proxy data cube object

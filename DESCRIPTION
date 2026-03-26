@@ -1,23 +1,47 @@
 Package: spatialBACI
 Type: Package
-Title: Tools for Counterfactual Ecosystem Restoration and Conservation Impact Evaluation 
-Version: 1.0
-Author: Jasper Van doninck
-Maintainer: Jasper Van doninck <j.vandoninck@utwente.nl>
+Title: Spatial Before-After-Control-Impact assessment 
+Version: 1.0.0
+Authors@R: c(
+    person(given = "Jasper", 
+           family = "Van doninck",
+           role = c("aut", "cre"),
+           email = "j.vandoninck@utwente.nl",
+           comment = c(ORCID = "0000-0003-2177-7882")),
+    person(given = "Louise", 
+           family = "Willemen",
+           role = c("ctb"),
+           comment = c(ORCID = "0000-0003-1026-5865")),
+    person(given = "Wietske", 
+           family = "Bijker",
+           role = c("ctb"),
+           comment = c(ORCID = "0000-0002-4197-0295"))
+    )
 Depends:
-    R (>= 4.3.0),
-    terra,
-    rstac,
-    methods
+    R (>= 4.3.0)
 Imports:
+    terra,
+    methods,
+    rstac,
+    httr,
     data.table,
     MatchIt,
     sf,
     gdalcubes,
     osmdata,
-    lubridate
-Description: EO-based Tools to Evaluate the Impact of Conservation or Restoration Actions on Ecosystems, based on counterfactual matching analysis. 
+    cobalt,
+    car,
+    corrplot
+Description: Earth Observation-based to evaluate the impact of conservation or restoration actions following a (Before-After-)Control-Impact framework. 
 License: GPL (>= 3)
+URL: https://space4restoration.github.io/spatialBACI/, https://github.com/Space4Restoration/spatialBACI
+BugReports: https://github.com/Space4Restoration/spatialBACI/issues
 Encoding: UTF-8
 LazyData: true
-RoxygenNote: 7.3.2
+LazyDataCompression: xz
+RoxygenNote: 7.3.3
+Suggests: 
+    knitr,
+    rmarkdown
+VignetteBuilder: knitr
+Config/Needs/website: rmarkdown

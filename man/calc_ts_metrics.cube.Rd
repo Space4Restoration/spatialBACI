@@ -4,7 +4,7 @@
 \alias{calc_ts_metrics.cube}
 \title{Calculate time series metrics from a data cube}
 \usage{
-\method{calc_ts_metrics}{cube}(
+calc_ts_metrics.cube(
   cube,
   average = TRUE,
   trend = TRUE,

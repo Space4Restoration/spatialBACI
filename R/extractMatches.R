@@ -1,213 +1,87 @@
 
 
-
-#' Extract data from raster for matches
+#' Extract matches values from SpatRaster/data cube 
 #'
-#' Extract the "before" and "after", or "effect", values from a SpatRaster or data cube for the provided matching pairs
+#' @description
+#' Helper function to extract matches from SpatRaster or data.cube object
 #'
 #' @importFrom sf st_as_sf
 #' @importFrom gdalcubes srs select_bands join_bands extract_geom
-#' @importFrom terra rast subset extract
-#'
-#' @export
-#'
-#' @param matches output of \code{matchCI}
-#' @param effect SpatRaster of effect values
-#' @param before SpatRaster of before values
-#' @param after SpatRaster of after values
-#' @param band character. If before/after contain more than one band, this parameter can be used to select the band to be extracted
-#'
-#'
-extractMatches <- function(matches, effect, before, after, band=NULL){
-  #Need a better name for this function
-  
-  if(missing(effect) & (missing(before) | missing(after))){
-    stop('Either "effect", or both "before" and "after" must be provided')
-  }
-  
-  if(!missing(effect)){
-    if(!(is.cube(effect) | is.spatRaster(effect))){
-      stop('Effect must be a data cube or spatRaster')
-    }
-  } else{
-    if(!((is.cube(before) & is.cube(after)) | (is.spatRaster(before) & is.spatRaster(after)))){
-      stop('Before and after object must be of the same class, either data cube or spatRaster')
-    }
-  }
-  
-  #subset band, if parameter provided
-  if(!is.null(band)){
-    if(!missing(effect)){
-      effect <- sel_band(effect, band)
-    } else {
-      before <- sel_band(before, band)
-      after <- sel_band(after, band)
-    }
-  }
-  
-  if(!missing(effect)){
-    if(is.cube(effect)){
-      m <- gdalcubes::extract_geom(effect,
-                                   sf::st_as_sf(x=matches, coords=c("x","y"), crs=gdalcubes::srs(effect)))
-      names(m)[3] <- "effect"
-    } else {
-      m <- terra::extract(effect, as.matrix(matches[,c("x","y")]))
-      names(m) <- "effect"
-    }
-    matched_data <- cbind(matches, m["effect"]) #this may result in error when missing data occur in data cube, check and replace by merge
-    
-  } else {
-    if(is.cube(before)){
-      m_before <- gdalcubes::extract_geom(before,
-                                          sf::st_as_sf(x=matches, coords=c("x","y"), crs=gdalcubes::srs(before)))
-      names(m_before)[3] <- "before"
-      m_after  <- gdalcubes::extract_geom(after,
-                                          sf::st_as_sf(x=matches, coords=c("x","y"), crs=gdalcubes::srs(after)))
-      names(m_after)[3] <- "after"
-    } else {
-      m_before <- terra::extract(before, as.matrix(matches[,c("x","y")]))
-      names(m_before) <- "before"
-      m_after <- terra::extract(after, as.matrix(matches[,c("x","y")]))
-      names(m_after) <- "after"
-    }
-    matched_data <- cbind(matches, m_before["before"], m_after["after"])
-  }
-  
-  return(matched_data)
-}
-
-
-#' generic method for selecting band
-#' 
-#' 
-#' @noRd
-sel_band <- function(x,...){
-  if(is.cube(x)) sel_band.cube(x, ...)
-  if(is.spatRaster(x)) sel_band.SpatRaster(x, ...)
-}
-#' for cube
-#' 
-#' @noRd
-sel_band.cube <- function(x, ...){
-  gdalcubes::select_bands(x, ...)
-}
-
-#' for SpatRaster
-#' 
-#' 
-#' @noRd
-sel_band.SpatRaster <- function(x, ...){
-  terra::subset(x, ...)
-}
-
-
-
-
-##To be updated
-
-#' Extract from raster
-#' 
-#' Generic function to extract from SpatRaster or data cube object
-#' 
-#' @import terra
-#' @importFrom gdalcubes extract_geom
-#' @importFrom data.table as.data.table
-#' @importFrom sf st_as_sf
-#' 
-#' 
-#' @param name description
-#' @param xy description
-#' @param crs_xy description
-#' 
-#' @returns data.table
-#' 
-extractFromRaster <- function(r, xy, crs_xy){
-  
-  if(missing(r)) stop('Argument "r" is missing.')
-  if(missing(xy)) stop('Argument "xy" is missing.')
-  
-  
-  xy_unique <- unique(xy[,c("x","y")])
-  
-  if(is.SpatRaster(r)){
-    
-    if(!missing(crs_xy)){
-      #as.matrix(xy) |> terra::project(crs_xy, crs(r)) |> as.data.table
-    }
-    
-    cells <- terra::cellFromXY(r,as.matrix(xy_unique))
-    vals <- terra::extract(r, cells)
-    out <- merge(xy, 
-                 cbind(xy_unique, vals), 
-                 by=c("x", "y"), sort=FALSE)
-
-  } else if (is.cube(r)){
-    
-    if(!missing(crs_xy)){
-      #...
-    }
-    
-    vals <- gdalcubes::extract_geom(r,  sf::st_as_sf(x=xy_unique, coords=c("x","y"), crs=gdalcubes::srs(r)))
-    out <- merge(xy, 
-                 subset(cbind(xy_unique, vals), select=-c(FID, time)),
-                 by=c("x", "y"), sort=FALSE)
-  } else (stop("r must be SpatRaster of data cube object"))
-  
-  return(out)
-  
-}
-  
-  
-#' Extract from generic raster
-#' 
-#' Generic function to extract from SpatRaster or data cube object
+#' @import terra 
 #' 
 #' @export
 #' 
-#' @importFrom terra extract project
-#' @importFrom gdalcubes extract_geom
-#' @importFrom sf st_as_sf
+#' @param r a SpatRaster or data.cube raster object.
+#' @param obj output of [matchCI()].
+#' @param fun function to summarize extracted data by line or polygon geometries. See [terra::extract()].
+#' @param method character. Method for extracting values for point geometries. See [terra::extract()].
+#' @param ... additional arguments to `fun`.
 #' 
-#' @param x SpatRaster or data cube
-#' @param y SpatVector or sf. Additionally, if x is SpatRaster, see possibilities in \code{terra::extract}
-#' @param fun function to summarize by line or polygon geometry
-#' @param method method for extracting values with points
-#' @param reduce_time see \code{gdalcubes::extract_geom}
-#' @param na.rm additional argument to \code{fun}
-#' @param names.out not implemented
-#' @param ... Additional arguments passed to \code{terra::extract} or \code{gdalcubes::extract_geom}
+#' @returns data.table of extracted raster values for control-impact pairs.
 #' 
-#' @returns data.frame, matrix or SpatVector (see \code{terra::extract} or \code{gdalcubes::extract_geom})
-#' 
-extractGeneric <- function(x, y, fun=mean, method="simple", reduce_time=TRUE, names.out=NULL, ...){
+extractMatches <- function(r, obj, fun, method="simple", ...){
   
-  if(is.character(x)){
-    x <- rast(x)
+  spat.ref <- obj$spat.ref
+  
+  if(is.SpatRaster(spat.ref)){
+    
+    matches <- obj$matches
+    matches_cellnr <- matches$cell
+    matches_crs <- terra::crs(spat.ref)
+    matches_xy <- terra::xyFromCell(spat.ref, matches_cellnr)
+    
+    xy_unique <- unique(matches_xy)
+    
+    if(is.SpatRaster(r)){
+      xy_unique_proj <- terra::project(xy_unique, from=spat.ref, to=r)
+      vals <- terra::extract(r, xy_unique_proj, method=method)
+      vals <- cbind(xy_unique, vals)
+    } else if (is.cube(r)){
+      xy_unique_sf <- sf::st_as_sf(x=as.data.frame(xy_unique), coords=c("x","y"), crs=terra::crs(spat.ref), remove=FALSE)
+      vals <- gdalcubes::extract_geom(r, xy_unique_sf, merge=TRUE, drop_geom=TRUE)
+      vals <- subset(vals, select=-c(time))
+    } 
+    out <- merge(cbind(matches,matches_xy), 
+                 vals, 
+                 by=c("x", "y"), sort=FALSE) 
+    
+    return(subset(out, select=-c(x, y)))
   }
   
-  if(is.SpatRaster(x)){
+  if(is.SpatVector(spat.ref)){
     
-    if(is.sf(y)) y <- terra::vect(y)
-    if(is.SpatVector(y)) if(crs(x) != crs(y)) y <- terra::project(y,x)
+    matches <- obj$matches
     
-    out <- terra::extract(x, y, 
-                          fun=fun, 
-                          method=method, 
-                          ...)
-    
-  } else if (is.cube(r)){
-    
-    if(is.SpatVector(y)) y <- sf::st_as_sf(y)
-    out <- gdalcubes::extract_geom(x, y, FUN=fun, reduce_time=reduce_time, ...)
+    if(is.SpatRaster(r)){
+      spat.ref_proj <- terra::project(spat.ref, r)
 
-  } else {
-    stop("x must be SpatRaster of data cube object")
+      if(terra::is.polygons(spat.ref) | terra::is.lines(spat.ref)){
+        if(missing(fun)) fun <- mean
+        vals <- terra::extract(r, spat.ref_proj, fun=fun, bind=TRUE, ...)
+      } else{
+        if(missing(method)) method="near"
+        vals <- terra::extract(r, spat.ref_proj, method=method, bind=TRUE, ...)
+      }
+    } else if (is.cube(r)){
+      
+      spat.ref_sf <- sf::st_as_sf(spat.ref)
+
+      if(terra::is.polygons(spat.ref) | terra::is.lines(spat.ref)){
+        if(missing(fun)) fun <- mean
+        vals <- gdalcubes::extract_geom(r, spat.ref_sf, FUN=fun, reduce_time=TRUE, merge=TRUE, drop_geom=TRUE)
+        
+      } else{
+
+        vals <- gdalcubes::extract_geom(r, spat.ref_sf, merge=TRUE, drop_geom=TRUE)
+        vals <- subset(vals, select=-time)
+      }
+    }
+    
+    out <- merge(matches,
+                 vals, 
+                 sort=FALSE)
+    
+    return(out)
   }
-  
-  if(!is.null(names.out)){
-    nnames <- length(names.out)
-    names(out)[(length(names(out))-nnames+1):length(names(out))] <- names.out
-  } 
-  return(out)
-  
-}  
+}
+
