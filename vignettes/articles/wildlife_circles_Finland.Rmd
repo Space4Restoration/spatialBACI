@@ -9,7 +9,7 @@ knitr::opts_chunk$set(
 )
 ```
 
-```{r setup}
+```{r setup, message=FALSE}
 library(spatialBACI)
 library(terra)
 ```
@@ -73,10 +73,11 @@ There is no specific function in the `spatialBACI` package to extract **human po
 popdens_url <- "https://data.worldpop.org/GIS/Population_Density/Global_2000_2020_1km/2016/FIN/fin_pd_2016_1km.tif"
 ```
 
-**Percentage forest cover** was calculated by Terraube et al. (2020) from the CORINE Land Cover (CLC) dataset for the year 2012. We downloaded the CLC dataset for the year 2012 from the Finnish Environment Institute (SYKE) website <https://www.syke.fi/en/environmental-data/downloadable-spatial-datasets#corine-land-cover> (CORINE Land Cover 2012, 20 m geotiff (zip) (latest update 30.9.2014)) and provided the extracted data with the `spatialBACI` package. Extracting the forest fraction over each wildlife circle requires knowledge of the values under which the forest classes are stored (in this case values 22 through 29), and a custom function `forestFrac_function`. 
+**Percentage forest cover** was calculated by Terraube et al. (2020) from the CORINE Land Cover (CLC) dataset for the year 2012. We downloaded the CLC dataset for the year 2012 from the [Finnish Environment Institute (SYKE) website](https://www.syke.fi/en/environmental-data/downloadable-spatial-datasets#corine-land-cover) (CORINE Land Cover 2012, 20 m geotiff (zip) (latest update 30.9.2014)) and downloaded and unzipped it to a local directory `D:/Data`. Extracting the forest fraction over each wildlife circle requires knowledge of the values under which the forest classes are stored (in this case values 22 through 29), and a custom function `forestFrac_function`. 
 
 ```{r}
-clc_filename <- system.file("extdata/clc2012_fi20m.tif", package="spatialBACI")
+
+clc_filename <- file.path("D:/Data/spatialBACI","clc2012_fi20m.tif")
 forestFrac_function <- function(x){sum(x %in% 22:29)/length(x)}
 ```
 
