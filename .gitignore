@@ -1,7 +1,6 @@
 .Rproj.user/
 .Rbuildignore
 .Rhistory
-docs
 inst/doc
 pkg_tests.R
 pkg_dev.R

@@ -1,0 +1,77 @@
+# Collate matching layers
+
+This function serves a a pre-processing step to transform the spatial
+layers of candidate control and input units, and the different spatial
+layers of matching covariates, into a format suitable for control-impact
+matching.
+
+## Usage
+
+``` r
+collate_matching_layers(x, vars_list, colname.treatment)
+```
+
+## Arguments
+
+- x:
+
+  SpatRaster or SpatVector of candidate control and impact units. E.g.,
+  the output of \[create_control_candidates()\] for SpatRaster.
+
+- vars_list:
+
+  List of matching variables and, optionally, associated summarizing
+  functions. See Details.
+
+- colname.treatment:
+
+  if x is a SpatRaster, character identifying the column name that will
+  be assigned to the treatment variable. Defaults to "treatment".
+
+## Value
+
+a named list. The list element \`data\` is a data.table (see Details),
+list element \`spat.ref\` corresponds to \`x\`.
+
+## Details
+
+The argument \`vars_list\` is used to provide the different matching
+covariates, with each list element of \`vars_list\` corresponding to a
+(set of) covariates.
+
+If \`x\` is a SpatRaster, list elements of \`vars_list\` should be
+SpatRaster or \`gdalcubes\` data cube objects. Each layer of these
+raster datasets will be considered as a matching covariate.
+
+If \`x\` is a SpatVector, list elements of \`vars_list\` can be
+SpatVector, data.frame, or data.table object that can be linked (through
+geometry or common attributes/column names) to x. Alternatively, list
+elements can refer to raster datasets (SpatRaster or data cube). In this
+case, each list element must by itself be a list with minimum list
+element named \`data\` corresponding to the raster dataset. Additional
+list elements can then be provided to define how the raster data is
+summarized over the vector units of analysis in \`x\`. If geometries in
+\`x\` are polygons, this summarizing function can be provided by the
+additional list element named \`fun\` (e.g., \`fun="mean"\`). More
+additional list elements can be provided as arguments to \`fun\`, for
+example \`na.rm=TRUE\`. If geometries in \`x\` are points, the
+additional list element named \`method\` can be defined to specify
+nearest neighbour (\`method="simple"\`) of bilinear interpolation
+(\`method="bilinear"\`) extraction from the raster dataset. In the
+absence of an additional list element specifying \`fun\` or \`method\`,
+nearest neighbour extraction for point geometries is performed, which
+will be the polygon centroids if geometries in \`x\` are polygons.
+Combinations of SpatVector, data.frame/data.table and/or
+raster/summarizing function pairs are allowed.
+
+The output object is a names list with elements named \`data\` and
+\`spat.ref\`. The list element \`data\` contains a data.table with rows
+corresponding to the spatial units of analysis defined in \`x\`. If
+\`x\` is a SpatRaster, columns indicate the unique ID corresponding to
+cell number (column named "cell"), whether a unit of analysis is a
+candidate control (0) or impact (1) unit (in column with name specified
+in \`colname.treatment\`), and the values of the different matching
+covariates (in column names corresponding to the layer names of the
+matching covariates raster dataset). If \`x\` is a SpatVector, columns
+refer to unique ID and treatment (defined in \`x\` attributes), and the
+different matching covariates.
