@@ -36,7 +36,7 @@ evaluate_matching <- function(match_object, covariate_overlap=TRUE, love_plot=TR
   var.names <- names(obj$X)
   
   ## Balance measures and Sample size
-  cobalt::bal.tab(match_object) |> print()
+  cobalt::bal.tab(obj) |> print()
   wait <- readline(prompt = "Press <Enter> to continue.")
   
   ## Covariates overlap

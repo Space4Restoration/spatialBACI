@@ -1,0 +1,11 @@
+bibentry(
+  bibtype = "Article",
+  title = "Streamlining counterfactual ecosystem restoration and conservation impact evaluation in R with the spatialBACI package",
+  author = c(
+    person("Jasper", "Van doninck"),
+    person("Wietske", "Bijker"),
+    person("Louise", "Willemen")
+  ),
+  Journal = "Biodiversity Data Journal",
+  year = "submitted"
+)

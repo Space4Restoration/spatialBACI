@@ -38,7 +38,6 @@ URL: https://space4restoration.github.io/spatialBACI/, https://github.com/Space4
 BugReports: https://github.com/Space4Restoration/spatialBACI/issues
 Encoding: UTF-8
 LazyData: true
-LazyDataCompression: xz
 RoxygenNote: 7.3.3
 Suggests: 
     knitr,
