@@ -14,16 +14,15 @@
 ## Citation
 
 Source:
-[`DESCRIPTION`](https://github.com/Space4Restoration/spatialBACI/blob/HEAD/DESCRIPTION)
+[`inst/CITATION`](https://github.com/Space4Restoration/spatialBACI/blob/HEAD/inst/CITATION)
 
-Van doninck J (2026). *spatialBACI: Spatial Before-After-Control-Impact
-assessment*. R package version 1.0.0,
-<https://space4restoration.github.io/spatialBACI/>.
+Van doninck J, Bijker W, Willemen L (submitted). “Streamlining
+counterfactual ecosystem restoration and conservation impact evaluation
+in R with the spatialBACI package.” *Biodiversity Data Journal*.
 
-    @Manual{,
-      title = {spatialBACI: Spatial Before-After-Control-Impact assessment},
-      author = {Jasper {Van doninck}},
-      year = {2026},
-      note = {R package version 1.0.0},
-      url = {https://space4restoration.github.io/spatialBACI/},
+    @Article{,
+      title = {Streamlining counterfactual ecosystem restoration and conservation impact evaluation in R with the spatialBACI package},
+      author = {Jasper {Van doninck} and Wietske Bijker and Louise Willemen},
+      journal = {Biodiversity Data Journal},
+      year = {submitted},
     }

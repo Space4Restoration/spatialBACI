@@ -1,6 +1,6 @@
 ---
 title: "BACI evaluation Baviaanskloof"
-author: Jasper Van doninck, Trinidad del Río-Mena, Wieteke Willemen, Wietske Bijker
+author: Jasper Van doninck, Trinidad del Río-Mena, Wietske Bijker, Louise Willemen
 ---
 
 ```{r, include = FALSE}

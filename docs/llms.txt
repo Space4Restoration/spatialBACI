@@ -1,7 +1,7 @@
 # spatialBACI
 
-The `spatialBACI` package aims to simplify the counterfactual impact
-evaluation of ecosystem conservation/restoration actions, using
+The `spatialBACI` package for *R* aims to simplify the counterfactual
+impact evaluation of ecosystem conservation/restoration actions, using
 geospatial datasets in raster and vector format.
 
 The main possibilities of the package include:
@@ -13,7 +13,7 @@ The main possibilities of the package include:
 ## Package installation
 
 The latest version of the `spatialBACI` package can be installed from
-[GitHub](https://github.com/) using the
+[GitHub](https://github.com/Space4Restoration/spatialBACI) using the
 [`devtools`](https://cran.r-project.org/package=devtools) package:
 
 ``` r
@@ -23,9 +23,12 @@ install_github("Space4Restoration/spatialBACI", dependencies=TRUE)
 
 ## Usage
 
-See examples for use with raster units of analysis and vector units of
-analysis under “Articles” at
-<https://space4restoration.github.io/spatialBACI/>
+See the [BACI evaluation
+Baviaankloof](https://space4restoration.github.io/spatialBACI/articles/BACI_Baviaanskloof.html)
+article for an example of use of the `spatialBACI` package with raster
+units of analysis, and the [Wildlife circles
+Finland](https://space4restoration.github.io/spatialBACI/articles/wildlife_circles_Finland.html)
+article for an example of vector units of analysis.
 
 ## Contribute
 
@@ -38,8 +41,8 @@ to report issues, request features, or suggest improvements.
 The package was initiated as part of the
 [Space4Restoration](https://itc.nl/space4restoration) project of
 [ITC](https://ITC.nl). Further development was supported through the
-OpenCoRe project funded through the Open Science Fund of the [Dutch
-Research Council](https://www.nwo.nl/en)
+OpenCoRe project funded through the Open Science Fund (OSF23.2.091 ) of
+the [Dutch Research Council](https://www.nwo.nl/en).
 
 ## Contact
 
